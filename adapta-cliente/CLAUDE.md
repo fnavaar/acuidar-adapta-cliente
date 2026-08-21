@@ -21,7 +21,7 @@ especialmente o champion designado pela Acuidar — na execução das tarefas da
    continuam disponíveis: `proxima-task`, `debug-task`, `concluir-task` e `status`.
 3. Fases concluídas ficam em `05_entregas/`. A próxima fase chega quando a atual fecha na
    reunião com o consultor.
-4. O repositório público do projeto é `https://github.com/fnavaar/acuidar-adapta-cliente`.
+4. **Repo do cliente:** `https://github.com/fnavaar/acuidar-adapta-cliente`.
    Publicações futuras dependem da liberação explícita da consultoria.
 
 ## Regras para você (Claude)
