@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "adapta-cliente-handoff/v1",
+  "phase": 1,
+  "versions": {
+    "package": "0.1.0",
+    "adapta": "0.7.0",
+    "adaptaCliente": "0.2.0"
+  },
+  "generatedAt": "2026-08-21T12:28:14.212Z",
+  "files": [
+    {
+      "path": "04_fase-atual/README.md",
+      "sha256": "57843f15414253dfbcc46b12fc0860f4aa0481fefdd8440eca68b80a3663f4cc",
+      "classification": "template-publico"
+    },
+    {
+      "path": "04_fase-atual/fase.md",
+      "sha256": "361fa124a289b1e4d0a15012d18fad3bb621675ed9f287dfa3f67b74d6de9490",
+      "classification": "fase-atual"
+    },
+    {
+      "path": "04_fase-atual/specs/spec-f1-001-fluxo-direto-de-registro.md",
+      "sha256": "3dff859e5a0cb4338f7f60f63c6cea15c893ed9602443ef18a746aa001d68c63",
+      "classification": "spec-fase-atual"
+    },
+    {
+      "path": "04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md",
+      "sha256": "c777841b496df46aed5158ced009d137748c43bb6914368eafe8ada7c69d11c2",
+      "classification": "spec-fase-atual"
+    },
+    {
+      "path": "04_fase-atual/specs/spec-f1-003-painel-de-cobertura-operacional.md",
+      "sha256": "59b3eaac04b27075039dc2670fcca2d4e3c06febc3f0a68e719e42e911416ff1",
+      "classification": "spec-fase-atual"
+    }
+  ]
+}
