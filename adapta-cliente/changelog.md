@@ -7,5 +7,5 @@
 
 ## Registro
 
-- 2026-08-21 · Adapta Native · Pasta operacional local preparada para a fase 1; nenhuma publicação ou repositório remoto foi criado.
+- 2026-08-21 · Adapta Native · Pasta operacional publicada em `https://github.com/fnavaar/acuidar-adapta-cliente` para a fase 1.
 - 2026-08-21 · Adapta Native · Oito tasks de desbloqueio e três SPECs da fase 1 foram disponibilizadas em `04_fase-atual/`.

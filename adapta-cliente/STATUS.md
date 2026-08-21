@@ -8,6 +8,7 @@
 - **Fase atual:** 1 — Registro mínimo confiável e cobertura operacional · aberta em 2026-08-21 · fechamento a definir com a consultoria.
 - **Objetivo desta fase:** provar o fluxo de uma reunião revisada até uma ocorrência única confirmada, com recuperação segura e visão de cobertura sem Health Score.
 - **No prazo?** em risco controlado — dependências de contrato/API, chave de unidade, RLS e superfície autorizada ainda exigem evidência.
+- **Canal do projeto:** `https://github.com/fnavaar/acuidar-adapta-cliente`.
 
 ## Progresso da fase
 
