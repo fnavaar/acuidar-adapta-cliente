@@ -3,14 +3,14 @@
 - task_id: F1-T02
 - champion: Luis Carlos - CTO
 - spec: 04_fase-atual/specs/spec-f1-001-fluxo-direto-de-registro.md §BLOQUEIO-F1-001-B
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
-- teste_humano: pendente
-- verificacao_automatica: pendente
-- aprendizado: pendente
-- ultima_acao: Decisões do champion recebidas e documentadas para F1-T02
-- proxima_acao: Aguardar autorização do champion para gravar decisão no repositório
-- atualizado_em: 2026-08-25T12:35:00-03:00
+- etapa: concluida
+- autorizacao_implementacao: confirmada — 2026-08-25T12:49:00-03:00 — "sim" do champion autorizou gravar decisões no repo
+- teste_humano: aprovado — 2026-08-26T12:19:00-03:00 — "pode concluir formalmente" do champion
+- verificacao_automatica: passou — decisões gravadas em estado-atual.md, changelog.md e SPEC-1-001; task marcada em fase.md; STATUS atualizado (1/8)
+- aprendizado: sem_sinal:task de decisão de negócio incorporada à SPEC-1-001; sem padrão técnico reutilizável
+- ultima_acao: Task F1-T02 concluída formalmente
+- proxima_acao: Aguardar nova solicitação do champion
+- atualizado_em: 2026-08-26T12:23:00-03:00
 
 ## Decisões documentadas — F1-T02
 
