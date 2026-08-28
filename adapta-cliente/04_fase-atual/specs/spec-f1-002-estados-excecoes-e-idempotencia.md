@@ -13,6 +13,49 @@
 - **Decisões já fechadas:** exceção manual é permitida com justificativa e aprovação de usuário de maior patente; Champion consulta e edita dentro da matriz aprovada; duplicidade e falha não podem produzir sucesso falso.
 - **Bloqueios:** **BLOQUEIO-F1-002-A** — Champion/cliente deve registrar a matriz nominal de perfis ou grupos e as permissões `consultar`, `editar rascunho`, `solicitar exceção`, `aprovar exceção` e `confirmar criação`. **BLOQUEIO-F1-002-B** — deve definir se uma divergência de data bloqueia sempre ou pode receber exceção, o prazo de decisão e o destino de uma solicitação sem aprovador disponível. **BLOQUEIO-F1-002-C** — o contrato do Portal deve confirmar se há consulta por chave de origem ou como localizar ocorrência após timeout; sem essa prova, nenhuma política de retry é segura.
 
+## Decisões do Champion aprovadas (F1-T05, 2026-08-28)
+
+> Política de exceção de data aprovada pelo Champion (Luis Carlos - CTO) e gravada em `06_notas/politica-excecao-de-data.md`. Resolve o BLOQUEIO-F1-002-B.
+
+### 1. Regra de aprovação (CA-1-07)
+- Solicitação **não pode ser aprovada pelo próprio solicitante**.
+- Aprovação por: usuário com perfil **hierarquicamente superior**, OU **gestor/administrador autorizado** previamente definido.
+- O aprovador deve ser **sempre pessoa distinta** do solicitante. Ex.: Solicitante = Consultor; Aprovador = Gestor, Coordenador ou Administrador.
+
+### 2. Quando a divergência de data bloqueia
+| Diferença | Comportamento |
+|---|---|
+| Mesma data | Aprovado normalmente |
+| Até 1 dia | Solicita justificativa e envia para análise de exceção |
+| Superior a 1 dia | Bloqueia o processo automaticamente |
+
+O sistema **não encerra o caso automaticamente**; permanece em **"Pendente de regularização"**.
+
+### 3. Quando admite exceção
+- Exceção permitida com **justificativa comprovável**.
+- Aceitáveis: erro de preenchimento/registro; remarcação não atualizada corretamente; falha técnica na plataforma/integração; problema de conexão/indisponibilidade comprovada; outro motivo excepcional aprovado pelo responsável.
+- **Não aceito:** justificativa genérica ("esqueci de atualizar", "foi um engano") sem explicação clara.
+
+### 4. Prazo de decisão da exceção
+- Responsável responde em **até 24 horas úteis**.
+- Durante o prazo: status **"Pendente de aprovação"**; processo bloqueado para conclusão definitiva.
+- Após o prazo: **lembrete automático** ao aprovador.
+- Sem resposta após **48 horas úteis**: **escalada automática** a responsável superior ou administrador.
+
+### 5. Destino da solicitação sem aprovador disponível
+- Aprovador principal indisponível → **aprovador substituto** predefinido.
+- Hierarquia: **Aprovador principal → Aprovador substituto → Administrador/Gestor**.
+- Nenhum disponível → permanece registrada, status **"Aguardando definição de responsável"**; sistema notifica o administrador.
+- **Nenhuma alteração definitiva é aprovada automaticamente pela ausência de um aprovador.**
+
+### 6. Registro obrigatório da divergência
+- Data oficial; data informada; quantidade de dias de divergência; justificativa; solicitante; aprovador responsável; data/hora da decisão; resultado da solicitação.
+
+### 7. Exemplos (critério de aceite)
+- **Exemplo 1 — Aprovado:** remarcação com falha técnica comprovada, divergência 1 dia, aprovado pelo gestor → exceção registrada, processo segue.
+- **Exemplo 2 — Rejeitado:** divergência 3 dias, justificativa "foi apenas um engano" sem evidência → rejeitado, caso bloqueado/pendente de correção.
+- **Exemplo 3 — Sem aprovador:** aprovador principal ausente → substituto → gestor/administrador; sem responsável, status "AGUARDANDO DEFINIÇÃO DE APROVADOR"; sistema notifica; nenhuma aprovação automática.
+
 ## Resultado observável
 
 O Champion consegue identificar o estado de um registro; solicita uma exceção de data com motivo; somente o aprovador autorizado decide; um timeout gera `possivel_duplicidade`; e a mesma reunião não é criada novamente até existir conferência documentada do destino.
@@ -44,6 +87,10 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 | RN-1-08 | data diverge e motivo é submetido | mover a `aguardando_aprovacao_de_excecao` | não permite autoaprovação | DC-004 |
 | RN-1-09 | timeout/resposta inconclusiva | mover a `possivel_duplicidade` e consultar destino | nenhuma nova escrita | RQ-005, RQ-008 |
 | RN-1-10 | falha comprovada sem criação | mover a `falha_de_gravacao` e permitir retomada humana | reutilizar a mesma chave após confirmação de ausência | Fase 1 |
+| RN-1-11 | divergência de data de até 1 dia | solicitar justificativa e enviar para análise de exceção | nenhuma | Champion F1-T05 |
+| RN-1-12 | divergência de data superior a 1 dia | bloquear o processo; permanece "Pendente de regularização" | exceção apenas com justificativa comprovável e aprovação | Champion F1-T05 |
+| RN-1-13 | exceção sem resposta em 24h úteis | enviar lembrete automático ao aprovador | escalar após 48h úteis | Champion F1-T05 |
+| RN-1-14 | aprovador principal indisponível | encaminhar ao substituto predefinido; se nenhum, notificar administrador | nenhuma aprovação automática pela ausência | Champion F1-T05 |
 
 ## Fluxo e regras
 
@@ -71,7 +118,8 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 
 ## Checklist de execução
 
-- [ ] Matriz de perfis e política de exceção foram aprovadas pelo Champion/cliente.
+- [x] Política de exceção de data foi aprovada pelo Champion (F1-T05, 2026-08-28).
+- [ ] Matriz de perfis foi aprovada pelo Champion/cliente (BLOQUEIO-F1-002-A).
 - [ ] Todas as transições inválidas são recusadas e registradas.
 - [ ] A chave idempotente é persistida antes de criar a ocorrência.
 - [ ] Timeout resulta em conferência, não em retry cego.
@@ -102,14 +150,14 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 - **Como demonstrar:** solicitar exceção, aprová-la com perfil distinto, confirmar uma ocorrência e simular timeout/reenvio.
 - **Como operar depois:** Champion revisa filas e exceções; perfil superior decide exceções; administrador revisa acesso.
 - **Como monitorar:** contagem de `aguardando_aprovacao_de_excecao`, `falha_de_gravacao` e `possivel_duplicidade`, além de tentativas de transição negadas.
-- **Pendência conhecida:** bloqueios de matriz, política e consulta de recuperação.
+- **Pendência conhecida:** bloqueios de matriz (A) e consulta de recuperação (C).
 
 ## Tasks vinculadas
 
 | ID | Task | Dono | SPEC | Critério | Recorte da prova | Evidência esperada | Pré-condições | Status |
 |---|---|---|---|---|---|---|---|---|
 | F1-T04 | Formalizar matriz de perfis e RLS do fluxo | Administrador do Portal | §Contexto — BLOQUEIO-F1-002-A | matriz e conta negativa de teste completas | §Checklist; CA-1-10; TDD RED/REGRESSÃO | matriz datada e teste de acesso negado | política de acesso | ☐ aberta |
-| F1-T05 | Aprovar política de exceção de data | Champion | §Contexto — BLOQUEIO-F1-002-B | bloqueio, exceção, prazo e ausência de aprovador definidos | §Fluxo 3–6; CA-1-07 | política com três exemplos | Champion designado | ☐ aberta |
+| F1-T05 | Aprovar política de exceção de data | Champion | §Contexto — BLOQUEIO-F1-002-B | bloqueio, exceção, prazo e ausência de aprovador definidos | §Fluxo 3–6; CA-1-07 | política com três exemplos | Champion designado | ✅ concluída (2026-08-28) |
 | F1-T06 | Provar consulta de recuperação após timeout | Administrador do Portal | §Contexto — BLOQUEIO-F1-002-C | consulta pós-timeout comprovada em teste | §Dados; CA-1-09; TDD REGRESSÃO | consulta sanitizada | F1-T01 concluída: contrato e ambiente de teste | ☐ aberta — Leva 2/F1-T01 |
 
 ## Emendas
@@ -118,3 +166,4 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 
 | Data | Origem do sinal | Micro-spec/task | Motivo |
 |---|---|---|---|
+| 2026-08-28 | Champion (Luis Carlos) | F1-T05 | Aprovação da política de exceção de data (bloqueio >1 dia, exceção com justificativa comprovável, prazo 24h/48h, aprovador substituto); resolve BLOQUEIO-F1-002-B |
