@@ -3,14 +3,14 @@
 - task_id: F1-T05
 - champion: Luis Carlos - CTO
 - spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-B
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-08-28T08:51:00-03:00 — Champion forneceu todas as decisões da política de exceção de data
-- teste_humano: pendente
-- verificacao_automatica: passou — política documentada em estado-atual.md e SPEC-1-002
-- aprendizado: pendente
-- ultima_acao: Política de exceção de data documentada (F1-T05)
-- proxima_acao: Aguardar teste humano do champion
-- atualizado_em: 2026-08-28T08:51:00-03:00
+- teste_humano: aprovado — 2026-08-28T08:53:00-03:00 — "sim" do champion confirmou a política documentada
+- verificacao_automatica: passou — política documentada em estado-atual.md, 06_notas/politica-excecao-de-data.md e SPEC-1-002; task marcada em fase.md; STATUS atualizado (2/8)
+- aprendizado: sem_sinal:task de política de negócio incorporada à SPEC-1-002; sem padrão técnico reutilizável
+- ultima_acao: Task F1-T05 concluída formalmente
+- proxima_acao: Aguardar nova solicitação do champion
+- atualizado_em: 2026-08-28T08:55:00-03:00
 
 ## Decisões documentadas — F1-T02 (referência, concluída)
 
