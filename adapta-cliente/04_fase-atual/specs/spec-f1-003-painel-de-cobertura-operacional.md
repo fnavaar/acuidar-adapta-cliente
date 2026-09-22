@@ -13,6 +13,47 @@
 - **Decisões já fechadas:** Scorecard é a métrica norte, mas pesos, faixas e fórmula de Health Score ficam fora; fase 1 entrega somente cobertura/completude; Champion consulta e edita conforme matriz aprovada.
 - **Bloqueios:** **BLOQUEIO-F1-003-A** — Champion deve aprovar a janela de análise, a regra de reunião elegível e a definição operacional dos estados `reuniao_pendente`, `relato_pendente`, `ocorrencia_pendente`, `ocorrencia_incompleta` e `ocorrencia_confirmada`. **BLOQUEIO-F1-003-B** — administrador deve identificar fontes autorizadas, campos e latência de atualização para reuniões e ocorrências. **BLOQUEIO-F1-003-C** — o destino do painel e seus controles RLS ainda não foram escolhidos; o Ethos não pode publicar uma dashboard nem conceder acesso.
 
+## Decisões do Champion aprovadas (F1-T07, 2026-09-22)
+
+> Política de datas, elegibilidade e estados aprovada pelo Champion (Luis Carlos - CTO) e gravada em `06_notas/politica-datas-elegibilidade-estados.md`. Resolve o BLOQUEIO-F1-003-A.
+
+### 1. Janela de análise
+- Análise **por mês e separadamente para cada unidade**; apuração mensal por unidade, sem misturar unidades.
+
+### 2. Reunião elegível
+- São elegíveis **todas as reuniões registradas no sistema**, independentemente do estado: cadastradas, em andamento, concluídas, canceladas, remarcadas e excluídas.
+- Nenhuma reunião elegível é perdida ou descartada da análise por seu estado; o registro permanece rastreável.
+
+### 3. Definição operacional dos 6 estados
+| Estado | Condição aprovada |
+|---|---|
+| `reuniao_pendente` | Reunião existe no Google Calendar, é elegível, mas ainda não foi concluída. |
+| `relato_pendente` | Reunião concluída normalmente, mas o resumo/relato ainda não foi cadastrado. |
+| `ocorrencia_pendente` | Reunião cancelada ou reagendada exige ocorrência e ela ainda não foi cadastrada. |
+| `ocorrencia_incompleta` | Reunião cancelada/reagendada com ocorrência cadastrada, porém faltam informações obrigatórias. |
+| `ocorrencia_confirmada` | Reunião cancelada/reagendada com ocorrência completa, com todos os campos obrigatórios preenchidos e válidos. |
+| `dados_indisponiveis` | Não foi possível obter informações suficientes para identificar a situação da reunião (ex.: API não retornou dados). |
+
+### 4. Regra para canceladas e remarcadas
+- Canceladas/remarcadas **continuam elegíveis** e permanecem na análise de cobertura.
+- Direcionadas ao fluxo de ocorrência: sem ocorrência → `ocorrencia_pendente`; com ocorrência incompleta → `ocorrencia_incompleta`; com ocorrência completa → `ocorrencia_confirmada`.
+- A reunião original permanece rastreável mesmo com nova data de remarcação.
+
+### 5. Regra para `dados_indisponiveis`
+- Não significa que a reunião deixou de existir ou deve ser descartada; permanece elegível e é identificada separadamente.
+- O sistema **não infere nem preenche informações ausentes por suposição**.
+
+### 6. Exclusão da contagem
+- **Sem timestamp válido (data/hora do registro):** a reunião **não entra na contagem mensal** — não é possível determinar o período.
+- **Com timestamp válido e ocorrência incompleta:** a reunião **continua na contagem** como elegível; a ocorrência permanece `ocorrencia_incompleta` (nunca confirmada).
+
+### 7. Campos obrigatórios da ocorrência
+- `ocorrencia_confirmada` exige todos os campos obrigatórios preenchidos e válidos; qualquer campo ausente, inválido ou incompleto → `ocorrencia_incompleta`.
+- A lista de campos obrigatórios é regra fixa do sistema, aplicada de forma padronizada a todas as unidades.
+
+### 8. Regra geral de não perda
+- Toda reunião com data e horário válidos permanece registrada e rastreável, independentemente do status; sem informação suficiente → `dados_indisponiveis`, nunca classificação por suposição.
+
 ## Resultado observável
 
 O Champion abre a visão autorizada para um período de teste, identifica uma unidade em cada estado definido e chega ao registro/ocorrência de origem. A tela usa os rótulos “Cobertura operacional” e “Qualidade do registro”; não contém score, peso, faixa de risco ou recomendação de Health Score.
@@ -44,6 +85,10 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 | RN-1-13 | ocorrência confirmada com ID verificável | `ocorrencia_confirmada` | nenhuma | SPEC-1-001 |
 | RN-1-14 | fonte sem timestamp ou fora da latência aprovada | `dados_indisponiveis` | não inferir pendência | RQ-007 |
 | RN-1-15 | exibição da visão | rotular cobertura/qualidade, nunca Health Score | nenhuma | DC-001; RQ-009 |
+| RN-1-16 | janela de análise | apuração por mês e por unidade, separadamente | nenhuma mistura de unidades | Champion F1-T07 |
+| RN-1-17 | reunião sem timestamp válido | fora da contagem mensal | nenhuma | Champion F1-T07 |
+| RN-1-18 | reunião cancelada/remarcada | permanece elegível; segue fluxo de ocorrência (pendente → incompleta → confirmada) | nunca eliminada da base | Champion F1-T07 |
+| RN-1-19 | informação insuficiente | `dados_indisponiveis`, sem inferência ou suposição | nenhuma | Champion F1-T07 |
 
 ## Fluxo e regras
 
@@ -69,7 +114,7 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 
 ## Checklist de execução
 
-- [ ] Estados, janela e regra de reunião elegível foram aprovados pelo Champion.
+- [x] Estados, janela e regra de reunião elegível foram aprovados pelo Champion (F1-T07, 2026-09-22).
 - [ ] Fontes, campos, latência e acessos de leitura foram documentados pelo administrador.
 - [ ] Destino do painel e RLS foram autorizados.
 - [ ] Dados completos, incompletos e indisponíveis foram demonstrados.
@@ -100,13 +145,13 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 - **Como demonstrar:** filtrar o período de teste, abrir uma unidade por estado, mostrar fonte/timestamp e validar que não há escrita nem Health Score.
 - **Como operar depois:** Champion revisa pendências e completude; administrador acompanha disponibilidade das fontes.
 - **Como monitorar:** timestamp da última atualização, volume de `dados_indisponiveis`, itens incompletos e acesso negado.
-- **Pendência conhecida:** definição operacional, fontes/latência e destino/RLS ainda precisam ser fornecidos.
+- **Pendência conhecida:** fontes/latência (B) e destino/RLS (C) ainda precisam ser fornecidos.
 
 ## Tasks vinculadas
 
 | ID | Task | Dono | SPEC | Critério | Recorte da prova | Evidência esperada | Pré-condições | Status |
 |---|---|---|---|---|---|---|---|---|
-| F1-T07 | Aprovar semântica da cobertura operacional | Champion | §Contexto — BLOQUEIO-F1-003-A | janela, elegibilidade e seis estados definidos | §Dados; CA-1-11 a CA-1-13 | decisão com exemplos | amostra mínima | ☐ aberta |
+| F1-T07 | Aprovar semântica da cobertura operacional | Champion | §Contexto — BLOQUEIO-F1-003-A | janela, elegibilidade e seis estados definidos | §Dados; CA-1-11 a CA-1-13 | decisão com exemplos | amostra mínima | ✅ concluída (2026-09-22) |
 | F1-T08 | Documentar fontes, latência, destino e RLS do painel | Responsável técnico do cliente | §Contexto — BLOQUEIO-F1-003-B/C | fonte, campo, latência, destino e RLS autorizados | §Dados; CA-1-12, CA-1-14 | mapa e autorização sem segredo | responsável autorizado | ☐ aberta |
 
 ## Emendas
@@ -115,3 +160,4 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 
 | Data | Origem do sinal | Micro-spec/task | Motivo |
 |---|---|---|---|
+| 2026-09-22 | Champion (Luis Carlos) | F1-T07 | Aprovação da janela de análise (mensal por unidade), elegibilidade (todas as reuniões) e definição dos 6 estados; resolve BLOQUEIO-F1-003-A |
