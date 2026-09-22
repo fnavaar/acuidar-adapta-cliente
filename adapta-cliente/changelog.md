@@ -7,6 +7,7 @@
 
 ## Registro
 
+- 2026-09-22 · Champion (Luis Carlos) · F1-T07 — Semântica da cobertura operacional aprovada: janela mensal por unidade; elegibilidade = todas as reuniões (inclusive canceladas, remarcadas e excluídas); 6 estados definidos (`reuniao_pendente`, `relato_pendente`, `ocorrencia_pendente`, `ocorrencia_incompleta`, `ocorrencia_confirmada`, `dados_indisponiveis`); sem timestamp = fora da contagem; sem inferência por suposição. Documentada em `06_notas/politica-datas-elegibilidade-estados.md` e incorporada à SPEC-1-003. BLOQUEIO-F1-003-A resolvido.
 - 2026-08-28 · Champion (Luis Carlos) · Task F1-T05 concluída: política de exceção de data aprovada e incorporada à SPEC-1-002 (bloqueio >1 dia, exceção com justificativa comprovável, prazo 24h/48h, aprovador substituto, solicitante não aprova). BLOQUEIO-F1-002-B resolvido.
 - 2026-08-28 · Champion (Luis Carlos) · F1-T05 — Política de exceção de data aprovada: bloqueio >1 dia; exceção com justificativa comprovável; prazo 24h úteis (escalada 48h); aprovador substituto se indisponível; solicitante não aprova. Documentada em `06_notas/politica-excecao-de-data.md` e incorporada à SPEC-1-002. BLOQUEIO-F1-002-B resolvido.
 - 2026-08-26 · Champion (Luis Carlos) · Task F1-T02 concluída: chave oficial da unidade, regra de elegibilidade, multiunidade, cancelamento e remarcação registradas e incorporadas à SPEC-1-001 (decisão datada com exemplos). BLOQUEIO-F1-001-B resolvido.
