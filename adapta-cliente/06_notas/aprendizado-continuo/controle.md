@@ -7,6 +7,7 @@
 
 ## Registro
 
+- 2026-09-30T17:15:00-03:00 · task F1-T08 · capturado:AP-2026-09-30-1715-http-send-body-bytes.md · `$http.send` no PocketBase v0.36 retorna `res.body` como bytes — `JSON.parse` direto falha silenciosamente; usar `res.json` ou `TextDecoder`. Prova antes/depois (v0.0.6 erro silencioso → v0.0.7 ok).
 - 2026-09-30T16:45:00-03:00 · task F1-T04 · capturado:AP-2026-09-30-1645-pocketbase-rls-404.md · Negação por updateRule no PocketBase retorna 404 (registro invisível ao perfil), não 403; deleteRule null = só superuser; fixtures de teste exigem migration de limpeza em contexto superuser.
 - 2026-09-30T16:28:00-03:00 · task F1-T03 · sem sinal reutilizável · task de autorização documental: os elementos (repositório, ambiente, deploy, segredos) já estavam em operação; o registro formal não revela causa, padrão ou orientação técnica reutilizável.
 - 2026-09-30T16:20:00-03:00 · task F1-T06 · capturado:AP-2026-09-30-1620-idempotencia-recuperacao.md · Recuperação pós-timeout: índice UNIQUE na chave de idempotência + consulta que distingue "não existe" de "não sei"; dúvida → inconclusivo, nunca retry cego.
