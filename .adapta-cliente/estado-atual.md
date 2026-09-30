@@ -1,16 +1,29 @@
 # Estado atual — Adapta Cliente
 
 - task_id: F1-T04
-- champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal)
+- champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal; mesmo champion para Acuidar e Dona Help)
 - spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-A
 - etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-09-30T16:31:00-03:00 — champion aceitou a sugestão de matriz ("Aceitar a sugestão")
 - teste_humano: aprovado — 2026-09-30T16:43:00-03:00 — champion escolheu aprovar pela rota de evidência ("Aprovar pela evidência") após receber matriz + 7 provas registradas
 - verificacao_automatica: passou — revalidação do zero (RV-1 a RV-9): 9 provas independentes reproduziram os resultados originais, incluindo prova negativa (consultor bloqueado em aguardando_aprovacao_de_excecao, 404 por invisibilidade RLS), exclusão negada a não-superuser (403) e regressão da consulta de recuperação da F1-T06 (endpoint segue íntegro); build/QA v0.0.5 sem erros
 - aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1645-pocketbase-rls-404.md
-- ultima_acao: F1-T04 concluída — fase.md, STATUS.md (7/8, 87,5%), changelog.md e controle de aprendizado atualizados
-- proxima_acao: Única task restante da fase 1 é F1-T08 (fontes, latência, destino e RLS do painel) — aguarda pedido do champion para nova análise (proxima-task)
-- atualizado_em: 2026-09-30T16:48:00-03:00
+- ultima_acao: Decisões da multiempresa Dona Help registradas (fase 1 agora; API com formato diferente; mesmo sistema com campo empresa; mesmo champion) — pendente URL do endpoint
+- proxima_acao: Aguardar URL do endpoint da API da Dona Help para validação de contrato (padrão F1-T01); depois, emenda nas SPECs e formalização da task
+- atualizado_em: 2026-09-30T16:52:00-03:00
+
+## Sinal multiempresa — Dona Help (2026-09-30)
+
+Decisões aprovadas pelo Champion (detalhes em `06_notas/sinal-multiempresa-dona-help.md`):
+
+| Decisão | Escolha |
+|---|---|
+| Momento | Agora, na fase 1 |
+| Contrato da API | Formato diferente da Acuidar — URL do endpoint a fornecer |
+| Modelo | Mesmo sistema, separação por campo empresa |
+| Governança | Mesmo champion para as duas empresas |
+
+**Pendente:** URL do endpoint (sem token) → validação de contrato → emenda nas SPECs (1-001, 1-003) → formalização da task de validação. Credencial: `DONAHELP_PORTAL_TOKEN` nos Secrets do Skip, nunca por chat.
 
 ## O que foi implementado (F1-T04)
 
