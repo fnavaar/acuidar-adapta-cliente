@@ -161,3 +161,4 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 | Data | Origem do sinal | Micro-spec/task | Motivo |
 |---|---|---|---|
 | 2026-09-22 | Champion (Luis Carlos) | F1-T07 | Aprovação da janela de análise (mensal por unidade), elegibilidade (todas as reuniões) e definição dos 6 estados; resolve BLOQUEIO-F1-003-A |
+| 2026-09-30 | Champion (Luis Carlos) | Emenda de arquitetura | O painel é construído na intranet (projeto Skip "Adapta Cliente"); as ocorrências residem no banco da própria intranet; o Portal Acuidar permanece como fonte somente leitura de franquias/dados cadastrados. Ver `06_notas/emenda-arquitetura-intranet.md`. |
