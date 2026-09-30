@@ -3,45 +3,50 @@
 - task_id: F1-T04
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal)
 - spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-A
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-09-30T16:31:00-03:00 — champion aceitou a sugestão de matriz ("Aceitar a sugestão")
 - teste_humano: pendente
-- verificacao_automatica: pendente
+- verificacao_automatica: passou — 7 provas executadas no ambiente de teste do Skip (v0.0.5, QA ✓); detalhes abaixo
 - aprendizado: pendente
-- ultima_acao: Análise profunda da task F1-T04 concluída (selecionada como a mais vantajosa das 2 restantes)
-- proxima_acao: Aguardar autorização do champion e as decisões da matriz de perfis
-- atualizado_em: 2026-09-30T13:30:00-03:00
+- ultima_acao: Matriz de perfis implementada (migrations 0002/0003) e provas executadas
+- proxima_acao: Aguardar teste humano do champion
+- atualizado_em: 2026-09-30T16:35:00-03:00
 
-## Comparativo das 2 tasks restantes (escolha do champion)
+## O que foi implementado (F1-T04)
 
-| Task | Esforço | Por quê |
-|---|---|---|
-| **F1-T04** (escolhida) | Médio-baixo — 1 matriz de perfis + 3 contas de teste; a infraestrutura de RLS já existe na collection `ocorrencias` (RLS provisória aguardando esta matriz) | Desbloqueia a SPEC-1-002 inteira; é decisão de negócio com prova técnica simples |
-| F1-T08 | Médio-alto — mapa de fontes/campos/latência + destino/RLS do painel | Depende de definir latência de cada fonte e RLS do painel; mais decisões abertas |
+### 1. Documento da matriz: `06_notas/matriz-perfis-rls.md`
+| Permissão | Consultor | Gestor/Coordenador | Administrador |
+|---|---|---|---|
+| `consultar` | ✓ | ✓ | ✓ |
+| `editar rascunho` | ✓ | ✓ | ✓ |
+| `solicitar exceção` | ✓ | ✓ | ✓ |
+| `aprovar exceção` | ✗ | ✓ | ✓ |
+| `confirmar criação` | ✓ | ✓ | ✓ |
 
-**Nota:** F1-T04 é a mais vantajosa porque fecha o último bloqueio da SPEC-1-002 (a SPEC inteira fica desbloqueada) e a infraestrutura técnica já está pronta (RLS provisória implementada na F1-T06).
+### 2. Migration 0002 — campo `role` em `users` (consultor | gestor | administrador)
 
-## Análise F1-T04 — formalizar matriz de perfis e RLS do fluxo
+### 3. Migration 0003 — RLS da collection `ocorrencias` conforme a matriz
+- list/view/create: `@request.auth.id != ''` (todos autenticados)
+- update: negado ao consultor quando `estado = aguardando_aprovacao_de_excecao` (só gestor/admin)
+- delete: `null` (superuser only — ninguém exclui ocorrência)
 
-**Critério binário:** "A matriz aprovada separa `consultar`, `editar rascunho`, `solicitar exceção`, `aprovar exceção` e `confirmar criação`, com perfis/grupos e contas de teste."
+### 4. Contas de teste criadas
+- `consultor-teste@acuidarbr.com.br` (role consultor)
+- `gestor-teste@acuidarbr.com.br` (role gestor)
+- `admin-teste@acuidarbr.com.br` (role administrador)
 
-**Evidência esperada:** Matriz datada e resultado de teste negativo para perfil sem acesso.
+## Provas executadas (Skip 51740, versão 0.0.5)
 
-**O que o champion precisa decidir (matriz nominal):**
+| # | Prova | Resultado | ✓ |
+|---|---|---|---|
+| 1 | Consultor cria ocorrência (editar rascunho) | HTTP 200 | ✓ |
+| 2 | **Consultor tenta editar registro em `aguardando_aprovacao_de_excecao`** | **HTTP 404 (negação por RLS — registro invisível ao consultor)** | ✓ |
+| 3 | Gestor edita o mesmo registro (aprovar exceção) | HTTP 200 | ✓ |
+| 4 | Consultor consulta (list) | HTTP 200 | ✓ |
+| 5 | Consultor tenta EXCLUIR ocorrência | **HTTP 403 "Only superusers"** | ✓ |
+| 6 | Administrador edita registro em aguardando aprovação | HTTP 200 | ✓ |
+| 7 | Consultor edita registro em estado normal | HTTP 200 | ✓ |
 
-| Permissão | Quem tem (perfil/grupo) |
-|---|---|
-| `consultar` | ? |
-| `editar rascunho` | ? |
-| `solicitar exceção` | ? |
-| `aprovar exceção` | ? (deve ser perfil superior, ≠ solicitante) |
-| `confirmar criação` | ? |
+**Nota sobre a prova 2:** o PocketBase responde 404 (e não 403) quando a updateRule nega — o registro fica invisível ao perfil sem permissão. É negação efetiva (o consultor não consegue aprovar a própria exceção), conforme CA-1-10.
 
-**Além da matriz, precisa:**
-- Contas de teste para cada perfil (3 contas: ex. consultor, gestor, administrador)
-- Prova negativa: perfil sem permissão recebe acesso negado
-
-**Pontos de parada:**
-- Um perfil puder autoaprovar → parar
-- Privilégio sem dono → parar
-- Sem conta de teste → parar
+**Pendência de limpeza:** fixture de teste `18l0hqe6k413h4v` (estado em_revisao) permanece na base — exclusão exige superuser. Remover via painel admin do PocketBase ou na próxima migration de limpeza.
