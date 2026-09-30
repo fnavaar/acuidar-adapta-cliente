@@ -8,9 +8,9 @@
 - teste_humano: aprovado — 2026-09-30T16:43:00-03:00 — champion escolheu aprovar pela rota de evidência ("Aprovar pela evidência") após receber matriz + 7 provas registradas
 - verificacao_automatica: passou — revalidação do zero (RV-1 a RV-9): 9 provas independentes reproduziram os resultados originais, incluindo prova negativa (consultor bloqueado em aguardando_aprovacao_de_excecao, 404 por invisibilidade RLS), exclusão negada a não-superuser (403) e regressão da consulta de recuperação da F1-T06 (endpoint segue íntegro); build/QA v0.0.5 sem erros
 - aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1645-pocketbase-rls-404.md
-- ultima_acao: Decisões da multiempresa Dona Help registradas (fase 1 agora; API com formato diferente; mesmo sistema com campo empresa; mesmo champion) — pendente URL do endpoint
-- proxima_acao: Aguardar URL do endpoint da API da Dona Help para validação de contrato (padrão F1-T01); depois, emenda nas SPECs e formalização da task
-- atualizado_em: 2026-09-30T16:52:00-03:00
+- ultima_acao: Endpoint da API da Dona Help recebido (app.donahelpbr.com.br/api/dados/unidades) e sondado sem credencial: erro de auth idêntico ao padrão Acuidar (HTTP 400 "Erro no Token", Bearer rejeitado, POST 400)
+- proxima_acao: Champion grava DONAHELP_PORTAL_TOKEN nos Secrets do Skip; assistente valida contrato completo no padrão F1-T01; depois emenda nas SPECs e formalização da task
+- atualizado_em: 2026-09-30T16:55:00-03:00
 
 ## Sinal multiempresa — Dona Help (2026-09-30)
 
@@ -23,7 +23,9 @@ Decisões aprovadas pelo Champion (detalhes em `06_notas/sinal-multiempresa-dona
 | Modelo | Mesmo sistema, separação por campo empresa |
 | Governança | Mesmo champion para as duas empresas |
 
-**Pendente:** URL do endpoint (sem token) → validação de contrato → emenda nas SPECs (1-001, 1-003) → formalização da task de validação. Credencial: `DONAHELP_PORTAL_TOKEN` nos Secrets do Skip, nunca por chat.
+**Endpoint recebido:** `https://app.donahelpbr.com.br/api/dados/unidades` — sondagem sem credencial (2026-09-30): sem auth → HTTP 400 `{"status":"error","message":"Erro no Token"}`; token falso → 400 idem; `Authorization: Bearer <token>` → 400 idem (prefixo rejeitado, como na Acuidar); POST → 400. Contrato de ERRO idêntico ao da Acuidar; estrutura de SUCESSO pendente do token real.
+
+**Pendente:** token da Dona Help via Secrets do Skip (`DONAHELP_PORTAL_TOKEN`) → validação completa do contrato → emenda nas SPECs (1-001, 1-003) → formalização da task. Credencial nunca por chat.
 
 ## O que foi implementado (F1-T04)
 
