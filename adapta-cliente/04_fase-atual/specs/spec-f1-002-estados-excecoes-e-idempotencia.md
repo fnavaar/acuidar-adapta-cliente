@@ -167,3 +167,4 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 | Data | Origem do sinal | Micro-spec/task | Motivo |
 |---|---|---|---|
 | 2026-08-28 | Champion (Luis Carlos) | F1-T05 | Aprovação da política de exceção de data (bloqueio >1 dia, exceção com justificativa comprovável, prazo 24h/48h, aprovador substituto); resolve BLOQUEIO-F1-002-B |
+| 2026-09-30 | Champion (Luis Carlos) | Emenda de arquitetura | A ocorrência é criada e armazenada na intranet (banco e ID próprios); a consulta de recuperação pós-timeout passa a ser local, e o BLOQUEIO-F1-002-C deixa de depender de contrato de escrita do Portal. Ver `06_notas/emenda-arquitetura-intranet.md`. |
