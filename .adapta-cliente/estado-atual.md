@@ -1,47 +1,46 @@
 # Estado atual — Adapta Cliente
 
-- task_id: F1-T06
-- champion: Luis Carlos - CTO (com acesso ao Administrador do Portal)
-- spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-C
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-09-30T16:08:00-03:00 — "sim" do champion autorizou implementar o plano da F1-T06
-- teste_humano: aprovado — 2026-09-30T16:18:00-03:00 — "ok" do champion após roteiro de teste (collection + índice único + endpoint)
-- verificacao_automatica: passou — 6 cenários exercitados no ambiente de teste do Skip; build/QA OK (versão 0.0.4)
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1620-idempotencia-recuperacao.md
-- ultima_acao: Task F1-T06 concluída formalmente
-- proxima_acao: Aguardar nova solicitação do champion
-- atualizado_em: 2026-09-30T16:20:00-03:00
+- task_id: F1-T03
+- champion: Luis Carlos - CTO (exerce também o papel de Responsável técnico do cliente)
+- spec: 04_fase-atual/specs/spec-f1-001-fluxo-direto-de-registro.md §BLOQUEIO-F1-001-C
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: Análise profunda da task F1-T03 concluída (selecionada por ser a mais simples das 3 restantes)
+- proxima_acao: Aguardar autorização do champion para registrar a autorização da superfície técnica
+- atualizado_em: 2026-09-30T13:25:00-03:00
 
-## O que foi implementado (F1-T06)
+## Histórico de tasks concluídas (referência)
 
-### 1. Collection `ocorrencias` (migration 0001)
-- Banco da intranet (Skip 51740) — emenda de arquitetura: ocorrência vive na intranet.
-- Chave de idempotência: `idempotency_key = SHA-256(source_system:source_meeting_id:portal_unit_id:occurrence_type)`, **UNIQUE index** — reenvio da mesma chave é rejeitado.
-- Estados: pendente, em_revisao, aguardando_correcao, aguardando_aprovacao_de_excecao, possivel_duplicidade, falha_de_gravacao, confirmado.
-- RLS provisória: somente autenticados (matriz nominal da F1-T04 substituirá).
+- F1-T01 (2026-09-30): contrato de leitura da API do Portal validado → BLOQUEIO-F1-001-A resolvido
+- F1-T02 (2026-08-26): chave oficial, elegibilidade, multiunidade, cancelamento, remarcação → SPEC-1-001
+- F1-T05 (2026-08-28): política de exceção de data → SPEC-1-002
+- F1-T06 (2026-09-30): consulta de recuperação provada na intranet → BLOQUEIO-F1-002-C resolvido
+- F1-T07 (2026-09-22): semântica da cobertura operacional → SPEC-1-003
 
-### 2. Endpoint de recuperação (hook)
-- `GET /backend/v1/ocorrencias/recuperar?source_system=&source_meeting_id=&portal_unit_id=&occurrence_type=`
-- Diferencia os 3 resultados exigidos: **confirmada** / **ausente** / **inconclusivo**.
-- Chave incompleta → `inconclusivo` com lista do que falta (nunca adivinha).
-- Registro existente não confirmado → `inconclusivo` com estado atual (mantém possivel_duplicidade até decisão humana).
-- Falha da consulta → `inconclusivo` com errorId (nunca "confirmado" por suposição).
-- Autenticação obrigatória (401 sem token).
+## Comparativo das 3 tasks restantes (escolha do champion)
 
-## Provas executadas (ambiente de teste do Skip, versão 0.0.4)
+| Task | Esforço | Por quê |
+|---|---|---|
+| **F1-T03** (escolhida) | **Baixo** — só um documento de autorização; a intranet já existe e está provada (F1-T06) | É registrar por escrito o que já é fato |
+| F1-T04 | Médio — matriz de perfis/grupos + contas de teste + prova negativa | Depende de política interna de acesso |
+| F1-T08 | Médio — mapa de fontes/campos/latência + autorização de destino/RLS | Depende de definir latência e RLS do painel |
 
-| # | Cenário | Resultado | ✓ |
-|---|---|---|---|
-| 1 | Chave incompleta (faltam 2 componentes) | `inconclusivo` + lista `faltando` | ✓ |
-| 2 | Chave completa, sem ocorrência | `ausente` + idempotency_key (retomada segura) | ✓ |
-| 3 | Ocorrência confirmada com a mesma chave | `confirmada` + comprovante (ID, estado, data, título) | ✓ |
-| 4 | Reenvio da mesma chave (CA-1-05/08) | HTTP 400 `validation_not_unique` — sem duplicidade | ✓ |
-| 5 | Registro existente NÃO confirmado | `inconclusivo` + estado_atual `falha_de_gravacao` | ✓ |
-| 6 | Consulta sem autenticação | HTTP 401 — acesso negado explícito | ✓ |
+## Análise F1-T03 — autorizar a superfície técnica da integração
 
-Fixtures de teste foram removidas após as provas (base limpa: 0 registros).
+**Critério binário:** "Repositório, ambiente, responsável por deploy e mecanismo de segredos são identificados e autorizados por escrito."
 
-## Evidência
+**Evidência esperada:** Registro de autorização com URL/caminho do repositório, ambiente e referência ao gerenciador de segredos, sem valores sensíveis.
 
-- Logs do backend (Skip): 14 requisições registradas, incluindo os 6 cenários acima.
-- QA pipeline: setup ✓, static ✓, build ✓, integrations ✓, test ✓ — versão 0.0.4.
+**Com a emenda de arquitetura, os elementos já existem — falta formalizá-los:**
+
+| Item do critério | Valor real (a confirmar pelo champion) |
+|---|---|
+| Repositório | `https://github.com/fnavaar/acuidar-adapta-cliente` (operacional) + projeto Skip 51740 (aplicação) |
+| Ambiente | Preview: `adapta-cliente-c2bc2--preview.goskip.app` · Produção: `adapta-cliente-c2bc2.goskip.app` (não publicada) |
+| Responsável por deploy | Luis Carlos - CTO (via Builder do Skip / MCP) |
+| Mecanismo de segredos | Secrets do Skip (projeto 51740) — já com `ACUIDAR_PORTAL_TOKEN` e `ACUIDAR_PORTAL_API_KEY` |
+
+**Ponto de parada:** se o destino não tiver dono, se não existir ambiente de teste ou se o mecanismo de segredos não for aprovado.
