@@ -3,46 +3,45 @@
 - task_id: F1-T06
 - champion: Luis Carlos - CTO (com acesso ao Administrador do Portal)
 - spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-C
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-09-30T16:08:00-03:00 — "sim" do champion autorizou implementar o plano da F1-T06
 - teste_humano: pendente
-- verificacao_automatica: pendente
+- verificacao_automatica: passou — 6 cenários exercitados no ambiente de teste do Skip (ver detalhes abaixo); build/QA OK (versão 0.0.4)
 - aprendizado: pendente
-- ultima_acao: Análise profunda da task F1-T06 concluída
-- proxima_acao: Aguardar autorização do champion para provar a consulta de recuperação
-- atualizado_em: 2026-09-30T13:15:00-03:00
+- ultima_acao: Implementação da consulta de recuperação concluída e provas executadas
+- proxima_acao: Aguardar teste humano do champion
+- atualizado_em: 2026-09-30T16:18:00-03:00
 
-## Histórico de tasks concluídas (referência)
+## O que foi implementado (F1-T06)
 
-- F1-T01 (2026-09-30): contrato de leitura da API do Portal validado → BLOQUEIO-F1-001-A resolvido
-- F1-T02 (2026-08-26): chave oficial, elegibilidade, multiunidade, cancelamento, remarcação → SPEC-1-001
-- F1-T05 (2026-08-28): política de exceção de data → SPEC-1-002 e `06_notas/politica-excecao-de-data.md`
-- F1-T07 (2026-09-22): semântica da cobertura operacional → SPEC-1-003 e `06_notas/politica-datas-elegibilidade-estados.md`
+### 1. Collection `ocorrencias` (migration 0001)
+- Banco da intranet (Skip 51740) — emenda de arquitetura: ocorrência vive na intranet.
+- Chave de idempotência: `idempotency_key = SHA-256(source_system:source_meeting_id:portal_unit_id:occurrence_type)`, **UNIQUE index** — reenvio da mesma chave é rejeitado.
+- Estados: pendente, em_revisao, aguardando_correcao, aguardando_aprovacao_de_excecao, possivel_duplicidade, falha_de_gravacao, confirmado.
+- RLS provisória: somente autenticados (matriz nominal da F1-T04 substituirá).
 
-## Análise F1-T06 — consulta de recuperação após timeout
+### 2. Endpoint de recuperação (hook)
+- `GET /backend/v1/ocorrencias/recuperar?source_system=&source_meeting_id=&portal_unit_id=&occurrence_type=`
+- Diferencia os 3 resultados exigidos: **confirmada** / **ausente** / **inconclusivo**.
+- Chave incompleta → `inconclusivo` com lista do que falta (nunca adivinha).
+- Registro existente não confirmado → `inconclusivo` com estado atual (mantém possivel_duplicidade até decisão humana).
+- Falha da consulta → `inconclusivo` com errorId (nunca "confirmado" por suposição).
+- Autenticação obrigatória (401 sem token).
 
-**Contexto da emenda de arquitetura (2026-09-30):** a ocorrência é criada e armazenada na intranet (banco próprio). A consulta de recuperação é, portanto, LOCAL — o bloqueio original (contrato de consulta do Portal) deixa de se aplicar.
+## Provas executadas (ambiente de teste do Skip, versão 0.0.4)
 
-### O que a task exige (critério binário)
+| # | Cenário | Resultado | ✓ |
+|---|---|---|---|
+| 1 | Chave incompleta (faltam 2 componentes) | `inconclusivo` + lista `faltando` | ✓ |
+| 2 | Chave completa, sem ocorrência | `ausente` + idempotency_key (retomada segura) | ✓ |
+| 3 | Ocorrência confirmada com a mesma chave | `confirmada` + comprovante (ID, estado, data, título) | ✓ |
+| 4 | Reenvio da mesma chave (CA-1-05/08) | HTTP 400 `validation_not_unique` — sem duplicidade | ✓ |
+| 5 | Registro existente NÃO confirmado | `inconclusivo` + estado_atual `falha_de_gravacao` | ✓ |
+| 6 | Consulta sem autenticação | HTTP 401 — acesso negado explícito | ✓ |
 
-> "Há consulta documentada por chave de origem ou procedimento equivalente que localiza uma ocorrência após timeout, comprovada em ambiente de teste."
+Fixtures de teste foram removidas após as provas (base limpa: 0 registros).
 
-### O que precisa ser provado
+## Evidência
 
-1. **Consulta documentada** — como localizar uma ocorrência pelo `source_system + source_meeting_id` (+ unidade, + tipo)
-2. **Comprovada em ambiente de teste** — a consulta executada e diferenciando os 3 resultados:
-   - Criação **confirmada** (ocorrência existe, com ID)
-   - **Ausência** de criação (nada gravado — pode criar com segurança)
-   - Resultado **inconclusivo** (não sabe — manter `possivel_duplicidade`, nunca repetir)
-
-### Plano de prova (na intranet)
-
-- Banco da intranet: ocorrência tem `idempotency_key = SHA-256(source_system + ':' + source_meeting_id + ':' + portal_unit_id + ':' + occurrence_type)`
-- Consulta: `SELECT` pela chave de idempotência — determinística e indexada
-- Os 3 cenários exercidos com fixtures no ambiente de teste (preview do Skip)
-- Evidência: captura sanitizada de cada cenário (ID mascarado)
-
-### Pontos de parada
-
-- A consulta não diferenciar confirmada/ausente/inconclusivo → parar
-- A prova exigir escrita no Portal → parar (fora do escopo da emenda)
+- Logs do backend (Skip): 14 requisições registradas, incluindo os 6 cenários acima.
+- QA pipeline: setup ✓, static ✓, build ✓, integrations ✓, test ✓ — versão 0.0.4.
