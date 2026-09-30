@@ -119,7 +119,7 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 ## Checklist de execução
 
 - [x] Política de exceção de data foi aprovada pelo Champion (F1-T05, 2026-08-28).
-- [ ] Matriz de perfis foi aprovada pelo Champion/cliente (BLOQUEIO-F1-002-A).
+- [x] Matriz de perfis foi aprovada pelo Champion/cliente (BLOQUEIO-F1-002-A) — F1-T04 concluída em 2026-09-30; matriz em `06_notas/matriz-perfis-rls.md`, RLS implementada (migrations 0002/0003) e prova negativa exercitada.
 - [ ] Todas as transições inválidas são recusadas e registradas.
 - [ ] A chave idempotente é persistida antes de criar a ocorrência.
 - [ ] Timeout resulta em conferência, não em retry cego.
@@ -150,15 +150,15 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 - **Como demonstrar:** solicitar exceção, aprová-la com perfil distinto, confirmar uma ocorrência e simular timeout/reenvio.
 - **Como operar depois:** Champion revisa filas e exceções; perfil superior decide exceções; administrador revisa acesso.
 - **Como monitorar:** contagem de `aguardando_aprovacao_de_excecao`, `falha_de_gravacao` e `possivel_duplicidade`, além de tentativas de transição negadas.
-- **Pendência conhecida:** bloqueios de matriz (A) e consulta de recuperação (C).
+- **Pendência conhecida:** nenhuma — bloqueios A (F1-T04), B (F1-T05) e C (F1-T06) resolvidos.
 
 ## Tasks vinculadas
 
 | ID | Task | Dono | SPEC | Critério | Recorte da prova | Evidência esperada | Pré-condições | Status |
 |---|---|---|---|---|---|---|---|---|
-| F1-T04 | Formalizar matriz de perfis e RLS do fluxo | Administrador do Portal | §Contexto — BLOQUEIO-F1-002-A | matriz e conta negativa de teste completas | §Checklist; CA-1-10; TDD RED/REGRESSÃO | matriz datada e teste de acesso negado | política de acesso | ☐ aberta |
+| F1-T04 | Formalizar matriz de perfis e RLS do fluxo | Administrador do Portal | §Contexto — BLOQUEIO-F1-002-A | matriz e conta negativa de teste completas | §Checklist; CA-1-10; TDD RED/REGRESSÃO | matriz datada e teste de acesso negado | política de acesso | ✅ concluída (2026-09-30) — matriz em `06_notas/matriz-perfis-rls.md`; RLS implementada (migrations 0002/0003); prova negativa exercitada |
 | F1-T05 | Aprovar política de exceção de data | Champion | §Contexto — BLOQUEIO-F1-002-B | bloqueio, exceção, prazo e ausência de aprovador definidos | §Fluxo 3–6; CA-1-07 | política com três exemplos | Champion designado | ✅ concluída (2026-08-28) |
-| F1-T06 | Provar consulta de recuperação após timeout | Administrador do Portal | §Contexto — BLOQUEIO-F1-002-C | consulta pós-timeout comprovada em teste | §Dados; CA-1-09; TDD REGRESSÃO | consulta sanitizada | F1-T01 concluída: contrato e ambiente de teste | ☐ aberta — Leva 2/F1-T01 |
+| F1-T06 | Provar consulta de recuperação após timeout | Administrador do Portal | §Contexto — BLOQUEIO-F1-002-C | consulta pós-timeout comprovada em teste | §Dados; CA-1-09; TDD REGRESSÃO | consulta sanitizada | F1-T01 concluída: contrato e ambiente de teste | ✅ concluída (2026-09-30) — consulta local na intranet provada |
 
 ## Emendas
 
@@ -168,3 +168,4 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 |---|---|---|---|
 | 2026-08-28 | Champion (Luis Carlos) | F1-T05 | Aprovação da política de exceção de data (bloqueio >1 dia, exceção com justificativa comprovável, prazo 24h/48h, aprovador substituto); resolve BLOQUEIO-F1-002-B |
 | 2026-09-30 | Champion (Luis Carlos) | Emenda de arquitetura | A ocorrência é criada e armazenada na intranet (banco e ID próprios); a consulta de recuperação pós-timeout passa a ser local, e o BLOQUEIO-F1-002-C deixa de depender de contrato de escrita do Portal. Ver `06_notas/emenda-arquitetura-intranet.md`. |
+| 2026-09-30 | Champion (Luis Carlos) | F1-T04 | Matriz de perfis e RLS aprovada e implementada (3 perfis × 5 permissões, campo role, RLS da collection ocorrencias, 3 contas de teste, prova negativa de autoaprovação); resolve BLOQUEIO-F1-002-A. Matriz em `06_notas/matriz-perfis-rls.md`. |
