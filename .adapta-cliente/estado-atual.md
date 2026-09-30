@@ -1,41 +1,47 @@
 # Estado atual — Adapta Cliente
 
-- task_id: F1-T03
-- champion: Luis Carlos - CTO (exerce também o papel de Responsável técnico do cliente)
-- spec: 04_fase-atual/specs/spec-f1-001-fluxo-direto-de-registro.md §BLOQUEIO-F1-001-C
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-09-30T16:22:00-03:00 — "sim" do champion autorizou implementar o plano da F1-T03
-- teste_humano: aprovado — 2026-09-30T16:26:00-03:00 — "sim" do champion confirmou o documento de autorização
-- verificacao_automatica: passou — documento com os 4 itens do critério, sem valores sensíveis; emenda na SPEC-1-001
-- aprendizado: sem_sinal:task de autorização documental; os elementos já estavam em operação e o registro não revela padrão técnico reutilizável
-- ultima_acao: Task F1-T03 concluída formalmente
-- proxima_acao: Aguardar nova solicitação do champion
-- atualizado_em: 2026-09-30T16:28:00-03:00
+- task_id: F1-T04
+- champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal)
+- spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-A
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: Análise profunda da task F1-T04 concluída (selecionada como a mais vantajosa das 2 restantes)
+- proxima_acao: Aguardar autorização do champion e as decisões da matriz de perfis
+- atualizado_em: 2026-09-30T13:30:00-03:00
 
-## O que foi implementado (F1-T03)
+## Comparativo das 2 tasks restantes (escolha do champion)
 
-### Documento de autorização: `06_notas/autorizacao-superficie-tecnica.md`
+| Task | Esforço | Por quê |
+|---|---|---|
+| **F1-T04** (escolhida) | Médio-baixo — 1 matriz de perfis + 3 contas de teste; a infraestrutura de RLS já existe na collection `ocorrencias` (RLS provisória aguardando esta matriz) | Desbloqueia a SPEC-1-002 inteira; é decisão de negócio com prova técnica simples |
+| F1-T08 | Médio-alto — mapa de fontes/campos/latência + destino/RLS do painel | Depende de definir latência de cada fonte e RLS do painel; mais decisões abertas |
 
-| Item do critério | Valor registrado |
+**Nota:** F1-T04 é a mais vantajosa porque fecha o último bloqueio da SPEC-1-002 (a SPEC inteira fica desbloqueada) e a infraestrutura técnica já está pronta (RLS provisória implementada na F1-T06).
+
+## Análise F1-T04 — formalizar matriz de perfis e RLS do fluxo
+
+**Critério binário:** "A matriz aprovada separa `consultar`, `editar rascunho`, `solicitar exceção`, `aprovar exceção` e `confirmar criação`, com perfis/grupos e contas de teste."
+
+**Evidência esperada:** Matriz datada e resultado de teste negativo para perfil sem acesso.
+
+**O que o champion precisa decidir (matriz nominal):**
+
+| Permissão | Quem tem (perfil/grupo) |
 |---|---|
-| Repositório | `github.com/fnavaar/acuidar-adapta-cliente` (operacional) + projeto Skip 51740 (aplicação) |
-| Ambiente | Preview `adapta-cliente-c2bc2--preview.goskip.app` (teste) · Produção `adapta-cliente-c2bc2.goskip.app` (não publicada) · Backend `adapta-cliente-c2bc2.shrd00.internal.goskip.dev` |
-| Responsável por deploy | Luis Carlos - CTO (Builder do Skip / MCP, sob autorização do Champion) |
-| Mecanismo de segredos | Secrets do Skip (projeto 51740) — referências `ACUIDAR_PORTAL_TOKEN` e `ACUIDAR_PORTAL_API_KEY`, sem valores |
+| `consultar` | ? |
+| `editar rascunho` | ? |
+| `solicitar exceção` | ? |
+| `aprovar exceção` | ? (deve ser perfil superior, ≠ solicitante) |
+| `confirmar criação` | ? |
 
-### Escopo da autorização
-- Inclui: collections, hooks e páginas da intranet no Skip 51740; commits no repositório operacional; provas no preview.
-- Não inclui: Portal em produção (só leitura), cadastro mestre, credenciais fora do Secrets, comunicação a franqueados, publicação em produção sem decisão do Champion.
-- Vigência: fase 1; reavaliada na abertura da fase 2.
+**Além da matriz, precisa:**
+- Contas de teste para cada perfil (3 contas: ex. consultor, gestor, administrador)
+- Prova negativa: perfil sem permissão recebe acesso negado
 
-### Emenda registrada
-- SPEC-1-001 §Emendas: F1-T03 resolve BLOQUEIO-F1-001-C (commit `716a4a6`).
-
-## Histórico de tasks concluídas (referência)
-
-- F1-T01 (2026-09-30): contrato de leitura da API do Portal validado → BLOQUEIO-F1-001-A resolvido
-- F1-T02 (2026-08-26): chave oficial, elegibilidade, multiunidade, cancelamento, remarcação → SPEC-1-001
-- F1-T03 (2026-09-30): superfície técnica autorizada → BLOQUEIO-F1-001-C resolvido
-- F1-T05 (2026-08-28): política de exceção de data → SPEC-1-002
-- F1-T06 (2026-09-30): consulta de recuperação provada na intranet → BLOQUEIO-F1-002-C resolvido
-- F1-T07 (2026-09-22): semântica da cobertura operacional → SPEC-1-003
+**Pontos de parada:**
+- Um perfil puder autoaprovar → parar
+- Privilégio sem dono → parar
+- Sem conta de teste → parar
