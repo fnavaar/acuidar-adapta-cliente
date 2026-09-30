@@ -7,19 +7,22 @@
 
 - **Fase atual:** 1 — Registro mínimo confiável e cobertura operacional · aberta em 2026-08-21 · fechamento a definir com a consultoria.
 - **Objetivo desta fase:** provar o fluxo de uma reunião revisada até uma ocorrência única confirmada, com recuperação segura e visão de cobertura sem Health Score.
-- **No prazo?** em risco controlado — resta apenas F1-T08 (fontes do painel); todas as 7 demais tasks de desbloqueio concluídas, SPEC-1-002 100% desbloqueada.
+- **No prazo?** ✅ **todas as 8 tasks de desbloqueio concluídas** — as 3 SPECs da fase 1 estão integralmente desbloqueadas; próximo passo é a geração da leva técnica (após validação do consultor).
 - **Canal do projeto:** `https://github.com/fnavaar/acuidar-adapta-cliente`.
 
 ## Progresso da fase
 
-- **Tasks:** 7/8 (87,5%)
-- **Próxima task do champion:** F1-T08 (fontes, latência, destino e RLS do painel) — champion exerce o papel de responsável técnico.
+- **Tasks:** 8/8 (100%)
+- **Próximo passo:** validação do consultor do fechamento da fase 1 → geração da leva técnica (`gerar-tasks`) para as SPECs 1-001, 1-002 e 1-003.
 
 ## Travas ativas
 
+Nenhuma — todas as travas de desbloqueio da fase 1 foram resolvidas.
+
 | Trava | Desde | Quem resolve | Ação em curso |
 |---|---|---|---|
-| Fontes/latência/destino do painel | 2026-08-21 | Responsável técnico | F1-T08 |
+| ~~Matriz RLS~~ | 2026-08-21 | Administrador do Portal | ✅ resolvida (F1-T04, 2026-09-30) |
+| ~~Fontes/latência/destino do painel~~ | 2026-08-21 | Responsável técnico | ✅ resolvida (F1-T08, 2026-09-30) |
 
 ## Entregas concluídas
 
@@ -32,6 +35,13 @@
 | F1 | F1-T06 — Consulta de recuperação pós-timeout provada na intranet (confirmada/ausente/inconclusivo + idempotência UNIQUE) | 2026-09-30 |
 | F1 | F1-T03 — Superfície técnica autorizada por escrito (repositório, ambiente, deploy, segredos) | 2026-09-30 |
 | F1 | F1-T04 — Matriz de perfis e RLS aprovada e implementada (3 perfis × 5 permissões, campo role, RLS de ocorrências, 3 contas de teste, prova negativa de autoaprovação) | 2026-09-30 |
+| F1 | F1-T08 — Mapa de fontes, latência, destino e RLS do painel aprovado (intranet como destino; ocorrências tempo real; unidades Acuidar 172 + Dona Help 45 diárias; reuniões entrada manual; RLS todos autenticados; deploy Luis Carlos) | 2026-09-30 |
+
+## Multiempresa — Dona Help (2026-09-30)
+
+- Decisões aprovadas: integração na fase 1; mesmo sistema com campo `empresa`; mesmo champion.
+- Contrato da API Dona Help validado (45 unidades, array direto, mesmos 15 campos) — `06_notas/sinal-multiempresa-dona-help.md`.
+- Emendas nas SPECs 1-002 (F1-T04) e 1-003 (F1-T08) já refletem a multiempresa; emenda na SPEC-1-001 pendente de formalização na leva técnica.
 
 ## Próxima reunião
 
