@@ -3,14 +3,33 @@
 - task_id: F1-T03
 - champion: Luis Carlos - CTO (exerce também o papel de Responsável técnico do cliente)
 - spec: 04_fase-atual/specs/spec-f1-001-fluxo-direto-de-registro.md §BLOQUEIO-F1-001-C
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-09-30T16:22:00-03:00 — "sim" do champion autorizou implementar o plano da F1-T03
 - teste_humano: pendente
-- verificacao_automatica: pendente
+- verificacao_automatica: passou — documento de autorização criado com os 4 itens do critério, sem valores sensíveis; emenda registrada na SPEC-1-001
 - aprendizado: pendente
-- ultima_acao: Análise profunda da task F1-T03 concluída (selecionada por ser a mais simples das 3 restantes)
-- proxima_acao: Aguardar autorização do champion para registrar a autorização da superfície técnica
-- atualizado_em: 2026-09-30T13:25:00-03:00
+- ultima_acao: Autorização da superfície técnica documentada (F1-T03)
+- proxima_acao: Aguardar teste humano do champion
+- atualizado_em: 2026-09-30T16:24:00-03:00
+
+## O que foi implementado (F1-T03)
+
+### Documento de autorização: `06_notas/autorizacao-superficie-tecnica.md`
+
+| Item do critério | Valor registrado |
+|---|---|
+| Repositório | `github.com/fnavaar/acuidar-adapta-cliente` (operacional) + projeto Skip 51740 (aplicação) |
+| Ambiente | Preview `adapta-cliente-c2bc2--preview.goskip.app` (teste) · Produção `adapta-cliente-c2bc2.goskip.app` (não publicada) · Backend `adapta-cliente-c2bc2.shrd00.internal.goskip.dev` |
+| Responsável por deploy | Luis Carlos - CTO (Builder do Skip / MCP, sob autorização do Champion) |
+| Mecanismo de segredos | Secrets do Skip (projeto 51740) — referências `ACUIDAR_PORTAL_TOKEN` e `ACUIDAR_PORTAL_API_KEY`, sem valores |
+
+### Escopo da autorização
+- Inclui: collections, hooks e páginas da intranet no Skip 51740; commits no repositório operacional; provas no preview.
+- Não inclui: Portal em produção (só leitura), cadastro mestre, credenciais fora do Secrets, comunicação a franqueados, publicação em produção sem decisão do Champion.
+- Vigência: fase 1; reavaliada na abertura da fase 2.
+
+### Emenda registrada
+- SPEC-1-001 §Emendas: F1-T03 resolve BLOQUEIO-F1-001-C (commit `716a4a6`).
 
 ## Histórico de tasks concluídas (referência)
 
@@ -19,28 +38,3 @@
 - F1-T05 (2026-08-28): política de exceção de data → SPEC-1-002
 - F1-T06 (2026-09-30): consulta de recuperação provada na intranet → BLOQUEIO-F1-002-C resolvido
 - F1-T07 (2026-09-22): semântica da cobertura operacional → SPEC-1-003
-
-## Comparativo das 3 tasks restantes (escolha do champion)
-
-| Task | Esforço | Por quê |
-|---|---|---|
-| **F1-T03** (escolhida) | **Baixo** — só um documento de autorização; a intranet já existe e está provada (F1-T06) | É registrar por escrito o que já é fato |
-| F1-T04 | Médio — matriz de perfis/grupos + contas de teste + prova negativa | Depende de política interna de acesso |
-| F1-T08 | Médio — mapa de fontes/campos/latência + autorização de destino/RLS | Depende de definir latência e RLS do painel |
-
-## Análise F1-T03 — autorizar a superfície técnica da integração
-
-**Critério binário:** "Repositório, ambiente, responsável por deploy e mecanismo de segredos são identificados e autorizados por escrito."
-
-**Evidência esperada:** Registro de autorização com URL/caminho do repositório, ambiente e referência ao gerenciador de segredos, sem valores sensíveis.
-
-**Com a emenda de arquitetura, os elementos já existem — falta formalizá-los:**
-
-| Item do critério | Valor real (a confirmar pelo champion) |
-|---|---|
-| Repositório | `https://github.com/fnavaar/acuidar-adapta-cliente` (operacional) + projeto Skip 51740 (aplicação) |
-| Ambiente | Preview: `adapta-cliente-c2bc2--preview.goskip.app` · Produção: `adapta-cliente-c2bc2.goskip.app` (não publicada) |
-| Responsável por deploy | Luis Carlos - CTO (via Builder do Skip / MCP) |
-| Mecanismo de segredos | Secrets do Skip (projeto 51740) — já com `ACUIDAR_PORTAL_TOKEN` e `ACUIDAR_PORTAL_API_KEY` |
-
-**Ponto de parada:** se o destino não tiver dono, se não existir ambiente de teste ou se o mecanismo de segredos não for aprovado.
