@@ -3,14 +3,14 @@
 - task_id: F1-T06
 - champion: Luis Carlos - CTO (com acesso ao Administrador do Portal)
 - spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-C
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-09-30T16:08:00-03:00 — "sim" do champion autorizou implementar o plano da F1-T06
-- teste_humano: pendente
-- verificacao_automatica: passou — 6 cenários exercitados no ambiente de teste do Skip (ver detalhes abaixo); build/QA OK (versão 0.0.4)
-- aprendizado: pendente
-- ultima_acao: Implementação da consulta de recuperação concluída e provas executadas
-- proxima_acao: Aguardar teste humano do champion
-- atualizado_em: 2026-09-30T16:18:00-03:00
+- teste_humano: aprovado — 2026-09-30T16:18:00-03:00 — "ok" do champion após roteiro de teste (collection + índice único + endpoint)
+- verificacao_automatica: passou — 6 cenários exercitados no ambiente de teste do Skip; build/QA OK (versão 0.0.4)
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1620-idempotencia-recuperacao.md
+- ultima_acao: Task F1-T06 concluída formalmente
+- proxima_acao: Aguardar nova solicitação do champion
+- atualizado_em: 2026-09-30T16:20:00-03:00
 
 ## O que foi implementado (F1-T06)
 
