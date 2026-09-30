@@ -2,7 +2,7 @@
 
 **Aprovada por:** Champion (Luis Carlos - CTO) — exerce também o papel de Administrador do Portal
 **Data:** 2026-09-30
-**Task:** F1-T04 · **SPEC:** SPEC-1-002 §BLOQUEIO-F1-002-B/A
+**Task:** F1-T04 · **SPEC:** SPEC-1-002 §BLOQUEIO-F1-002-A
 
 ## 1. Matriz de permissões (aprovada)
 
@@ -44,4 +44,4 @@ Senhas das contas de teste não são registradas neste documento (regra de segre
 
 ## 4. Prova negativa (critério binário)
 
-Consultor autenticado tentando atualizar um registro em `aguardando_aprovacao_de_excecao` recebe **HTTP 403** — captura sanitizada registrada no estado da task.
+Consultor autenticado tentando atualizar um registro em `aguardando_aprovacao_de_excecao` recebe **HTTP 404** — o PocketBase torna o registro invisível ao perfil sem permissão (negação por RLS, não erro explícito de permissão). Comportamento observado na prova original e reproduzido na revalidação independente do zero (2026-09-30). Exclusão de ocorrência por perfil não-superuser retorna **HTTP 403** ("Only superusers can perform this action").
