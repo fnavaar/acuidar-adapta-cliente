@@ -153,3 +153,4 @@ Em ambiente de teste autorizado, o Champion demonstra uma reunião elegível: se
 | Data | Origem do sinal | Micro-spec/task | Motivo |
 |---|---|---|---|
 | 2026-08-25 | Champion (Luis Carlos) | F1-T02 | Registro da chave oficial, elegibilidade, multiunidade, cancelamento e remarcação; resolve BLOQUEIO-F1-001-B |
+| 2026-09-30 | Champion (Luis Carlos) | Emenda de arquitetura | A intranet (projeto Skip "Adapta Cliente") é a superfície onde todo o fluxo é construído; a ocorrência é criada e armazenada na intranet (ID próprio); o Portal Acuidar passa a ser fonte somente leitura de franquias/dados cadastrados. BLOQUEIO-F1-001-A restringe-se ao contrato de leitura; BLOQUEIO-F1-001-C aponta para a intranet. Ver `06_notas/emenda-arquitetura-intranet.md`. |
