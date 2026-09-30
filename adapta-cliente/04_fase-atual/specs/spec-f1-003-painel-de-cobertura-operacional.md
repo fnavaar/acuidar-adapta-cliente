@@ -115,8 +115,8 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 ## Checklist de execução
 
 - [x] Estados, janela e regra de reunião elegível foram aprovados pelo Champion (F1-T07, 2026-09-22).
-- [ ] Fontes, campos, latência e acessos de leitura foram documentados pelo administrador.
-- [ ] Destino do painel e RLS foram autorizados.
+- [x] Fontes, campos, latência e acessos de leitura foram documentados pelo administrador (F1-T08, 2026-09-30 — `06_notas/mapa-fontes-painel.md`).
+- [x] Destino do painel e RLS foram autorizados (F1-T08, 2026-09-30 — intranet Skip 51740; leitura para todos autenticados; deploy Luis Carlos via Builder/MCP).
 - [ ] Dados completos, incompletos e indisponíveis foram demonstrados.
 - [ ] A visão não escreve nas fontes e não exibe Health Score.
 
@@ -145,14 +145,14 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 - **Como demonstrar:** filtrar o período de teste, abrir uma unidade por estado, mostrar fonte/timestamp e validar que não há escrita nem Health Score.
 - **Como operar depois:** Champion revisa pendências e completude; administrador acompanha disponibilidade das fontes.
 - **Como monitorar:** timestamp da última atualização, volume de `dados_indisponiveis`, itens incompletos e acesso negado.
-- **Pendência conhecida:** fontes/latência (B) e destino/RLS (C) ainda precisam ser fornecidos.
+- **Pendência conhecida:** nenhuma — bloqueios A, B e C resolvidos (F1-T07, F1-T08).
 
 ## Tasks vinculadas
 
 | ID | Task | Dono | SPEC | Critério | Recorte da prova | Evidência esperada | Pré-condições | Status |
 |---|---|---|---|---|---|---|---|---|
 | F1-T07 | Aprovar semântica da cobertura operacional | Champion | §Contexto — BLOQUEIO-F1-003-A | janela, elegibilidade e seis estados definidos | §Dados; CA-1-11 a CA-1-13 | decisão com exemplos | amostra mínima | ✅ concluída (2026-09-22) |
-| F1-T08 | Documentar fontes, latência, destino e RLS do painel | Responsável técnico do cliente | §Contexto — BLOQUEIO-F1-003-B/C | fonte, campo, latência, destino e RLS autorizados | §Dados; CA-1-12, CA-1-14 | mapa e autorização sem segredo | responsável autorizado | ☐ aberta |
+| F1-T08 | Documentar fontes, latência, destino e RLS do painel | Responsável técnico do cliente | §Contexto — BLOQUEIO-F1-003-B/C | fonte, campo, latência, destino e RLS autorizados | §Dados; CA-1-12, CA-1-14 | mapa e autorização sem segredo | responsável autorizado | ✅ concluída (2026-09-30) — mapa em `06_notas/mapa-fontes-painel.md` |
 
 ## Emendas
 
@@ -162,3 +162,4 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 |---|---|---|---|
 | 2026-09-22 | Champion (Luis Carlos) | F1-T07 | Aprovação da janela de análise (mensal por unidade), elegibilidade (todas as reuniões) e definição dos 6 estados; resolve BLOQUEIO-F1-003-A |
 | 2026-09-30 | Champion (Luis Carlos) | Emenda de arquitetura | O painel é construído na intranet (projeto Skip "Adapta Cliente"); as ocorrências residem no banco da própria intranet; o Portal Acuidar permanece como fonte somente leitura de franquias/dados cadastrados. Ver `06_notas/emenda-arquitetura-intranet.md`. |
+| 2026-09-30 | Champion (Luis Carlos) | F1-T08 | Mapa de fontes, latência, destino e RLS aprovado em `06_notas/mapa-fontes-painel.md`: ocorrências (tempo real, banco local), unidades Acuidar (diária, 172), unidades Dona Help (diária, 45, array direto), reuniões (entrada assistida manual na fase 1; conector Google Agenda fica para a leva técnica); destino = intranet Skip 51740; RLS = todos autenticados, somente leitura; deploy = Luis Carlos via Builder/MCP; multiempresa por campo `empresa`. Resolve BLOQUEIO-F1-003-B e BLOQUEIO-F1-003-C. |
