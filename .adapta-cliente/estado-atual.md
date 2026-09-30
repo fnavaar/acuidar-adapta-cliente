@@ -3,14 +3,14 @@
 - task_id: F1-T04
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal)
 - spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-A
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-09-30T16:31:00-03:00 — champion aceitou a sugestão de matriz ("Aceitar a sugestão")
-- teste_humano: pendente
-- verificacao_automatica: passou — 7 provas executadas no ambiente de teste do Skip (v0.0.5, QA ✓); detalhes abaixo
-- aprendizado: pendente
-- ultima_acao: Matriz de perfis implementada (migrations 0002/0003) e provas executadas
-- proxima_acao: Aguardar teste humano do champion
-- atualizado_em: 2026-09-30T16:35:00-03:00
+- teste_humano: aprovado — 2026-09-30T16:43:00-03:00 — champion escolheu aprovar pela rota de evidência ("Aprovar pela evidência") após receber matriz + 7 provas registradas
+- verificacao_automatica: passou — revalidação do zero (RV-1 a RV-9): 9 provas independentes reproduziram os resultados originais, incluindo prova negativa (consultor bloqueado em aguardando_aprovacao_de_excecao, 404 por invisibilidade RLS), exclusão negada a não-superuser (403) e regressão da consulta de recuperação da F1-T06 (endpoint segue íntegro); build/QA v0.0.5 sem erros
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1645-pocketbase-rls-404.md
+- ultima_acao: F1-T04 concluída — fase.md, STATUS.md (7/8, 87,5%), changelog.md e controle de aprendizado atualizados
+- proxima_acao: Única task restante da fase 1 é F1-T08 (fontes, latência, destino e RLS do painel) — aguarda pedido do champion para nova análise (proxima-task)
+- atualizado_em: 2026-09-30T16:48:00-03:00
 
 ## O que foi implementado (F1-T04)
 
@@ -47,6 +47,8 @@
 | 6 | Administrador edita registro em aguardando aprovação | HTTP 200 | ✓ |
 | 7 | Consultor edita registro em estado normal | HTTP 200 | ✓ |
 
-**Nota sobre a prova 2:** o PocketBase responde 404 (e não 403) quando a updateRule nega — o registro fica invisível ao perfil sem permissão. É negação efetiva (o consultor não consegue aprovar a própria exceção), conforme CA-1-10.
+**Revalidação do zero (fechamento, RV-1 a RV-9):** reautenticação das 3 contas + repetição de todas as provas + regressão do endpoint de recuperação (resultado `inconclusivo` correto para registro não confirmado) + conferência de que nenhum artefato entregue contém segredo. Todos os critérios PASSOU.
 
-**Pendência de limpeza:** fixture de teste `18l0hqe6k413h4v` (estado em_revisao) permanece na base — exclusão exige superuser. Remover via painel admin do PocketBase ou na próxima migration de limpeza.
+**Nota sobre a prova 2:** o PocketBase responde 404 (e não 403) quando a updateRule nega — o registro fica invisível ao perfil sem permissão. É negação efetiva (o consultor não consegue aprovar a própria exceção), conforme CA-1-10. Documentado no aprendizado AP-2026-09-30-1645.
+
+**Pendência de limpeza:** fixtures de teste `18l0hqe6k413h4v` e `wt02yp2kpzxm7ba` (ambos em_revisao) permanecem na base — exclusão exige superuser (prova de que a regra funciona). Remover via painel admin do PocketBase ou migration de limpeza na leva técnica.
