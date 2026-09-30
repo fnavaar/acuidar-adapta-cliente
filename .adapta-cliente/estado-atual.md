@@ -1,16 +1,16 @@
 # Estado atual — Adapta Cliente
 
-- task_id: F1-T01
+- task_id: F1-T06
 - champion: Luis Carlos - CTO (com acesso ao Administrador do Portal)
-- spec: 04_fase-atual/specs/spec-f1-001-fluxo-direto-de-registro.md §BLOQUEIO-F1-001-A
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-09-30T14:59:00-03:00 — champion forneceu Base URL e token via Secrets do Skip
-- teste_humano: aprovado — 2026-09-30T12:32:00-03:00 — "sim" do champion confirmou a leitura validada (exemplo 1547 ilustrativo; código real de João Pessoa = 2)
-- verificacao_automatica: passou — GET /api/dados/unidades com Authorization: <token> retornou HTTP 200, 172 unidades, 172 códigos únicos; token gravado em ACUIDAR_PORTAL_TOKEN
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1535-contrato-api-acuidar.md
-- ultima_acao: Task F1-T01 concluída formalmente
-- proxima_acao: Aguardar nova solicitação do champion
-- atualizado_em: 2026-09-30T15:35:00-03:00
+- spec: 04_fase-atual/specs/spec-f1-002-estados-excecoes-e-idempotencia.md §BLOQUEIO-F1-002-C
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: Análise profunda da task F1-T06 concluída
+- proxima_acao: Aguardar autorização do champion para provar a consulta de recuperação
+- atualizado_em: 2026-09-30T13:15:00-03:00
 
 ## Histórico de tasks concluídas (referência)
 
@@ -19,22 +19,30 @@
 - F1-T05 (2026-08-28): política de exceção de data → SPEC-1-002 e `06_notas/politica-excecao-de-data.md`
 - F1-T07 (2026-09-22): semântica da cobertura operacional → SPEC-1-003 e `06_notas/politica-datas-elegibilidade-estados.md`
 
-## Contrato validado da API do Portal (F1-T01)
+## Análise F1-T06 — consulta de recuperação após timeout
 
-| Item | Valor |
-|---|---|
-| Base URL | `https://app.acuidarbr.com.br/api/dados` |
-| Endpoint de leitura | `GET /unidades` |
-| Autenticação | `Authorization: <token>` — token puro do Portal, **sem** prefixo Bearer |
-| Resposta de sucesso | HTTP 200, JSON array de unidades |
-| Resposta de erro de auth | HTTP 400 `{"status":"error","message":"Erro no Token"}` |
-| Total de unidades | 172 |
-| Unicidade da chave | 172 códigos únicos, sem duplicados |
-| Campos | `codigo`, `subdominio`, `nome`, `razao_social`, `cnpj`, `email`, `endereco`, `numero`, `complemento`, `bairro`, `cep`, `cidade`, `estado`, `celular`, `telefone` |
-| Segredo | `ACUIDAR_PORTAL_TOKEN` (Secrets do Skip, projeto 51740) |
-| Observação | Exemplo 1547 da F1-T02 era ilustrativo; código real de João Pessoa = 2 |
+**Contexto da emenda de arquitetura (2026-09-30):** a ocorrência é criada e armazenada na intranet (banco próprio). A consulta de recuperação é, portanto, LOCAL — o bloqueio original (contrato de consulta do Portal) deixa de se aplicar.
 
-## Emenda de arquitetura (2026-09-30)
+### O que a task exige (critério binário)
 
-- Intranet (Skip 51740) = superfície de todo o fluxo; ocorrência criada e armazenada na intranet (ID próprio); Portal Acuidar = somente leitura de franquias.
-- Ver `06_notas/emenda-arquitetura-intranet.md`.
+> "Há consulta documentada por chave de origem ou procedimento equivalente que localiza uma ocorrência após timeout, comprovada em ambiente de teste."
+
+### O que precisa ser provado
+
+1. **Consulta documentada** — como localizar uma ocorrência pelo `source_system + source_meeting_id` (+ unidade, + tipo)
+2. **Comprovada em ambiente de teste** — a consulta executada e diferenciando os 3 resultados:
+   - Criação **confirmada** (ocorrência existe, com ID)
+   - **Ausência** de criação (nada gravado — pode criar com segurança)
+   - Resultado **inconclusivo** (não sabe — manter `possivel_duplicidade`, nunca repetir)
+
+### Plano de prova (na intranet)
+
+- Banco da intranet: ocorrência tem `idempotency_key = SHA-256(source_system + ':' + source_meeting_id + ':' + portal_unit_id + ':' + occurrence_type)`
+- Consulta: `SELECT` pela chave de idempotência — determinística e indexada
+- Os 3 cenários exercidos com fixtures no ambiente de teste (preview do Skip)
+- Evidência: captura sanitizada de cada cenário (ID mascarado)
+
+### Pontos de parada
+
+- A consulta não diferenciar confirmada/ausente/inconclusivo → parar
+- A prova exigir escrita no Portal → parar (fora do escopo da emenda)
