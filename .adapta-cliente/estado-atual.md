@@ -3,36 +3,37 @@
 - task_id: F1-T08
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: 04_fase-atual/specs/spec-f1-003-painel-de-cobertura-operacional.md §BLOQUEIO-F1-003-B/C
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente — decisões de negócio recebidas (formulário 2026-09-30T14:11), autorização de implementação ainda não dada
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-09-30T14:11:00-03:00 — champion autorizou o plano ("sim") após as decisões de negócio do formulário
 - teste_humano: pendente
-- verificacao_automatica: pendente
+- verificacao_automatica: passou — mapa criado com todas as fontes (dono, latência, timestamp), destino e RLS autorizados; emendas append-only na SPEC-1-003 (B/C) e SPEC-1-002 (checkbox F1-T04); fase.md 8/8; STATUS 100%; changelog atualizado; nenhum segredo em artefatos
 - aprendizado: pendente
-- ultima_acao: Decisões de negócio da F1-T08 recebidas do champion (latência unidades = diária; reuniões = entrada assistida manual agora; RLS painel = todos autenticados; deploy = Luis Carlos via Builder/MCP)
-- proxima_acao: Aguardar autorização do champion para implementar o plano da F1-T08
-- atualizado_em: 2026-09-30T14:12:00-03:00
+- ultima_acao: Implementação da F1-T08 concluída — mapa-fontes-painel.md criado, SPECs emendadas, fase/STATUS/changelog atualizados
+- proxima_acao: Aguardar teste humano do champion (revisão do mapa e das emendas)
+- atualizado_em: 2026-09-30T14:15:00-03:00
 
-## Análise F1-T08 — Documentar fontes, latência, destino e RLS do painel
-
-**Critério binário:** "Fontes, campos, latência, destino do painel, dono do deploy e RLS de leitura documentados e autorizados."
-
-**Decisões do Champion recebidas (2026-09-30, formulário):**
+## Decisões do Champion implementadas na F1-T08 (2026-09-30)
 
 | # | Decisão | Escolha |
 |---|---|---|
-| 1 | Latência das fontes de unidades (Acuidar + Dona Help) | **Diária** |
-| 2 | Fonte de reuniões | **Entrada assistida manual agora** (conector Google Agenda na leva técnica, se aprovado) |
-| 3 | RLS de leitura do painel | **Todos autenticados** (consistente com matriz F1-T04; painel não escreve) |
-| 4 | Dono do deploy do painel | **Luis Carlos via Builder/MCP** (mesmo padrão da F1-T03) |
+| 1 | Latência das fontes de unidades (Acuidar + Dona Help) | Diária |
+| 2 | Fonte de reuniões | Entrada assistida manual agora (conector Google Agenda na leva técnica) |
+| 3 | RLS de leitura do painel | Todos autenticados (consistente com matriz F1-T04); painel não escreve |
+| 4 | Dono do deploy do painel | Luis Carlos via Builder/MCP (mesmo padrão F1-T03) |
 
-**Plano (aguardando autorização):**
-1. Criar `06_notas/mapa-fontes-painel.md` — mapa fonte → dados → latência → dono → timestamp, cobrindo as duas empresas (Acuidar 172 unidades / Dona Help 45 unidades) e as 4 decisões acima.
-2. Registrar destino do painel (intranet Skip 51740) e RLS de leitura (todos autenticados, somente leitura) no mesmo documento.
-3. Emenda append-only na SPEC-1-003 (decisões de fontes/latência/destino/RLS + multiempresa) e correção do checklist da SPEC-1-002 (matriz F1-T04 aprovada — registro omitido no fechamento da F1-T04).
-4. Marcar F1-T08 em `fase.md`, atualizar STATUS.md (8/8 — 100%), changelog.md e estado.
-5. Remover o hook temporário `validar-contrato-donahelp` (Skip) após formalização — registrado como pendência de limpeza.
+**Artefatos entregues:**
+- `06_notas/mapa-fontes-painel.md` — mapa completo de fontes/latência/destino/RLS (commit 89b7b94)
+- SPEC-1-003 emendada (commit 995c0dd) — resolve BLOQUEIO-F1-003-B e C
+- SPEC-1-002 emendada (commit 062c400) — checkbox da matriz F1-T04 corrigido
+- fase.md 8/8 (commit 4d2eda3), STATUS.md 100% (commit a1b81c9), changelog (commit 509f040)
 
-**Pontos de parada:** fonte sem dono/timestamp → parar; painel puder escrever na origem → parar; RLS não testável → parar.
+## Roteiro de teste humano (F1-T08)
+
+1. Ler `06_notas/mapa-fontes-painel.md` e conferir se as 4 decisões estão corretas.
+2. Conferir a emenda na SPEC-1-003 (tabela de emendas + checklist com B e C marcados).
+3. Conferir que fase.md mostra 8/8 e STATUS.md mostra 100%.
+
+**Resultado esperado:** mapa fiel às decisões; SPECs coerentes; nenhum segredo nos artefatos.
 
 ## Sinal multiempresa — Dona Help (2026-09-30)
 
