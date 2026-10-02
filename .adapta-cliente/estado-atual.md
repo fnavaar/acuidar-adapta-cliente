@@ -3,14 +3,14 @@
 - task_id: LT-1-T01 (leva técnica — tela de login da intranet)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: leva técnica (LT) gerada a partir das SPECs 1-001/1-002/1-003 desbloqueadas + matriz F1-T04
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-10-02T09:30:00-03:00 — champion autorizou o plano ("sim") após o relatório de análise
-- teste_humano: pendente
-- verificacao_automatica: passou — build/QA v0.0.8 sem erros (setup, staticAnalysis, build, integrations, test); provas em navegador no preview: login válido (consultor-teste) → home com nome e role "consultor"; logout → volta ao login; acesso a / sem sessão → redirecionado ao login (guard de rota); senha errada → mensagem genérica "E-mail ou senha inválidos." sem revelar detalhes; screenshots em artifacts/ (lt1t01-home-consultor.png, lt1t01-erro-credencial.png)
-- aprendizado: pendente
-- ultima_acao: LT-1-T01 implementada (Login.tsx novo, Index.tsx home autenticada, App.tsx com guard de rota) e provas de navegador executadas no preview
-- proxima_acao: Aguardar teste humano do champion no preview
-- atualizado_em: 2026-10-02T09:35:00-03:00
+- teste_humano: aprovado — 2026-10-02T09:51:00-03:00 — champion testou no preview e confirmou ("tudo ok")
+- verificacao_automatica: passou — revalidação do zero: build/QA v0.0.8 sem erros; provas de navegador repetidas (login consultor-teste → home com role; logout; guard de rota; erro genérico em senha errada) + prova adicional com gestor-teste (login válido → home com badge "gestor") confirmando que o role vem do registro do usuário; conferência de segredos no código entregue (nenhuma senha/token hardcoded)
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-0955-skip-preview-redirect.md
+- ultima_acao: LT-1-T01 concluída — primeira task da leva técnica fechada com teste humano aprovado
+- proxima_acao: Aguardar pedido do champion para a próxima task da leva técnica (fluxo de registro — SPEC-1-001)
+- atualizado_em: 2026-10-02T09:56:00-03:00
 
 ## O que foi implementado (LT-1-T01 — Skip v0.0.8, QA ✓)
 
@@ -19,27 +19,18 @@
 3. **`src/App.tsx`** — rota `/login` pública; rota `/` protegida pelo `RequireAuth` (não autenticado → redireciona a `/login`).
 4. Sessão persistida pelo store do PocketBase (sobrevive a recarregar a página).
 
-**Fora do escopo desta task:** fluxo de registro, ocorrências, painel, gestão de usuários, recuperação de senha (tasks seguintes da leva técnica).
-
-## Provas de navegador executadas (preview, v0.0.8)
+## Provas executadas (preview, v0.0.8)
 
 | # | Prova | Resultado | ✓ |
 |---|---|---|---|
-| 1 | Login válido (consultor-teste) | redireciona a `/` — home mostra "Bem-vindo, Consultor Teste" + badge "consultor" | ✓ |
+| 1 | Login válido (consultor-teste) | home "Bem-vindo, Consultor Teste" + badge "consultor" | ✓ |
 | 2 | Logout | volta a `/login` | ✓ |
 | 3 | Acesso a `/` sem sessão | redirecionado a `/login` (guard de rota) | ✓ |
-| 4 | Senha errada | mensagem genérica "E-mail ou senha inválidos.", permanece no login | ✓ |
+| 4 | Senha errada | mensagem genérica "E-mail ou senha inválidos." | ✓ |
+| 5 | Login válido (gestor-teste) — revalidação | home "Bem-vindo, Gestor Teste" + badge "gestor" | ✓ |
+| 6 | Logout (gestor) — revalidação | volta a `/login` | ✓ |
 
-## Roteiro de teste humano (LT-1-T01)
-
-1. Abra o preview: https://adapta-cliente-c2bc2--preview.goskip.app/login
-2. Logue com `consultor-teste@acuidarbr.com.br` / senha da conta de teste (com o champion).
-3. **Esperado:** home com "Bem-vindo, Consultor Teste" e badge "consultor".
-4. Clique em **Sair** — deve voltar ao login.
-5. Tente acessar a home de novo sem logar — deve ser redirecionado ao login.
-6. (Opcional) Tente logar com senha errada — deve aparecer "E-mail ou senha inválidos." sem revelar mais nada.
-
-**Como reconhecer falha:** login válido não entra; erro genérico não aparece em senha errada; rota `/` acessível sem sessão; logout não bloqueia a home.
+**Segurança conferida:** nenhuma senha/token no código entregue; erro de login genérico (não revela existência de conta); senha nunca logada.
 
 ## Pendências de limpeza (registradas)
 
