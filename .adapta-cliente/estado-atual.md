@@ -1,89 +1,55 @@
 # Estado atual — Adapta Cliente
 
-- task_id: F1-T08
+- task_id: LT-1-T01 (leva técnica — tela de login da intranet)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: 04_fase-atual/specs/spec-f1-003-painel-de-cobertura-operacional.md §BLOQUEIO-F1-003-B/C
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-09-30T14:11:00-03:00 — champion autorizou o plano ("sim") após as decisões de negócio do formulário
-- teste_humano: aprovado — 2026-09-30T14:15:00-03:00 — champion revisou mapa, emendas e STATUS ("tudo certo")
-- verificacao_automatica: passou — mapa verificado no repo (SHA 69653827); emendas append-only na SPEC-1-003 (B/C) e SPEC-1-002 confirmadas por commit; fase.md 8/8; STATUS 100%; changelog; nenhum segredo em artefatos. Regressão RLS em runtime EXECUTADA após recuperação do Skip Cloud (503 temporário, 20 tentativas ~14:15-14:35): leitura OK para os 3 perfis (200), DELETE por consultor negado (403), GET individual sem auth negado (404), list sem auth = 200 com lista VAZIA (comportamento PocketBase: listRule é filtro por registro; dados protegidos — AP-2026-09-30-1725)
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-09-30-1715-http-send-body-bytes.md + AP-2026-09-30-1725-pocketbase-listrule-anonimo.md
-- ultima_acao: F1-T08 concluída com regressão RLS executada e aprovada — fase 1 de desbloqueio completa (8/8, 100%)
-- proxima_acao: Fase só fecha após validação do consultor; então geração da leva técnica (gerar-tasks) para as SPECs 1-001, 1-002 e 1-003
-- atualizado_em: 2026-09-30T14:36:00-03:00
+- spec: SPEC-1-001/1-002/1-003 (leva técnica gerada a partir das 3 SPECs desbloqueadas) + matriz F1-T04
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: Leva técnica aberta por decisão do champion (2026-10-02); primeira task técnica selecionada e analisada: tela de login da intranet
+- proxima_acao: Aguardar autorização do champion para implementar a tela de login
+- atualizado_em: 2026-10-02T09:30:00-03:00
+
+## Nota sobre o portão de validação do consultor
+
+O método prevê validação do consultor do fechamento da fase 1 antes da leva técnica. O champion autorizou explicitamente começar a leva técnica agora ("Começar a leva técnica agora"); a pendência de validação do consultor está registrada no changelog (2026-10-02) e permanece aberta para a próxima sincronização.
+
+## Task LT-1-T01 — Tela de login da intranet (análise)
+
+**Por que esta task primeiro:** todas as telas do fluxo dependem de autenticação; as 3 contas de teste da F1-T04 existem e funcionam via API, mas não há como logar pela interface. É o menor recorte que destrava a demonstração de tudo o mais.
+
+**Critério binário proposto:** "Um usuário com conta na intranet consegue autenticar-se pela tela de login e acessar a área autenticada; credenciais inválidas recebem erro claro sem revelar detalhes; usuário não autenticado que acessa rota protegida é redirecionado ao login."
+
+**Escopo mínimo:**
+1. Página `/login` com e-mail + senha (PocketBase auth-with-password).
+2. Rota protegida `/` (home autenticada mínima: saudação + role do usuário + botão sair).
+3. Guard de rota: não autenticado → redireciona a `/login`.
+4. Sessão persistida (PocketBase store) e logout funcional.
+5. Erro de credencial inválida: mensagem genérica ("E-mail ou senha inválidos"), sem revelar se a conta existe.
+
+**Fora do escopo desta task:** fluxo de registro de reuniões, ocorrências, painel, gestão de usuários (criação continua via admin/API), recuperação de senha (leva futura).
+
+**Arquivos afetados:** `src/pages/Login.tsx` (novo), `src/pages/Index.tsx` (home autenticada mínima), `src/App.tsx` (rotas), `src/lib/pocketbase/client.ts` (reuso), `src/components/Layout.tsx` (header com usuário/sair).
+
+**Matriz critério → prova:**
+| Critério | Prova |
+|---|---|
+| Login válido autentica | login com consultor-teste → home com nome/role |
+| Login inválido nega | senha errada → mensagem genérica, sem acesso |
+| Guard de rota | acessar `/` sem sessão → redireciona a `/login` |
+| Logout | sair → volta ao login; rota protegida bloqueada de novo |
+| Sessão persiste | recarregar a página mantém a sessão |
+
+**Riscos/caminhos de erro:** timeout do backend (mensagem de indisponibilidade), 404 de usuário (mesma mensagem de credencial inválida — não revelar existência), sessão expirada (redireciona ao login). Segurança: nada de senha em log; auto-cancellation do PB configurado.
+
+**Teste humano esperado:** logar com `consultor-teste@acuidarbr.com.br` no preview, ver a home com o role, sair, tentar acessar sem login e ser redirecionado.
 
 ## Pendências de limpeza (registradas)
 
-- Fixtures de teste `18l0hqe6k413h4v` e `wt02yp2kpzxm7ba` na base — exclusão exige superuser; remover via painel admin ou migration de limpeza na leva técnica.
+- Fixtures de teste `18l0hqe6k413h4v` e `wt02yp2kpzxm7ba` na base — exclusão exige superuser; remover via painel admin ou migration de limpeza.
 - Hook temporário `validar-contrato-donahelp` (Skip v0.0.7) — remover após formalização da task de integração multiempresa.
 - Arquivo `.skip.config.json` aparece com mudança pendente no working tree do Skip (não alterado por nós) — inspecionar antes do próximo apply_changes.
 - Rotação recomendada das credenciais que passaram pelo chat antes dos Secrets (chave Google, token Acuidar) — após estabilização.
-
-## Decisões do Champion implementadas na F1-T08 (2026-09-30)
-
-| # | Decisão | Escolha |
-|---|---|---|
-| 1 | Latência das fontes de unidades (Acuidar + Dona Help) | Diária |
-| 2 | Fonte de reuniões | Entrada assistida manual agora (conector Google Agenda na leva técnica) |
-| 3 | RLS de leitura do painel | Todos autenticados (consistente com matriz F1-T04); painel não escreve |
-| 4 | Dono do deploy do painel | Luis Carlos via Builder/MCP (mesmo padrão F1-T03) |
-
-**Artefatos entregues:**
-- `06_notas/mapa-fontes-painel.md` — mapa completo de fontes/latência/destino/RLS (commit 89b7b94)
-- SPEC-1-003 emendada (commit 995c0dd) — resolve BLOQUEIO-F1-003-B e C
-- SPEC-1-002 emendada (commit 062c400) — checkbox da matriz F1-T04 corrigido
-- fase.md 8/8 (commit 4d2eda3), STATUS.md 100% (commit a1b81c9), changelog (commit b27f4fa)
-
-## Sinal multiempresa — Dona Help (2026-09-30)
-
-Decisões aprovadas pelo Champion (detalhes em `06_notas/sinal-multiempresa-dona-help.md`):
-
-| Decisão | Escolha |
-|---|---|
-| Momento | Agora, na fase 1 |
-| Contrato da API | Formato diferente da Acuidar — URL do endpoint a fornecer |
-| Modelo | Mesmo sistema, separação por campo empresa |
-| Governança | Mesmo champion para as duas empresas |
-
-**Contrato VALIDADO (2026-09-30, padrão F1-T01):** `GET https://app.donahelpbr.com.br/api/dados/unidades` — auth `Authorization: <token>` puro (sem Bearer); sucesso = HTTP 200 com **array direto** (sem wrapper `{status,message,dados}` da Acuidar); **45 unidades**; códigos únicos 45/45 no campo `codigo`; mesmos 15 campos da Acuidar. Token gravado pelo Champion nos Secrets do Skip (`DONAHELP_PORTAL_TOKEN`) — nunca passou pelo chat. Validação via hook temporário `validar-contrato-donahelp` (Skip v0.0.7, lê `$secrets.get` server-side) — hook a remover após formalização. Parser futuro: detectar wrapper (Acuidar) vs array direto (Dona Help).
-
-## O que foi implementado (F1-T04)
-
-### 1. Documento da matriz: `06_notas/matriz-perfis-rls.md`
-| Permissão | Consultor | Gestor/Coordenador | Administrador |
-|---|---|---|---|
-| `consultar` | ✓ | ✓ | ✓ |
-| `editar rascunho` | ✓ | ✓ | ✓ |
-| `solicitar exceção` | ✓ | ✓ | ✓ |
-| `aprovar exceção` | ✗ | ✓ | ✓ |
-| `confirmar criação` | ✓ | ✓ | ✓ |
-
-### 2. Migration 0002 — campo `role` em `users` (consultor | gestor | administrador)
-
-### 3. Migration 0003 — RLS da collection `ocorrencias` conforme a matriz
-- list/view/create: `@request.auth.id != ''` (todos autenticados)
-- update: negado ao consultor quando `estado = aguardando_aprovacao_de_excecao` (só gestor/admin)
-- delete: `null` (superuser only — ninguém exclui ocorrência)
-
-### 4. Contas de teste criadas
-- `consultor-teste@acuidarbr.com.br` (role consultor)
-- `gestor-teste@acuidarbr.com.br` (role gestor)
-- `admin-teste@acuidarbr.com.br` (role administrador)
-
-## Provas executadas (Skip 51740, versão 0.0.5)
-
-| # | Prova | Resultado | ✓ |
-|---|---|---|---|
-| 1 | Consultor cria ocorrência (editar rascunho) | HTTP 200 | ✓ |
-| 2 | **Consultor tenta editar registro em `aguardando_aprovacao_de_excecao`** | **HTTP 404 (negação por RLS — registro invisível ao consultor)** | ✓ |
-| 3 | Gestor edita o mesmo registro (aprovar exceção) | HTTP 200 | ✓ |
-| 4 | Consultor consulta (list) | HTTP 200 | ✓ |
-| 5 | Consultor tenta EXCLUIR ocorrência | **HTTP 403 "Only superusers"** | ✓ |
-| 6 | Administrador edita registro em aguardando aprovação | HTTP 200 | ✓ |
-| 7 | Consultor edita registro em estado normal | HTTP 200 | ✓ |
-
-**Revalidação do zero (fechamento F1-T04, RV-1 a RV-9):** reautenticação das 3 contas + repetição de todas as provas + regressão do endpoint de recuperação + conferência de segredos. Todos os critérios PASSOU.
-
-**Nota sobre a prova 2:** o PocketBase responde 404 (e não 403) quando a updateRule nega — o registro fica invisível ao perfil sem permissão. É negação efetiva (o consultor não consegue aprovar a própria exceção), conforme CA-1-10. Documentado no aprendizado AP-2026-09-30-1645.
-
-**Nota da regressão F1-T08 (2026-09-30 ~14:35):** list sem auth retorna 200 com lista vazia (listRule do PocketBase é filtro por registro — dados protegidos, 0 itens vs 2 com auth); GET individual sem auth → 404; DELETE consultor → 403. Documentado em AP-2026-09-30-1725; a UI do painel deve checar autenticação no cliente.
+- Validação do consultor do fechamento da fase 1 — pendência registrada no changelog (2026-10-02).
