@@ -3,51 +3,62 @@
 - task_id: LT-1-T03 (leva técnica — fila de revisão e aprovação de exceções)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: SPEC-1-002 (estados, exceções auditáveis e idempotência) + política F1-T05 (RN-1-11 a RN-1-14) + matriz F1-T04
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-10-02T11:48:00-03:00 — champion autorizou o plano ("sim") após o relatório de análise
 - teste_humano: pendente
-- verificacao_automatica: pendente
-- aprendizado: pendente
-- ultima_acao: Análise profunda da LT-1-T03 concluída (terceira task da leva técnica)
-- proxima_acao: Aguardar autorização do champion para implementar
-- atualizado_em: 2026-10-02T11:48:00-03:00
+- verificacao_automatica: passou — build/QA v0.0.18 sem erros; 11 provas de API (P1–P11): consultor bloqueado na aprovação (404 defesa), gestor sem motivo → negado, transição inválida → negada, gestor aprova com trilha (papel gestor), gestor rejeita → aguardando_correcao, autoaprovação bloqueada (CA-1-07), DELETE → 403, consultor corrige rascunho, RLS de PATCH direto ok, migração 0004 (criado_por/aprovador_por/empresa) aplicada; prova de navegador: fila carrega, gestor aprova exceção pela UI com motivo → confirmado
+- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-1150-jsvm-auth-role.md
+- ultima_acao: LT-1-T03 implementada (Fila.tsx, hook ocorrencias_transicao.js, migration 0004, navegação) e provas executadas
+- proxima_acao: Aguardar teste humano do champion no preview
+- atualizado_em: 2026-10-02T11:55:00-03:00
 
-## Task LT-1-T03 — Fila de revisão e aprovação de exceções (análise)
+## O que foi implementado (LT-1-T03 — Skip v0.0.18, QA ✓)
 
-**Objetivo:** tela onde o consultor/gestor vê as ocorrências por estado, revisa, corrige e aprova/rejeita exceções de data — aplicando a máquina de estados da SPEC-1-002 e a matriz de perfis da F1-T04 (consultor NÃO aprova exceção; gestor/admin aprovam; ninguém exclui).
+1. **`pocketbase/migrations/0004_ocorrencias_campos_fluxo.js`** — campos `criado_por` (solicitante), `aprovador_por` (quem decidiu a exceção) e `empresa` (multiempresa) na collection `ocorrencias`.
+2. **`pocketbase/hooks/ocorrencias_transicao.js` (novo)** — transição de estado com: máquina de estados da SPEC-1-002 (tabela de pares permitidos), consultor bloqueado em aguardando_aprovacao (404 defesa + RLS), aprovador ≠ solicitante (CA-1-07), motivo obrigatório nas decisões, trilha auditável no campo motivo ([instante] id (papel): texto), 401 sem auth.
+3. **`src/pages/Fila.tsx` (novo)** — fila de ocorrências: filtro por estado (7 estados) e por empresa (Acuidar/Dona Help), badge de estado, detalhe em diálogo com trilha de decisão, botões por perfil (gestor/admin: aprovar/rejeitar com motivo; consultor: marcar correção concluída).
+4. **`src/App.tsx`** — rota protegida `/fila`; **`src/components/Layout.tsx`** — link "Fila de ocorrências" na navegação.
+5. **`pocketbase/hooks/ocorrencias_criar.js`** — agora grava `criado_por` e `empresa` na criação (CA-1-07 passa a valer para registros novos).
 
-**Critério binário proposto:** "A fila exibe as ocorrências por estado com detalhes e histórico; o consultor consegue mover rascunhos entre estados de correção mas recebe negação ao tentar aprovar exceção (CA-1-07/CA-1-10); o gestor/administrador aprova ou rejeita a exceção com ator, instante e motivo registrados; nenhuma transição inválida é aceita."
+## Provas executadas (v0.0.18)
 
-**Estado real (baseline inspecionado):** 16 ocorrências na base — 10 confirmado, 4 aguardando_aprovacao_de_excecao (fila real para aprovar!), 2 em_revisao. A RLS da F1-T04 já bloqueia o consultor em aguardando_aprovacao_de_excecao (404 por invisibilidade).
+| # | Prova | Resultado | ✓ |
+|---|---|---|---|
+| 1 | Fila lista 4 exceções pendentes (via gestor) | ok | ✓ |
+| 2 | Consultor tenta aprovar exceção | 404 (defesa em profundidade) | ✓ |
+| 3 | Gestor aprova sem motivo | negado — motivo obrigatório | ✓ |
+| 4 | Transição inválida (confirmado→pendente) | negada | ✓ |
+| 5 | Gestor aprova COM motivo | ok — confirmado, decidido_por, papel gestor | ✓ |
+| 6 | Gestor rejeita exceção | ok — aguardando_correcao com trilha | ✓ |
+| 7 | Consultor tenta aprovar a PRÓPRIA exceção | 404 (CA-1-07 + RLS) | ✓ |
+| 7c | Gestor aprova exceção do consultor | ok (pessoa distinta) | ✓ |
+| 8 | DELETE por gestor | 403 — ninguém exclui | ✓ |
+| 9 | Consultor corrige rascunho | ok — em_revisao com trilha | ✓ |
+| 10 | PATCH direto do consultor em exceção | RLS nega (404) | ✓ |
+| 11 | Navegador: gestor aprova pela UI | confirmado com trilha | ✓ |
 
-**Escopo mínimo (menor recorte completo da SPEC-1-002):**
-1. Página `/fila` — lista de ocorrências com filtro por estado (7 estados da SPEC-1-002) e por empresa; badge de estado; ordenação por updated desc.
-2. Detalhe da ocorrência (expansão ou painel) — todos os campos + motivo/justificativa quando houver.
-3. Transições permitidas por perfil (máquina de estados):
-   - Consultor: pode mover `aguardando_correcao` → `em_revisao` (corrigiu) e editar rascunho em estados normais; **não vê nem move** `aguardando_aprovacao_de_excecao` (RLS — invisível).
-   - Gestor/Admin: aprovar exceção (`aguardando_aprovacao_de_excecao` → `confirmado` ou → `aguardando_correcao` se rejeitada) com motivo; editar qualquer estado não confirmado.
-   - Ninguém: excluir; alterar `confirmado` (só correção posterior conforme política); alterar trilha.
-4. Registro auditável da decisão: ator (usuário autenticado), instante (updated), motivo — campos já existem no schema (motivo); aprovador = auth.id da transição.
-5. Bloqueio de transição inválida: hook valida pares permitidos (ex.: `confirmado` não volta a `pendente`); negação explícita com mensagem.
+**Bugs encontrados e corrigidos durante a implementação:**
+1. v0.0.13 — sintaxe (patch quebrou linha) + JSVM não acessa constantes top-level → lógica inline (v0.0.14).
+2. v0.0.15/16 — `findRecordById` no JSVM aplica regras da collection e falha (404) para registros em aguardando_aprovacao mesmo para gestor → substituído por `findRecordsByFilter` (via do hook F1-T06).
+3. v0.0.17 — **causa raiz real:** `auth.role` (propriedade) retorna `undefined` no JSVM — todo perfil era tratado como consultor → fix `auth.getString('role')` (v0.0.18). Capturado como AP-2026-10-02-1150.
 
-**Fora do escopo desta task:** painel de cobertura (LT-1-T04), lembretes/escalação automáticos de 24h/48h (RN-1-13 — requer cron; leva futura), comunicação ao franqueado.
+**Nota (comportamento PocketBase, AP-1725):** a listagem em aguardando_aprovacao aparece para o consultor (listRule é filtro de estado, não nega), mas ele NÃO consegue agir (hook nega 404; PATCH direto negado pela RLS). A UI orienta: "exceções aguardando aprovação não são visíveis ao consultor" — os botões de decisão só aparecem para gestor/admin.
 
-**Arquivos afetados:** `src/pages/Fila.tsx` (novo), `src/App.tsx` (rota), `src/components/Layout.tsx` (navegação), `pocketbase/hooks/ocorrencias_transicao.js` (novo — valida transição por perfil e registra motivo).
+**Fixtures de teste criadas nesta task (limpeza futura):** sc9v14w5z4w7xft, hpsbcienr2sz8io (+13 anteriores).
 
-**Decisões já fechadas que a task aplica:** máquina de estados e RN-1-06 a RN-1-10 (SPEC-1-002); política de exceção de data com aprovador ≠ solicitante e hierarquia (F1-T05); matriz 3×5 com RLS implementada (F1-T04); 404 = invisibilidade do consultor (AP-1645).
+## Roteiro de teste humano (LT-1-T03)
 
-**Matriz critério → prova:**
-| Critério | Prova |
-|---|---|
-| Fila exibe por estado | GET /fila → lista com filtro funcionando |
-| Consultor não aprova | consultor tenta PATCH em aguardando_aprovacao → negado (404 RLS) |
-| Gestor aprova com trilha | gestor aprova exceção real da fila (há 4 pendentes) → confirmado + motivo |
-| Rejeição retorna a correção | gestor rejeita → aguardando_correcao + motivo |
-| Transição inválida negada | tentar confirmado → pendente via hook → negado |
-| Ninguém exclui | DELETE por qualquer perfil → 403 (regressão F1-T04) |
+1. Abra o preview → login como **gestor-teste** → menu **Fila de ocorrências**.
+2. Filtre estado = "Aguardando aprovação de exceção" — deve listar as pendentes.
+3. Abra uma delas → escreva o motivo → **Aprovar exceção** → estado vira `confirmado` com trilha.
+4. Abra outra → **Rejeitar** com motivo → estado vira `aguardando_correcao`.
+5. Saia e entre como **consultor-teste** → as exceções aparecem na lista, mas SEM botões de decisão; tentar agir deve ser negado.
+6. **Como reconhecer falha:** consultor consegue aprovar; aprovação sem motivo passa; estado confirmado volta a pendente.
 
-**Riscos/caminhos de erro:** consultor tentando aprovar via API direta (bypass da UI) → RLS nega (404); gestor aprovando a própria solicitação → bloquear no hook (aprovador ≠ solicitante — CA-1-07); dupla aprovação concorrente → UNIQUE/estado no hook; sessão expirada → guard da LT-1-T01.
+## Pendências de limpeza (registradas)
 
-**Pergunta bloqueante:** nenhuma — política, matriz e estados todos aprovados em tasks anteriores.
-
-**Teste humano esperado:** abrir a fila no preview, ver as 4 exceções pendentes; com consultor, não vê-las; com gestor, aprovar uma com motivo e ver o estado mudar com trilha.
+- Fixtures de teste acumuladas (15 registros) — migration de limpeza na leva (exclusão exige superuser).
+- Hook temporário `validar-contrato-donahelp` (Skip v0.0.7) — remover após formalização da task multiempresa.
+- Arquivo `.skip.config.json` com mudança pendente no working tree (não alterado por nós) — inspecionar antes do próximo apply_changes.
+- Rotação recomendada das credenciais que passaram pelo chat (chave Google, token Acuidar).
+- Validação do consultor do fechamento da fase 1 — pendência registrada no changelog (2026-10-02).
