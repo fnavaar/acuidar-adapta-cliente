@@ -1,41 +1,50 @@
 # Estado atual — Adapta Cliente
 
-- task_id: LT-1-T01 (leva técnica — tela de login da intranet)
+- task_id: LT-1-T02 (leva técnica — registro de reunião → ocorrência)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: leva técnica (LT) gerada a partir das SPECs 1-001/1-002/1-003 desbloqueadas + matriz F1-T04
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-02T09:30:00-03:00 — champion autorizou o plano ("sim") após o relatório de análise
-- teste_humano: aprovado — 2026-10-02T09:51:00-03:00 — champion testou no preview e confirmou ("tudo ok")
-- verificacao_automatica: passou — revalidação do zero: build/QA v0.0.8 sem erros; provas de navegador repetidas (login consultor-teste → home com role; logout; guard de rota; erro genérico em senha errada) + prova adicional com gestor-teste (login válido → home com badge "gestor") confirmando que o role vem do registro do usuário; conferência de segredos no código entregue (nenhuma senha/token hardcoded)
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-0955-skip-preview-redirect.md
-- ultima_acao: LT-1-T01 concluída — primeira task da leva técnica fechada com teste humano aprovado
-- proxima_acao: Aguardar pedido do champion para a próxima task da leva técnica (fluxo de registro — SPEC-1-001)
-- atualizado_em: 2026-10-02T09:56:00-03:00
+- spec: SPEC-1-001 (fluxo direto de registro) + SPEC-1-002 (estados/idempotência) + RN-1-06 a RN-1-09
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: Análise profunda da LT-1-T02 concluída (segunda task da leva técnica)
+- proxima_acao: Aguardar autorização do champion para implementar
+- atualizado_em: 2026-10-02T10:00:00-03:00
 
-## O que foi implementado (LT-1-T01 — Skip v0.0.8, QA ✓)
+## Task LT-1-T02 — Registro de reunião → ocorrência (análise)
 
-1. **`src/pages/Login.tsx` (novo)** — formulário e-mail + senha via `pb.collection('users').authWithPassword`; erro genérico "E-mail ou senha inválidos." para qualquer falha (não revela existência de conta); estado de carregamento no botão.
-2. **`src/pages/Index.tsx` (home autenticada mínima)** — saudação com nome do usuário, badge do role (consultor/gestor/administrador) e botão Sair (`authStore.clear()`).
-3. **`src/App.tsx`** — rota `/login` pública; rota `/` protegida pelo `RequireAuth` (não autenticado → redireciona a `/login`).
-4. Sessão persistida pelo store do PocketBase (sobrevive a recarregar a página).
+**Objetivo:** tela onde o consultor registra uma reunião (entrada assistida manual — decisão F1-T08), seleciona a unidade pelo código oficial, revisa os campos e confirma a criação da ocorrência na intranet, com idempotência e estados da SPEC-1-002.
 
-## Provas executadas (preview, v0.0.8)
+**Critério binário proposto:** "Uma reunião com dados completos e unidade única cria exatamente uma ocorrência com estado inicial correto e comprovante com ID; reenvio da mesma origem não cria segunda ocorrência; campo ausente ou unidade ambígua mantém o item em aguardando_correcao."
 
-| # | Prova | Resultado | ✓ |
-|---|---|---|---|
-| 1 | Login válido (consultor-teste) | home "Bem-vindo, Consultor Teste" + badge "consultor" | ✓ |
-| 2 | Logout | volta a `/login` | ✓ |
-| 3 | Acesso a `/` sem sessão | redirecionado a `/login` (guard de rota) | ✓ |
-| 4 | Senha errada | mensagem genérica "E-mail ou senha inválidos." | ✓ |
-| 5 | Login válido (gestor-teste) — revalidação | home "Bem-vindo, Gestor Teste" + badge "gestor" | ✓ |
-| 6 | Logout (gestor) — revalidação | volta a `/login` | ✓ |
+**Escopo mínimo (menor recorte completo da SPEC-1-001):**
+1. Página `/reunioes/nova` — formulário: empresa (Acuidar/Dona Help), unidade (select carregado da API da empresa), data do fato (padrão = hoje), horário, tipo, título, relato.
+2. Validação de campos obrigatórios (RN-1-03): falta qualquer um → não cria, mostra pendência.
+3. Unidade única obrigatória (RN-1-01): select impede ambiguidade; sem unidade → bloqueia.
+4. Divergência de data (RN-1-02): data do fato ≠ data da reunião → fluxo de exceção da SPEC-1-002 (estado aguardando_aprovacao_de_excecao com justificativa).
+5. Criação com idempotência (CA-1-05): `idempotency_key = SHA-256(source_system:source_meeting_id:portal_unit_id:occurrence_type)` calculada e persistida antes; reenvio com a mesma chave → rejeitado pelo índice UNIQUE (comprovado na F1-T06).
+6. Comprovante: estado `confirmado` só com ID do registro criado (RN-1-04); falha → estado explícito, nunca sucesso falso (RN-1-05).
+7. Multiunidade (RN-1-07): checkbox "evento multiunidade" habilita múltiplas unidades (Café com Franqueados, Day Fusion).
 
-**Segurança conferida:** nenhuma senha/token no código entregue; erro de login genérico (não revela existência de conta); senha nunca logada.
+**Fora do escopo desta task:** fila de revisão/aprovação (LT-1-T03), painel (LT-1-T04), conector Google Agenda (leva futura), comunicação ao franqueado.
 
-## Pendências de limpeza (registradas)
+**Arquivos afetados:** `src/pages/NovaReuniao.tsx` (novo), `src/App.tsx` (rota protegida), `src/lib/unidades.ts` (novo — busca unidades das 2 empresas com parser wrapper/array), `src/components/Layout.tsx` (navegação).
 
-- Fixtures de teste `18l0hqe6k413h4v` e `wt02yp2kpzxm7ba` na base — exclusão exige superuser; remover via painel admin ou migration de limpeza.
-- Hook temporário `validar-contrato-donahelp` (Skip v0.0.7) — remover após formalização da task de integração multiempresa.
-- Arquivo `.skip.config.json` aparece com mudança pendente no working tree do Skip (não alterado por nós) — inspecionar antes do próximo apply_changes.
-- Rotação recomendada das credenciais que passaram pelo chat antes dos Secrets (chave Google, token Acuidar) — após estabilização.
-- Validação do consultor do fechamento da fase 1 — pendência registrada no changelog (2026-10-02).
+**Decisões de negócio já fechadas que a task aplica:** chave = código da unidade (F1-T02); elegibilidade total (F1-T02); cancelamento/remarcação mantêm registro (F1-T02); estados da SPEC-1-002; idempotência SHA-256 (F1-T06).
+
+**Matriz critério → prova:**
+| Critério | Prova |
+|---|---|
+| Criação única com ID | reunião válida → 1 registro, estado confirmado, comprovante com ID |
+| Reenvio não duplica | mesma origem 2× → segunda rejeitada (UNIQUE) |
+| Campo ausente | sem título → não cria, mostra pendência |
+| Unidade única | select sempre 1 unidade (ou multiunidade explícita) |
+| Divergência de data | data diferente → estado aguardando_aprovacao_de_excecao + justificativa |
+| Estados corretos | falha → falha_de_gravacao; nunca sucesso falso |
+
+**Riscos/caminhos de erro:** API de unidades indisponível → estado dados_indisponiveis no select (RN-1-14); timeout na criação → possivel_duplicidade (nunca retry cego — RN-1-09); relato com HTML/execução → bloqueado (RN-1-05A, linha vermelha de segurança); sessão expirada → redireciona ao login (guard já pronto da LT-1-T01).
+
+**Pergunta bloqueante:** nenhuma — todas as decisões de negócio já foram aprovadas em tasks anteriores.
+
+**Teste humano esperado:** registrar uma reunião de teste no preview, ver o comprovante com ID, tentar reenviar a mesma reunião e ver a rejeição de duplicidade.
