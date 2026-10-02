@@ -1,34 +1,47 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (LT-1-T05 concluída)
+- task_id: LT-1-T06 (leva técnica — RLS por empresa: isolamento de acesso entre Acuidar e Dona Help)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: emendas append-only nas SPECs 1-001, 1-002 e 1-003 (multiempresa) + `06_notas/sinal-multiempresa-dona-help.md`
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-02T15:42Z — champion autorizou o plano ("sim", incluindo a limpeza das fixtures)
-- teste_humano: aprovado — 2026-10-02T15:47Z — champion confirmou o teste ("sim")
-- verificacao_automatica: passou — revalidação do zero (v0.0.24): banco com ZERO fixtures (3 registros reais), hook temporário 404, emenda "LT-1-T05 — Formalização multiempresa" presente nas 3 SPECs (verificadas via GitHub raw), regressão pós-0006 (fila 200, painel ok 174 unidades)
-- aprendizado: sem sinal reutilizável — a única lição (fixtures de teste criadas por automação devem ser limpas na mesma task que as criou) já está coberta pelas lições de teste humano registradas em 2026-10-02
-- ultima_acao: LT-1-T05 concluída (migration 0006 complementar excluiu a última fixture da regressão)
-- proxima_acao: Aguardar pedido do champion (LT-1-T06 — RLS por empresa — já sinalizada como próxima)
-- atualizado_em: 2026-10-02T15:55:00-03:00
+- spec: decisão do Champion de 2026-10-02T15:43Z (RLS por empresa) + matriz F1-T04 (`06_notas/matriz-perfis-rls.md`) + emendas multiempresa nas SPECs 1-001/1-002/1-003 (LT-1-T05)
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: pendente — análise apresentada ao champion em 2026-10-02T16:05Z; aguardando "sim" em mensagem posterior
+- teste_humano: pendente (após implementação)
+- verificacao_automatica: pendente (após implementação)
+- aprendizado: pendente
+- ultima_acao: análise profunda da LT-1-T06 concluída (baseline: campo role existe (0002); RLS atual de ocorrencias não filtra por empresa (0003); 3 contas de teste; listagem de users limitada pela listRule — normal)
+- proxima_acao: aguardar autorização para implementar
+- atualizado_em: 2026-10-02T16:05:00-03:00
 
-## Histórico da LT-1-T05 (concluída)
+## Regra aprovada pelo Champion (2026-10-02T15:43Z)
 
-**Implementação (v0.0.23–v0.0.24):**
-1. Migration 0005 — 26 fixtures de teste excluídas (IDs conferidos 1 a 1; banco 27 → 1).
-2. Hook temporário `validar_contrato_donahelp.js` removido — rota 404 provada.
-3. Emendas append-only multiempresa nas 3 SPECs (commits f73d467, 1c6fc79, 7a4ad43).
-4. Regressão completa pós-limpeza: login 3 perfis, idempotência, transição com trilha, fila com RLS, painel multiempresa (Acuidar 174 / Dona Help 55).
-5. Migration 0006 (v0.0.24) — última fixture da regressão ("R6 transicao") excluída; banco final: 3 registros REAIS (1 da LT-1-T03 + 2 criados pelo champion durante os testes).
+- Consultora **Dona Help** → vê/registra SOMENTE unidades e ocorrências Dona Help
+- Consultora **Acuidar** → vê/registra SOMENTE unidades e ocorrências Acuidar
+- **Gestores/Administradores** → veem ambas as empresas
 
-**Critérios:** CA-A ✓ (emendas nas 3 SPECs) · CA-B ✓ (hook 404) · CA-C ✓ (zero fixtures) · CA-D ✓ (regressão completa).
+## Plano acordado na análise (resumo para o implementador)
 
-## Próxima task sinalizada (não iniciada)
+1. **Migration 0007 — campo `empresas_autorizadas`** na collection `users` (select múltiplo: acuidar/donahelp). Preenchimento: gestor-teste e admin-teste = ambas; consultor-teste = acuidar. Nova conta de teste `consultora-donahelp-teste` (role consultor, empresas_autorizadas = donahelp).
+2. **Migration 0008 — RLS por empresa na collection `ocorrencias`**: listRule/viewRule/updateRule com filtro por `empresas_autorizadas` do auth (gestor/admin = ambas). Consultor de uma empresa NÃO vê ocorrências da outra (404 por invisibilidade — padrão PocketBase, já documentado em AP-1645).
+3. **Hooks server-side (defesa em profundidade)**: `ocorrencias_criar` e `painel_cobertura` e `unidades_proxy` passam a validar a empresa contra `empresas_autorizadas` do auth (consultora Dona Help pedindo unidade Acuidar → negado explicitamente).
+4. **Frontend**: `/reunioes/nova` e `/painel` mostram SOMENTE as empresas autorizadas do usuário (seletivo oculto quando há 1; filtro limitado); `/fila` lista apenas ocorrências das empresas autorizadas (a RLS já filtra; UI ajusta os filtros).
+5. **Provas**: consultora-donahelp não vê unidades/ocorrências Acuidar (nem via hook, nem via API direta); consultor-acuidar não vê Dona Help; gestor vê ambas; autoaprovação e CA-1-07 continuam valendo; regressão completa do fluxo.
 
-**LT-1-T06 — RLS por empresa** (decisão do champion, 2026-10-02T15:43Z): consultoras Dona Help veem só unidades Dona Help; consultoras Acuidar só Acuidar; gestores/admins veem ambas. Exige campo `empresas_autorizadas` no usuário + filtro server-side nos hooks e na lista de unidades + contas de teste para provar o isolamento.
+## Critérios de aceite (propostos, binários)
 
-## Pendências restantes
+- CA-A: consultora Dona Help não lista unidades Acuidar (proxy nega) e não vê ocorrências Acuidar (RLS 404 + hook nega)
+- CA-B: consultora Acuidar não vê nada de Dona Help (mesmas provas, invertido)
+- CA-C: gestor/admin veem ambas as empresas (fluxo completo nas duas)
+- CA-D: tentativa de burlar via API direta (PATCH/POST com empresa estrangeira) é negada server-side
+- CA-E: regressão completa do fluxo (login, registro, fila, painel) passa para os 3 perfis originais
 
-- Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets.
+## Pendências fora do escopo
+
+- Rotação das credenciais que passaram pelo chat — ação do champion nos Secrets.
 - Validação do consultor do fechamento da fase 1 — gate humano do método.
-- Conector Google Agenda — construção nova, exige decisão de escopo do champion.
+- Conector Google Agenda — exige decisão de escopo do champion.
+
+## Fontes
+
+- Decisão do champion registrada no changelog/estado (2026-10-02T15:43Z)
+- `06_notas/matriz-perfis-rls.md` (matriz de perfis vigente)
+- AP-2026-09-30-1645 (RLS do PocketBase nega por invisibilidade — 404)
