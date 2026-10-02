@@ -1,49 +1,35 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (LT-1-T03 concluída — leva técnica 3/4)
+- task_id: LT-1-T04 (leva técnica — painel de cobertura operacional, SPEC-1-003)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: SPEC-1-002 (estados, exceções auditáveis e idempotência) + política F1-T05 (RN-1-11 a RN-1-14) + matriz F1-T04
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-02T11:48:00-03:00 — champion autorizou o plano ("sim") após o relatório de análise
-- teste_humano: aprovado — 2026-10-02T15:21Z — champion testou no preview ("agora funcionou"): aprovação de exceção pela UI com trilha gravada (t7nfareuzlwkwr7 → confirmado, aprovador pf83y2t784z0x4v, papel gestor)
-- verificacao_automatica: passou — revalidação do zero na v0.0.20 (14 provas RV): consultor bloqueado na aprovação (404), motivo obrigatório, transições inválidas negadas, DELETE 403, sem auth 401, autoaprovação CA-1-07 bloqueada, gestor aprova/rejeita com trilha, consultor corrige rascunho, RLS de PATCH direto (404), idempotência CA-1-08 (reenvio não duplica), linha vermelha RN-1-05A (script bloqueado → aguardando_correcao), multiempresa Dona Help ok, build/QA v0.0.20 sem erros
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-1150-jsvm-auth-role.md
-- ultima_acao: LT-1-T03 concluída após 2 rodadas de debug (roteamento preview→backend; trilha de fixture poluída foi limpa)
-- proxima_acao: Aguardar pedido do champion para selecionar a próxima task (LT-1-T04 — painel de cobertura, SPEC-1-003, é a seguinte na fila)
-- atualizado_em: 2026-10-02T15:30:00-03:00
+- spec: SPEC-1-003 (painel de cobertura operacional) + mapa de fontes F1-T08 (`06_notas/mapa-fontes-painel.md`) + semântica de estados F1-T07 (`06_notas/politica-datas-elegibilidade-estados.md`) + matriz F1-T04
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: pendente — análise apresentada ao champion em 2026-10-02T15:30Z; aguardando "sim" em mensagem posterior
+- teste_humano: pendente (após implementação)
+- verificacao_automatica: pendente (após implementação)
+- aprendizado: pendente
+- ultima_acao: análise profunda da LT-1-T04 concluída (baseline medido: 25 ocorrências — 21 confirmado, 3 em_revisao, 1 aguardando_aprovacao; 8 acuidar + 1 donahelp + 16 pré-LT03 sem campo empresa; proxy de unidades ok 174+55)
+- proxima_acao: aguardar autorização para implementar
+- atualizado_em: 2026-10-02T15:35:00-03:00
 
-## Histórico da LT-1-T03 (concluída)
+## Plano acordado na análise (resumo para o implementador)
 
-**Implementação (v0.0.14–v0.0.20):** migration 0004 (criado_por/aprovador_por/empresa), hook de transição com máquina de estados + perfis + aprovador≠solicitante + trilha auditável, tela /fila com filtros por estado e empresa, navegação, gravação de criado_por/empresa na criação.
+1. **Backend — hook `painel_cobertura.js`** (`GET /backend/v1/painel/cobertura`): agrega ocorrências por unidade × mês (janela RN-1-16), calcula os 6 estados da F1-T07 sobre ocorrências da intranet, lista unidades por empresa via proxy existente (`/backend/v1/unidades`), trata `dados_indisponiveis` (RN-1-14) com fonte+timestamp, somente leitura. Unidades sem ocorrência no mês = `reuniao_pendente` (elegibilidade total RN-1-18 — toda unidade ativa aparece).
+2. **Frontend — `src/pages/Painel.tsx`** (rota `/painel`, link no Layout): filtro por empresa + mês; tabela por unidade com os 6 estados (contagem), rótulos "Cobertura operacional" / "Qualidade do registro" (RN-1-15 — NUNCA Health Score/score/ranking/peso); timestamp da última atualização; link para a fila (evidência de origem via `/fila`); RLS = todos autenticados (F1-T08), somente leitura.
+3. **Migração de dados (campo empresa):** 16 ocorrências pré-LT03 têm `empresa` vazio — o painel as agrupa sob "acuidar" por padrão (todas as fixtures são da Acuidar; Dona Help nunca teve registro sem empresa). Sem escrita nos registros.
+4. **Navegação:** App.tsx (rota protegida) + Layout.tsx (link "Painel de cobertura").
 
-**Bugs corrigidos durante a task (todos pegos por prova antes do ar):**
-1. v0.0.13→14: sintaxe + JSVM não acessa constantes top-level → lógica inline.
-2. v0.0.15→16: findRecordById aplica regras no JSVM e falha (404) para aguardando_aprovacao → findRecordsByFilter.
-3. v0.0.17→18: auth.role é undefined no JSVM → auth.getString('role') (AP-2026-10-02-1150).
-4. v0.0.18→20 (falha do 1º teste humano): pb.send prefixa /api (404) e nginx do preview não repassa POST /backend/* (405) → fetch com URL absoluta (pb.baseUrl). Debug: 06_notas/debug/debug-2026-10-02-lt1t03-botao-aprovar.md
-5. 2ª falha relatada: cache do navegador do champion (bundle antigo) + trilha poluída pelos meus testes automatizados em fixtures (limpada; registros limpos recriados). Debug: 06_notas/debug/debug-2026-10-02-lt1t03-rodada2.md
+## Critérios de aceite da SPEC-1-003 (alvo das provas)
 
-**Nota PocketBase (AP-1725):** listagem de aguardando_aprovacao aparece para o consultor (listRule é filtro), mas ele não consegue agir (hook 404; PATCH RLS 404). Botões de decisão só para gestor/admin.
+- CA-1-11: unidade localizável em cada estado + evidência de origem (link para a fila)
+- CA-1-12: fonte indisponível → `dados_indisponiveis` com fonte+timestamp, fora da contagem
+- CA-1-13: incompleta exibida como incompleta, nunca confirmada
+- CA-1-14: somente leitura + RLS (3 perfis leem; escrita negada)
+- CA-1-15: nenhum score/peso/faixa/ranking no painel
 
-**Fixtures de teste acumuladas (limpeza futura, exige superuser):** ~20 registros de teste (títulos "Teste*", "RV*", "CA-1-07*") + hook temporário validar-contrato-donahelp (v0.0.7) + rotação de credenciais que passaram pelo chat (chave Google, token Acuidar).
+## Pendências de limpeza (carregadas da LT-1-T03)
 
-## Roteiro de teste humano
-
-Concluído — champion aprovou em 2026-10-02 ("agora funcionou").
-
-## Pendências de limpeza (registradas)
-
-- Fixtures de teste acumuladas (~20 registros) — migration de limpeza na leva (exclusão exige superuser).
+- ~20 fixtures de teste em ocorrencias (exclusão exige superuser) — poluem um pouco o painel de teste; limpeza futura.
 - Hook temporário `validar-contrato-donahelp` (Skip v0.0.7) — remover após formalização da task multiempresa.
-- Arquivo `.skip.config.json` com mudança pendente no working tree (não alterado por nós) — inspecionar antes do próximo apply_changes.
-- Rotação recomendada das credenciais que passaram pelo chat (chave Google, token Acuidar).
-- Validação do consultor do fechamento da fase 1 — pendência registrada no changelog (2026-10-02).
-
-## Leva técnica — progresso
-
-| Task | Escopo | Status |
-|---|---|---|
-| LT-1-T01 | Tela de login da intranet | ✅ concluída (2026-10-02) |
-| LT-1-T02 | Registro de reunião → ocorrência | ✅ concluída (2026-10-02) |
-| LT-1-T03 | Fila de revisão e aprovação de exceções | ✅ concluída (2026-10-02) |
-| LT-1-T04 | Painel de cobertura (SPEC-1-003) | na fila — próxima |
+- Rotação de credenciais que passaram pelo chat (chave Google, token Acuidar).
+- Validação do consultor do fechamento da fase 1 (changelog 2026-10-02).
