@@ -1,40 +1,39 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (LT-1-T04 concluída — leva técnica 4/4)
+- task_id: LT-1-T05 (leva técnica — formalização multiempresa Dona Help + limpeza técnica)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: SPEC-1-003 + mapa de fontes F1-T08 + semântica de estados F1-T07 + matriz F1-T04
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-02T15:28Z — champion autorizou o plano ("sim") após o relatório de análise
-- teste_humano: aprovado — 2026-10-02T15:33Z — champion confirmou o teste do painel ("ok")
-- verificacao_automatica: passou — revalidação do zero na v0.0.22 (9 provas RV): painel acuidar (174 unidades, 6 estados corretos), donahelp (55), RLS 3 perfis 200 / sem auth 401, empresa inválida, mês sem dados (elegibilidade total), CA-1-13 (incompleta nunca confirmada), CA-1-15 (nenhum termo de score/peso/ranking), CA-1-14 (POST negado 404), navegador (tabela 174 linhas, zero score na tela)
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-1530-res-body-bytes.md
-- ultima_acao: LT-1-T04 concluída — leva técnica da fase 1 COMPLETA (4/4)
-- proxima_acao: Aguardar pedido do champion (próximo marco: validação do consultor do fechamento da fase 1 e/ou novas tasks da leva técnica)
+- spec: emendas append-only nas SPECs 1-001, 1-002 e 1-003 (multiempresa já decidida pelo Champion em 2026-09-30 e implementada de fato na leva técnica; falta a formalização documental) + `06_notas/sinal-multiempresa-dona-help.md` + contrato validado (padrão F1-T01)
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: pendente — análise apresentada ao champion em 2026-10-02T15:42Z; aguardando "sim" em mensagem posterior
+- teste_humano: pendente (após implementação — verificação documental + regressão)
+- verificacao_automatica: pendente (após implementação)
+- aprendizado: pendente
+- ultima_acao: análise profunda da LT-1-T05 concluída (inventário: multiempresa implementada de fato no fluxo inteiro; emenda formal ausente nas 3 SPECs; hook temporário validar_contrato_donahelp.js no projeto; 26 fixtures de teste no banco)
+- proxima_acao: aguardar autorização para implementar
 - atualizado_em: 2026-10-02T15:45:00-03:00
 
-## Histórico da LT-1-T04 (concluída)
+## Plano acordado na análise (resumo para o implementador)
 
-**Implementação (v0.0.21–v0.0.22):** hook `GET /backend/v1/painel/cobertura` (agregação unidade × mês, 6 estados da F1-T07, parser por empresa, dados_indisponiveis com fonte+timestamp, somente leitura) + tela `/painel` (filtros empresa/mês, cartões de totais, tabela com badges, link "ver na fila", banner de indisponibilidade) + navegação. Rótulos "Cobertura operacional"/"Qualidade do registro" — zero Health Score (CA-1-15 provado por varredura).
+1. **Emenda formal multiempresa nas 3 SPECs** (append-only): SPEC-1-001 (registro — campo empresa no formulário e na ocorrência), SPEC-1-002 (estados — campo empresa na collection e nos filtros da fila), SPEC-1-003 (painel — filtro por empresa, parser por formato de API). Base: decisões do Champion de 2026-09-30 + contrato validado.
+2. **Remoção do hook temporário** `pocketbase/hooks/validar_contrato_donahelp.js` (Skip v0.0.7) — sua função (validação de contrato) está cumprida e documentada.
+3. **Migration de limpeza 0005** — exclusão das 26 fixtures de teste (superuser context na migration), deixando o banco limpo para uso real.
+4. **Regressão completa** — as provas padrão (login, registro, fila, painel, multiempresa) reexecutadas após a limpeza.
 
-**Bug corrigido:** v0.0.21 — `JSON.parse(res.body)` falhou (res.body é bytes — AP-1715); o erro apareceu como `dados_indisponiveis` (comportamento seguro correto) e a prova P1 pegou → parser com res.json + fallback TextDecoder (v0.0.22). Aprendizado AP-2026-10-02-1530.
+## Critérios de aceite (propostos, binários)
 
-**Fixtures criadas:** 3l8ansm0w8zby0a, RV04 incompleta (restauradas após as provas).
+- CA-A: as 3 SPECs contêm a emenda multiempresa formal (append-only, datada, sem reescrever história)
+- CA-B: hook temporário removido do projeto (arquivo + versão Skip nova sem ele)
+- CA-C: banco sem fixtures de teste (contagem = 0 nos padrões de título de teste)
+- CA-D: regressão completa do fluxo passa após a limpeza (login, registro com idempotência, fila com RLS, painel com 6 estados)
 
-## Leva técnica — status final (2026-10-02)
+## Pendências fora do escopo desta task
 
-| Task | Escopo | Status |
-|---|---|---|
-| LT-1-T01 | Tela de login da intranet | ✅ concluída (2026-10-02) — v0.0.8 |
-| LT-1-T02 | Registro de reunião → ocorrência | ✅ concluída (2026-10-02) — v0.0.12 |
-| LT-1-T03 | Fila de revisão e aprovação de exceções | ✅ concluída (2026-10-02) — v0.0.20 |
-| LT-1-T04 | Painel de cobertura operacional | ✅ concluída (2026-10-02) — v0.0.22 |
+- Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets.
+- Validação do consultor do fechamento da fase 1 — gate humano do método.
+- Conector Google Agenda — construção nova, exige decisão de escopo do champion (fora desta task).
 
-**A intranet Adapta Cliente tem agora o fluxo completo da fase 1:** login → registro de reunião → fila de revisão/aprovação → painel de cobertura. Produção ainda não publicada (deploy = Luis Carlos via Builder/MCP, quando aprovado).
+## Fontes
 
-## Pendências de limpeza (registradas)
-
-- Fixtures de teste acumuladas (~22 registros) — migration de limpeza futura (exclusão exige superuser).
-- Hook temporário `validar-contrato-donahelp` (Skip v0.0.7) — remover após formalização da task multiempresa.
-- Rotação recomendada das credenciais que passaram pelo chat (chave Google, token Acuidar).
-- Validação do consultor do fechamento da fase 1 — pendência registrada no changelog (2026-10-02).
-- Task multiempresa Dona Help — emenda formal nas SPECs pendente (contrato já validado).
+- `06_notas/sinal-multiempresa-dona-help.md` (decisões + contrato validado)
+- `06_notas/mapa-fontes-painel.md` (parser por empresa aprovado)
+- Changelog 2026-09-30 (decisões multiempresa do Champion)
