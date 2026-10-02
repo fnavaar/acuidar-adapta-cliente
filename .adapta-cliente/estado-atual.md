@@ -1,49 +1,49 @@
 # Estado atual — Adapta Cliente
 
-- task_id: LT-1-T03 (leva técnica — fila de revisão e aprovação de exceções)
+- task_id: nenhuma (LT-1-T03 concluída — leva técnica 3/4)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: SPEC-1-002 (estados, exceções auditáveis e idempotência) + política F1-T05 (RN-1-11 a RN-1-14) + matriz F1-T04
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-10-02T11:48:00-03:00 — champion autorizou o plano ("sim") após o relatório de análise
-- teste_humano: pendente (1ª tentativa falhou — botão Aprovar não funcionava; corrigido em v0.0.20, ver 06_notas/debug/debug-2026-10-02-lt1t03-botao-aprovar.md)
-- verificacao_automatica: passou — build/QA v0.0.20 sem erros; 11 provas de API (P1–P11) da implementação + regressão pós-fix (consultor 404, motivo obrigatório, DELETE 403) + prova de navegador pós-fix (gestor aprova pela UI → confirmado com trilha, diálogo fecha, sem erro)
+- teste_humano: aprovado — 2026-10-02T15:21Z — champion testou no preview ("agora funcionou"): aprovação de exceção pela UI com trilha gravada (t7nfareuzlwkwr7 → confirmado, aprovador pf83y2t784z0x4v, papel gestor)
+- verificacao_automatica: passou — revalidação do zero na v0.0.20 (14 provas RV): consultor bloqueado na aprovação (404), motivo obrigatório, transições inválidas negadas, DELETE 403, sem auth 401, autoaprovação CA-1-07 bloqueada, gestor aprova/rejeita com trilha, consultor corrige rascunho, RLS de PATCH direto (404), idempotência CA-1-08 (reenvio não duplica), linha vermelha RN-1-05A (script bloqueado → aguardando_correcao), multiempresa Dona Help ok, build/QA v0.0.20 sem erros
 - aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-1150-jsvm-auth-role.md
-- ultima_acao: DEBUG — causa raiz dupla (pb.send prefixa /api + nginx do preview não repassa POST /backend/*) corrigida com fetch de URL absoluta (pb.baseUrl); v0.0.20
-- proxima_acao: Aguardar novo teste humano do champion no preview
-- atualizado_em: 2026-10-02T15:15:00-03:00
+- ultima_acao: LT-1-T03 concluída após 2 rodadas de debug (roteamento preview→backend; trilha de fixture poluída foi limpa)
+- proxima_acao: Aguardar pedido do champion para selecionar a próxima task (LT-1-T04 — painel de cobertura, SPEC-1-003, é a seguinte na fila)
+- atualizado_em: 2026-10-02T15:30:00-03:00
 
-## O que foi implementado (LT-1-T03 — Skip v0.0.20, QA ✓)
+## Histórico da LT-1-T03 (concluída)
 
-1. **`pocketbase/migrations/0004_ocorrencias_campos_fluxo.js`** — campos `criado_por` (solicitante), `aprovador_por` (quem decidiu a exceção) e `empresa` (multiempresa) na collection `ocorrencias`.
-2. **`pocketbase/hooks/ocorrencias_transicao.js` (novo)** — transição de estado com: máquina de estados da SPEC-1-002, consultor bloqueado em aguardando_aprovacao (404 defesa + RLS), aprovador ≠ solicitante (CA-1-07), motivo obrigatório nas decisões, trilha auditável no campo motivo ([instante] id (papel): texto), 401 sem auth.
-3. **`src/pages/Fila.tsx` (novo)** — fila de ocorrências: filtro por estado (7 estados) e por empresa (Acuidar/Dona Help), badge de estado, detalhe em diálogo com trilha de decisão, botões por perfil (gestor/admin: aprovar/rejeitar com motivo; consultor: marcar correção concluída). Chamada da transição via `fetch` com URL absoluta do backend (ver debug).
-4. **`src/App.tsx`** — rota protegida `/fila`; **`src/components/Layout.tsx`** — link "Fila de ocorrências" na navegação.
-5. **`pocketbase/hooks/ocorrencias_criar.js`** — agora grava `criado_por` e `empresa` na criação (CA-1-07 passa a valer para registros novos).
+**Implementação (v0.0.14–v0.0.20):** migration 0004 (criado_por/aprovador_por/empresa), hook de transição com máquina de estados + perfis + aprovador≠solicitante + trilha auditável, tela /fila com filtros por estado e empresa, navegação, gravação de criado_por/empresa na criação.
 
-## Bugs encontrados e corrigidos durante a task
+**Bugs corrigidos durante a task (todos pegos por prova antes do ar):**
+1. v0.0.13→14: sintaxe + JSVM não acessa constantes top-level → lógica inline.
+2. v0.0.15→16: findRecordById aplica regras no JSVM e falha (404) para aguardando_aprovacao → findRecordsByFilter.
+3. v0.0.17→18: auth.role é undefined no JSVM → auth.getString('role') (AP-2026-10-02-1150).
+4. v0.0.18→20 (falha do 1º teste humano): pb.send prefixa /api (404) e nginx do preview não repassa POST /backend/* (405) → fetch com URL absoluta (pb.baseUrl). Debug: 06_notas/debug/debug-2026-10-02-lt1t03-botao-aprovar.md
+5. 2ª falha relatada: cache do navegador do champion (bundle antigo) + trilha poluída pelos meus testes automatizados em fixtures (limpada; registros limpos recriados). Debug: 06_notas/debug/debug-2026-10-02-lt1t03-rodada2.md
 
-1. v0.0.13 — sintaxe (patch quebrou linha) + JSVM não acessa constantes top-level → lógica inline (v0.0.14).
-2. v0.0.15/16 — `findRecordById` no JSVM aplica regras da collection e falha (404) para registros em aguardando_aprovacao mesmo para gestor → `findRecordsByFilter` (via do hook F1-T06).
-3. v0.0.17 — **causa raiz 1:** `auth.role` (propriedade) retorna `undefined` no JSVM — todo perfil era tratado como consultor → fix `auth.getString('role')` (v0.0.18). AP-2026-10-02-1150.
-4. v0.0.18/19 — **causa raiz 2 (falha do teste humano):** `pb.send` prefixa `/api` (rota custom 404) e o nginx do preview não repassa POST `/backend/*` (405) → fix `fetch(pb.baseUrl + '/backend/v1/...')` (v0.0.20). Debug documentado.
+**Nota PocketBase (AP-1725):** listagem de aguardando_aprovacao aparece para o consultor (listRule é filtro), mas ele não consegue agir (hook 404; PATCH RLS 404). Botões de decisão só para gestor/admin.
 
-**Nota (comportamento PocketBase, AP-1725):** a listagem em aguardando_aprovacao aparece para o consultor (listRule é filtro de estado, não nega), mas ele NÃO consegue agir (hook nega 404; PATCH direto negado pela RLS). A UI orienta e os botões de decisão só aparecem para gestor/admin.
+**Fixtures de teste acumuladas (limpeza futura, exige superuser):** ~20 registros de teste (títulos "Teste*", "RV*", "CA-1-07*") + hook temporário validar-contrato-donahelp (v0.0.7) + rotação de credenciais que passaram pelo chat (chave Google, token Acuidar).
 
-**Fixtures de teste criadas nesta task (limpeza futura):** sc9v14w5z4w7xft, hpsbcienr2sz8io (+13 anteriores).
+## Roteiro de teste humano
 
-## Roteiro de teste humano (LT-1-T03 — refazer após o fix v0.0.20)
-
-1. Abra o preview → login como **gestor-teste** → menu **Fila de ocorrências**.
-2. Filtre estado = "Aguardando aprovação de exceção" — deve listar as pendentes (ex.: "RV divergencia", "Registro pendente teste").
-3. Abra uma delas → escreva o motivo → **Aprovar exceção** → estado vira `confirmado` com trilha e o diálogo fecha.
-4. Abra outra → **Rejeitar** com motivo → estado vira `aguardando_correcao`.
-5. Saia e entre como **consultor-teste** → as exceções aparecem na lista, mas SEM botões de decisão; tentar agir deve ser negado.
-6. **Como reconhecer falha:** consultor consegue aprovar; aprovação sem motivo passa; estado confirmado volta a pendente; erro "Falha de comunicação" ao aprovar.
+Concluído — champion aprovou em 2026-10-02 ("agora funcionou").
 
 ## Pendências de limpeza (registradas)
 
-- Fixtures de teste acumuladas (15 registros) — migration de limpeza na leva (exclusão exige superuser).
+- Fixtures de teste acumuladas (~20 registros) — migration de limpeza na leva (exclusão exige superuser).
 - Hook temporário `validar-contrato-donahelp` (Skip v0.0.7) — remover após formalização da task multiempresa.
 - Arquivo `.skip.config.json` com mudança pendente no working tree (não alterado por nós) — inspecionar antes do próximo apply_changes.
 - Rotação recomendada das credenciais que passaram pelo chat (chave Google, token Acuidar).
 - Validação do consultor do fechamento da fase 1 — pendência registrada no changelog (2026-10-02).
+
+## Leva técnica — progresso
+
+| Task | Escopo | Status |
+|---|---|---|
+| LT-1-T01 | Tela de login da intranet | ✅ concluída (2026-10-02) |
+| LT-1-T02 | Registro de reunião → ocorrência | ✅ concluída (2026-10-02) |
+| LT-1-T03 | Fila de revisão e aprovação de exceções | ✅ concluída (2026-10-02) |
+| LT-1-T04 | Painel de cobertura (SPEC-1-003) | na fila — próxima |
