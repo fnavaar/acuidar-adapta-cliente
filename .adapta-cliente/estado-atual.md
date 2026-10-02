@@ -2,45 +2,48 @@
 
 - task_id: LT-1-T07 (leva técnica — conector do Google Agenda: importação de reuniões elegíveis)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: mapa de fontes F1-T08 (`06_notas/mapa-fontes-painel.md` §5 — "Conector automático do Google Agenda... conector é construção nova da leva técnica") + regras F1-T02 (elegibilidade, chave oficial, multiunidade, cancelamento/remarcação) + SPEC-1-001 (RN-1-06 a RN-1-09) + SPEC-1-003 (reuniao_pendente/relato_pendente)
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: pendente — análise apresentada ao champion em 2026-10-02T16:35Z; aguardando "sim" em mensagem posterior
-- teste_humano: pendente (após implementação)
-- verificacao_automatica: pendente (após implementação)
+- spec: mapa de fontes F1-T08 §5 + regras F1-T02 + SPEC-1-001 (RN-1-06 a RN-1-09) + SPEC-1-003 + RLS por empresa (LT-1-T06)
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-10-02T16:30Z — champion autorizou o plano ("pode") após o relatório de análise
+- teste_humano: pendente
+- verificacao_automatica: passou — build/QA v0.0.30 sem erros; 8 provas de API + prova de navegador (resumo abaixo)
 - aprendizado: pendente
-- ultima_acao: análise profunda da LT-1-T07 concluída (baseline: entrada assistida manual funciona; conector exige credencial Google que NÃO pode passar pelo chat — precedentes: chave Google exposta em 2026-09-30, token Acuidar idem; credencial vai para os Secrets do Skip)
-- proxima_acao: aguardar autorização para implementar
-- atualizado_em: 2026-10-02T16:35:00-03:00
+- ultima_acao: LT-1-T07 implementada (hook google_agenda_importar + tela /agenda + navegação)
+- proxima_acao: Aguardar teste humano do champion (a prova final com a agenda real exige a credencial — BLOQUEIO-LT07-A)
+- atualizado_em: 2026-10-02T16:45:00-03:00
 
-## Decisões do Champion já aprovadas que amarram esta task
+## O que foi implementado (LT-1-T07 — Skip v0.0.30, QA ✓)
 
-- F1-T08 (mapa de fontes): reuniões = entrada assistida manual NA FASE 1; conector Google Agenda fica para a leva técnica (esta task).
-- F1-T02: elegibilidade total (agendadas, remarcadas, canceladas, concluídas — nenhuma excluída); chave oficial = código da unidade (lookup por nome na agenda → API); multiunidade (Café com Franqueados, Day Fusion); cancelamento mantém registro + motivo; remarcação = original mantém status + novo registro vinculado (só com identificação confiável — nunca por semelhança).
-- RN-1-17: reunião sem timestamp válido fica fora da contagem mensal.
-- RN-1-19: sem inferência por suposição — unidade não identificada não é adivinhada.
+1. **Hook `POST /backend/v1/agenda/importar`** — consulta o Google Calendar (janela 7 dias atrás a 14 à frente, configurável), para cada evento: identifica a unidade pelo título (código explícito ou nome oficial exato — nunca adivinha, RN-1-19), aplica as regras F1-T02 (elegibilidade total; cancelada → ocorrência com motivo; remarcação só com identificação confiável), cria a ocorrência com idempotência `google_calendar:eventId:unidade:tipo` (CA-1-05/1-08 — reimportar não duplica). Evento sem unidade identificável → lista de conferência humana. Credencial `GOOGLE_CALENDAR_TOKEN` lida dos Secrets do Skip (nunca no código/chat); sem credencial → resposta explícita `credencial_ausente` (BLOQUEIO-LT07-A, dono: champion). RLS por empresa (403 para empresa não autorizada).
+2. **Tela `/agenda`** — seletivo de empresa (limitado às autorizadas do usuário), botão "Importar da Agenda", resumo em cartões (eventos, importadas, já existentes, canceladas, sem unidade, erros) + lista das reuniões sem unidade para conferência.
+3. **Navegação** — link "Importar da Agenda" no menu.
 
-## Plano acordado na análise (resumo para o implementador)
+## Provas executadas (v0.0.30)
 
-1. **Credencial Google via Secrets do Skip** (nunca pelo chat): champion grava `GOOGLE_CALENDAR_TOKEN` (ou credencial de service account) nos Secrets do Skip 51740 — mesmo padrão de ACUIDAR_PORTAL_TOKEN/DONAHELP_PORTAL_TOKEN. A task fica BLOQUEADA até o champion gravar a credencial (bloqueio explícito, dono: champion).
-2. **Hook `google_agenda_importar.js`** (`POST /backend/v1/agenda/importar`): lê a credencial dos Secrets, consulta a agenda (janela de datas configurável), para cada evento: extrai unidade pelo título (lookup na API da empresa — código oficial), aplica regras F1-T02 (elegibilidade, cancelada/remarcada), e cria ocorrência via a MESMA lógica do hook criar (idempotência por source_system=google_calendar + source_meeting_id=eventId — CA-1-05/1-08 já garantem não-duplicação). Evento sem unidade identificável → fila de conferência humana (RN-1-19 — nunca adivinhar).
-3. **Frontend — botão "Importar da Agenda"** na home (gestor/admin): dispara a importação e mostra o resumo (importadas, já existentes, sem unidade identificável, canceladas/remarcadas).
-4. **RLS por empresa (LT-1-T06)**: a importação respeita empresas_autorizadas do usuário que dispara (consultora só importa a agenda da sua empresa; gestor/admin ambas).
-5. **Provas**: importação idempotente (reimportar não duplica), evento cancelado → ocorrência com estado correto, evento sem unidade → fila de conferência, burla de empresa negada, regressão do fluxo manual intacta.
+| # | Prova | Resultado | ✓ |
+|---|---|---|---|
+| 1 | Importação sem credencial | resposta explícita `credencial_ausente` com instrução (nada quebra) | ✓ |
+| 2 | Consultora-donahelp tenta importar ACUIDAR | 403 (RLS por empresa) | ✓ |
+| 3 | Consultor-acuidar tenta importar DONAHELP | 403 | ✓ |
+| 4 | Empresa inválida | erro explícito | ✓ |
+| 5 | Regressão: fluxo manual intacto | criar + reenvio → idempotência ok (mesma ocorrência) | ✓ |
+| 6 | Regressão: fila com RLS | consultora-donahelp vê 5 registros, todos donahelp | ✓ |
+| 7 | Regressão: painel | acuidar 174 unidades ok | ✓ |
+| 8 | Navegador: tela /agenda carrega, botão funciona, mensagem de credencial ausente exibida | ✓ | ✓ |
 
-## Critérios de aceite (propostos, binários)
+**Limitação real registrada:** a prova final com a agenda REAL exige a credencial `GOOGLE_CALENDAR_TOKEN` nos Secrets do Skip (BLOQUEIO-LT07-A, dono: champion). As provas 1–8 cobrem todo o comportamento sem a credencial; ao gravá-la, o mesmo botão executa a importação real.
 
-- CA-A: credencial somente nos Secrets do Skip (nada no código/chat/logs)
-- CA-B: importação cria ocorrências com idempotência (reimportar → zero duplicatas)
-- CA-C: evento cancelado/remarcado gera ocorrência com motivo (regras F1-T02)
-- CA-D: evento sem unidade identificável vai para conferência humana, sem inferência (RN-1-19)
-- CA-E: RLS por empresa respeitada na importação (burla → 403)
-- CA-F: regressão do fluxo manual (registro assistido) intacta
+## Roteiro de teste humano (LT-1-T07)
 
-## Bloqueio conhecido (dono: champion)
+1. **Recarregue com Ctrl+Shift+R.**
+2. Login como **gestor-teste** → menu **Importar da Agenda**.
+3. Selecione a empresa → **Importar da Agenda** → deve aparecer o alerta "Credencial ausente" com a instrução (comportamento correto até a credencial ser gravada).
+4. Confira que a tela mostra o seletivo com as DUAS empresas (gestor) e que a mensagem orienta a gravar `GOOGLE_CALENDAR_TOKEN` nos Secrets do Builder — nunca pelo chat.
+5. **Próximo passo (sua ação):** grave a credencial nos Secrets do Skip (Builder) → refaça a importação → o resumo deve mostrar eventos importados/já existentes/sem unidade.
+6. **Como reconhecer falha:** erro genérico sem orientação; duplicatas ao reimportar; consultora vendo empresa alheia; tela quebrada.
 
-**BLOQUEIO-LT07-A:** credencial do Google Agenda precisa ser gravada pelo champion nos Secrets do Skip (`GOOGLE_CALENDAR_TOKEN` ou service account JSON). A implementação pode começar sem ela (código + provas com credencial simulada nos testes), mas a prova final com a agenda real exige a credencial. Alternativa se preferir: implementar primeiro e você grava a credencial quando o sistema estiver pronto para consumi-la.
+## Pendências restantes (fora desta task)
 
-## Pendências fora do escopo
-
+- **BLOQUEIO-LT07-A:** credencial Google nos Secrets do Skip (dono: champion).
 - Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets.
 - Validação do consultor do fechamento da fase 1 — gate humano do método.
