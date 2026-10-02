@@ -1,45 +1,46 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (LT-1-T06 concluída — leva técnica 6/6)
+- task_id: LT-1-T07 (leva técnica — conector do Google Agenda: importação de reuniões elegíveis)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: decisão do Champion de 2026-10-02T15:43Z (RLS por empresa) + matriz F1-T04 + emendas multiempresa (LT-1-T05)
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-02T16:10Z — champion autorizou o plano ("pode") após o relatório de análise
-- teste_humano: aprovado — 2026-10-02T16:24Z — champion confirmou o teste ("tudo ok")
-- verificacao_automatica: passou — revalidação do zero na v0.0.28 (8 provas RV): isolamento na fila (consultora-donahelp 4 registros todos donahelp; consultor-acuidar 3 todos acuidar; gestor 7 ambas), burlas server-side negadas 403 (criar/unidades/painel), gestor vê ambas (174+55), consultora usa o que é dela (painel donahelp ok), CA-1-07 cruza empresas (ela aprova a própria → 404; gestor → 200), PATCH direto em acuidar → 404, sem auth → 401
-- aprendizado: capturado:06_notas/aprendizado-continuo/AP-2026-10-02-1620-validacao-empresa-hooks.md
-- ultima_acao: LT-1-T06 concluída
-- proxima_acao: Aguardar pedido do champion (pendências: rotação de credenciais, validação do consultor, conector Google Agenda)
-- atualizado_em: 2026-10-02T16:30:00-03:00
+- spec: mapa de fontes F1-T08 (`06_notas/mapa-fontes-painel.md` §5 — "Conector automático do Google Agenda... conector é construção nova da leva técnica") + regras F1-T02 (elegibilidade, chave oficial, multiunidade, cancelamento/remarcação) + SPEC-1-001 (RN-1-06 a RN-1-09) + SPEC-1-003 (reuniao_pendente/relato_pendente)
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: pendente — análise apresentada ao champion em 2026-10-02T16:35Z; aguardando "sim" em mensagem posterior
+- teste_humano: pendente (após implementação)
+- verificacao_automatica: pendente (após implementação)
+- aprendizado: pendente
+- ultima_acao: análise profunda da LT-1-T07 concluída (baseline: entrada assistida manual funciona; conector exige credencial Google que NÃO pode passar pelo chat — precedentes: chave Google exposta em 2026-09-30, token Acuidar idem; credencial vai para os Secrets do Skip)
+- proxima_acao: aguardar autorização para implementar
+- atualizado_em: 2026-10-02T16:35:00-03:00
 
-## Histórico da LT-1-T06 (concluída)
+## Decisões do Champion já aprovadas que amarram esta task
 
-**Implementação (v0.0.25–v0.0.28):**
-1. Migration 0007 — campo `empresas_autorizadas` nos usuários + contas de teste preenchidas + nova conta `consultora-donahelp-teste@donahelpbr.com.br` (role consultor, só donahelp).
-2. Migration 0008 — RLS por empresa em `ocorrencias` (list/view/update filtram por empresas_autorizadas; gestor/admin passam sempre; empresa vazia = acuidar).
-3. Hooks server-side (v0.0.26) — `ocorrencias_criar`, `painel_cobertura` e `unidades_proxy` negam (403) empresa não autorizada.
-4. Frontend (v0.0.28) — formulário e painel mostram só as empresas autorizadas do usuário.
-5. Migration 0009 (v0.0.27) — fixture "Burla RLS" (prova P4 pre-fix) excluída.
+- F1-T08 (mapa de fontes): reuniões = entrada assistida manual NA FASE 1; conector Google Agenda fica para a leva técnica (esta task).
+- F1-T02: elegibilidade total (agendadas, remarcadas, canceladas, concluídas — nenhuma excluída); chave oficial = código da unidade (lookup por nome na agenda → API); multiunidade (Café com Franqueados, Day Fusion); cancelamento mantém registro + motivo; remarcação = original mantém status + novo registro vinculado (só com identificação confiável — nunca por semelhança).
+- RN-1-17: reunião sem timestamp válido fica fora da contagem mensal.
+- RN-1-19: sem inferência por suposição — unidade não identificada não é adivinhada.
 
-**Bug pego pela prova:** a tentativa de burla (criar ocorrência Acuidar como consultora Dona Help) passou na primeira execução — o hook criar não validava empresa. Corrigido com validação server-side nos 3 hooks; prova refeita: 403 ✓.
+## Plano acordado na análise (resumo para o implementador)
 
-**Critérios:** CA-A ✓ (consultora donahelp isolada) · CA-B ✓ (consultor acuidar isolado) · CA-C ✓ (gestor/admin ambas) · CA-D ✓ (burla via API negada server-side) · CA-E ✓ (regressão completa dos 3 perfis originais).
+1. **Credencial Google via Secrets do Skip** (nunca pelo chat): champion grava `GOOGLE_CALENDAR_TOKEN` (ou credencial de service account) nos Secrets do Skip 51740 — mesmo padrão de ACUIDAR_PORTAL_TOKEN/DONAHELP_PORTAL_TOKEN. A task fica BLOQUEADA até o champion gravar a credencial (bloqueio explícito, dono: champion).
+2. **Hook `google_agenda_importar.js`** (`POST /backend/v1/agenda/importar`): lê a credencial dos Secrets, consulta a agenda (janela de datas configurável), para cada evento: extrai unidade pelo título (lookup na API da empresa — código oficial), aplica regras F1-T02 (elegibilidade, cancelada/remarcada), e cria ocorrência via a MESMA lógica do hook criar (idempotência por source_system=google_calendar + source_meeting_id=eventId — CA-1-05/1-08 já garantem não-duplicação). Evento sem unidade identificável → fila de conferência humana (RN-1-19 — nunca adivinhar).
+3. **Frontend — botão "Importar da Agenda"** na home (gestor/admin): dispara a importação e mostra o resumo (importadas, já existentes, sem unidade identificável, canceladas/remarcadas).
+4. **RLS por empresa (LT-1-T06)**: a importação respeita empresas_autorizadas do usuário que dispara (consultora só importa a agenda da sua empresa; gestor/admin ambas).
+5. **Provas**: importação idempotente (reimportar não duplica), evento cancelado → ocorrência com estado correto, evento sem unidade → fila de conferência, burla de empresa negada, regressão do fluxo manual intacta.
 
-## Leva técnica — status final (2026-10-02)
+## Critérios de aceite (propostos, binários)
 
-| Task | Escopo | Status |
-|---|---|---|
-| LT-1-T01 | Tela de login da intranet | ✅ v0.0.8 |
-| LT-1-T02 | Registro de reunião → ocorrência | ✅ v0.0.12 |
-| LT-1-T03 | Fila de revisão e aprovação de exceções | ✅ v0.0.20 |
-| LT-1-T04 | Painel de cobertura operacional | ✅ v0.0.22 |
-| LT-1-T05 | Formalização multiempresa + limpeza | ✅ v0.0.24 |
-| LT-1-T06 | RLS por empresa | ✅ v0.0.28 |
+- CA-A: credencial somente nos Secrets do Skip (nada no código/chat/logs)
+- CA-B: importação cria ocorrências com idempotência (reimportar → zero duplicatas)
+- CA-C: evento cancelado/remarcado gera ocorrência com motivo (regras F1-T02)
+- CA-D: evento sem unidade identificável vai para conferência humana, sem inferência (RN-1-19)
+- CA-E: RLS por empresa respeitada na importação (burla → 403)
+- CA-F: regressão do fluxo manual (registro assistido) intacta
 
-**Fluxo completo da fase 1 na intranet, com isolamento por empresa:** login → registro (só na(s) sua(s) empresa(s)) → fila (só a sua empresa) → painel (só a sua empresa). Gestores/admins com visão consolidada das duas.
+## Bloqueio conhecido (dono: champion)
 
-## Pendências restantes
+**BLOQUEIO-LT07-A:** credencial do Google Agenda precisa ser gravada pelo champion nos Secrets do Skip (`GOOGLE_CALENDAR_TOKEN` ou service account JSON). A implementação pode começar sem ela (código + provas com credencial simulada nos testes), mas a prova final com a agenda real exige a credencial. Alternativa se preferir: implementar primeiro e você grava a credencial quando o sistema estiver pronto para consumi-la.
+
+## Pendências fora do escopo
 
 - Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets.
 - Validação do consultor do fechamento da fase 1 — gate humano do método.
-- Conector Google Agenda — exige decisão de escopo do champion.
