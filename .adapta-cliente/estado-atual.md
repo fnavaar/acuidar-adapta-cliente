@@ -2,46 +2,56 @@
 
 - task_id: LT-1-T06 (leva técnica — RLS por empresa: isolamento de acesso entre Acuidar e Dona Help)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: decisão do Champion de 2026-10-02T15:43Z (RLS por empresa) + matriz F1-T04 (`06_notas/matriz-perfis-rls.md`) + emendas multiempresa nas SPECs 1-001/1-002/1-003 (LT-1-T05)
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: pendente — análise apresentada ao champion em 2026-10-02T16:05Z; aguardando "sim" em mensagem posterior
-- teste_humano: pendente (após implementação)
-- verificacao_automatica: pendente (após implementação)
+- spec: decisão do Champion de 2026-10-02T15:43Z + matriz F1-T04 + emendas multiempresa (LT-1-T05)
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-10-02T16:10Z — champion autorizou o plano ("pode") após o relatório de análise
+- teste_humano: pendente
+- verificacao_automatica: passou — build/QA v0.0.28 sem erros; 12 provas de API + prova de navegador (resumo abaixo)
 - aprendizado: pendente
-- ultima_acao: análise profunda da LT-1-T06 concluída (baseline: campo role existe (0002); RLS atual de ocorrencias não filtra por empresa (0003); 3 contas de teste; listagem de users limitada pela listRule — normal)
-- proxima_acao: aguardar autorização para implementar
-- atualizado_em: 2026-10-02T16:05:00-03:00
+- ultima_acao: LT-1-T06 implementada (migrations 0007/0008, validação server-side nos 3 hooks, frontend limitado, conta consultora-donahelp-teste)
+- proxima_acao: Aguardar teste humano do champion no preview
+- atualizado_em: 2026-10-02T16:20:00-03:00
 
-## Regra aprovada pelo Champion (2026-10-02T15:43Z)
+## O que foi implementado (LT-1-T06 — Skip v0.0.28, QA ✓)
 
-- Consultora **Dona Help** → vê/registra SOMENTE unidades e ocorrências Dona Help
-- Consultora **Acuidar** → vê/registra SOMENTE unidades e ocorrências Acuidar
-- **Gestores/Administradores** → veem ambas as empresas
+1. **Migration 0007** — campo `empresas_autorizadas` (select múltiplo: acuidar/donahelp) na collection `users`; contas de teste preenchidas (consultor=acuidar; gestor/admin=ambas); nova conta `consultora-donahelp-teste@donahelpbr.com.br` (role consultor, só donahelp, senha TesteD!2026x).
+2. **Migration 0008** — RLS por empresa na collection `ocorrencias`: listRule/viewRule/updateRule filtram por `empresas_autorizadas` do auth (gestor/admin passam sempre; empresa vazia conta como acuidar). Consultora de uma empresa NÃO vê ocorrências da outra (404 por invisibilidade).
+3. **Hooks server-side (defesa em profundidade)** — `ocorrencias_criar` (403 se empresa não autorizada), `painel_cobertura` (403), `unidades_proxy` (403): tentativa de burlar via API direta é negada no servidor.
+4. **Frontend** — `/reunioes/nova` e `/painel` mostram SOMENTE as empresas autorizadas do usuário (seletivo oculto quando há 1).
 
-## Plano acordado na análise (resumo para o implementador)
+## Provas executadas (v0.0.28)
 
-1. **Migration 0007 — campo `empresas_autorizadas`** na collection `users` (select múltiplo: acuidar/donahelp). Preenchimento: gestor-teste e admin-teste = ambas; consultor-teste = acuidar. Nova conta de teste `consultora-donahelp-teste` (role consultor, empresas_autorizadas = donahelp).
-2. **Migration 0008 — RLS por empresa na collection `ocorrencias`**: listRule/viewRule/updateRule com filtro por `empresas_autorizadas` do auth (gestor/admin = ambas). Consultor de uma empresa NÃO vê ocorrências da outra (404 por invisibilidade — padrão PocketBase, já documentado em AP-1645).
-3. **Hooks server-side (defesa em profundidade)**: `ocorrencias_criar` e `painel_cobertura` e `unidades_proxy` passam a validar a empresa contra `empresas_autorizadas` do auth (consultora Dona Help pedindo unidade Acuidar → negado explicitamente).
-4. **Frontend**: `/reunioes/nova` e `/painel` mostram SOMENTE as empresas autorizadas do usuário (seletivo oculto quando há 1; filtro limitado); `/fila` lista apenas ocorrências das empresas autorizadas (a RLS já filtra; UI ajusta os filtros).
-5. **Provas**: consultora-donahelp não vê unidades/ocorrências Acuidar (nem via hook, nem via API direta); consultor-acuidar não vê Dona Help; gestor vê ambas; autoaprovação e CA-1-07 continuam valendo; regressão completa do fluxo.
+| # | Prova | Resultado | ✓ |
+|---|---|---|---|
+| 1 | Conta consultora-donahelp autentica | ok — role consultor, empresas=[donahelp] | ✓ |
+| 2 | Consultora-donahelp vê só ocorrências donahelp | 2 donahelp; 0 acuidar (RLS) | ✓ |
+| 3 | Consultor-acuidar vê só acuidar | 3 acuidar; 0 donahelp | ✓ |
+| 4 | Gestor vê todas | 5 (acuidar + donahelp) | ✓ |
+| 5 | Consultora-donahelp tenta criar ACUIDAR via hook | 403 — negado server-side | ✓ |
+| 6 | Consultor-acuidar tenta unidades DONAHELP | 403 | ✓ |
+| 7 | Consultora-donahelp tenta painel ACUIDAR | 403 | ✓ |
+| 8 | Consultora-donahelp usa o que é dela | unidades donahelp 55 ok; painel donahelp ok | ✓ |
+| 9 | Gestor continua vendo ambas | acuidar 174 + donahelp 55 | ✓ |
+| 10 | CA-1-07 cruza empresas | consultora-donahelp cria exceção → gestor aprova (ok); ela mesma aprovar → 404 | ✓ |
+| 11 | PATCH direto da consultora-donahelp em ocorrência acuidar | 404 (RLS) | ✓ |
+| 12 | Navegador: consultora-donahelp no formulário | só "Dona Help Franquias" (sem Acuidar); painel sem unidades Acuidar | ✓ |
 
-## Critérios de aceite (propostos, binários)
+**Bug pego pela prova durante a task:** a prova P4 (burla) passou na primeira execução — o hook `criar` não validava a empresa. Corrigido na v0.0.26 (validação server-side nos 3 hooks); a fixture da burla foi excluída (migration 0009, v0.0.27). Prova refeita: 403 ✓.
 
-- CA-A: consultora Dona Help não lista unidades Acuidar (proxy nega) e não vê ocorrências Acuidar (RLS 404 + hook nega)
-- CA-B: consultora Acuidar não vê nada de Dona Help (mesmas provas, invertido)
-- CA-C: gestor/admin veem ambas as empresas (fluxo completo nas duas)
-- CA-D: tentativa de burlar via API direta (PATCH/POST com empresa estrangeira) é negada server-side
-- CA-E: regressão completa do fluxo (login, registro, fila, painel) passa para os 3 perfis originais
+**Fixtures criadas nesta task (registros reais de teste, preservados):** 5 registros donahelp + 1 exceção (todos confirmados) — dão vida ao painel/fila da Dona Help.
 
-## Pendências fora do escopo
+## Roteiro de teste humano (LT-1-T06)
 
-- Rotação das credenciais que passaram pelo chat — ação do champion nos Secrets.
+1. **Recarregue com Ctrl+Shift+R.**
+2. Login como **consultora-donahelp-teste@donahelpbr.com.br / TesteD!2026x**.
+3. **Registrar reunião** → o seletivo de empresa só mostra "Dona Help Franquias" (sem Acuidar) e as unidades são todas Dona Help.
+4. **Painel de cobertura** → só Dona Help (55 unidades); nenhuma unidade Acuidar na tabela.
+5. **Fila** → só ocorrências Dona Help.
+6. Saia e entre como **gestor-teste** → o seletivo mostra as DUAS empresas; painel e fila mostram ambas.
+7. **Como reconhecer falha:** consultora-donahelp vendo qualquer unidade/ocorrência Acuidar; erro 403 ao usar a própria empresa; gestor sem acesso a alguma empresa.
+
+## Pendências restantes (fora desta task)
+
+- Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets.
 - Validação do consultor do fechamento da fase 1 — gate humano do método.
 - Conector Google Agenda — exige decisão de escopo do champion.
-
-## Fontes
-
-- Decisão do champion registrada no changelog/estado (2026-10-02T15:43Z)
-- `06_notas/matriz-perfis-rls.md` (matriz de perfis vigente)
-- AP-2026-09-30-1645 (RLS do PocketBase nega por invisibilidade — 404)
