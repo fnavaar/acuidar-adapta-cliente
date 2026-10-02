@@ -2,49 +2,44 @@
 
 - task_id: LT-1-T01 (leva técnica — tela de login da intranet)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: SPEC-1-001/1-002/1-003 (leva técnica gerada a partir das 3 SPECs desbloqueadas) + matriz F1-T04
-- etapa: aguardando_autorizacao
-- autorizacao_implementacao: ausente
+- spec: leva técnica (LT) gerada a partir das SPECs 1-001/1-002/1-003 desbloqueadas + matriz F1-T04
+- etapa: aguardando_teste_humano
+- autorizacao_implementacao: confirmada — 2026-10-02T09:30:00-03:00 — champion autorizou o plano ("sim") após o relatório de análise
 - teste_humano: pendente
-- verificacao_automatica: pendente
+- verificacao_automatica: passou — build/QA v0.0.8 sem erros (setup, staticAnalysis, build, integrations, test); provas em navegador no preview: login válido (consultor-teste) → home com nome e role "consultor"; logout → volta ao login; acesso a / sem sessão → redirecionado ao login (guard de rota); senha errada → mensagem genérica "E-mail ou senha inválidos." sem revelar detalhes; screenshots em artifacts/ (lt1t01-home-consultor.png, lt1t01-erro-credencial.png)
 - aprendizado: pendente
-- ultima_acao: Leva técnica aberta por decisão do champion (2026-10-02); primeira task técnica selecionada e analisada: tela de login da intranet
-- proxima_acao: Aguardar autorização do champion para implementar a tela de login
-- atualizado_em: 2026-10-02T09:30:00-03:00
+- ultima_acao: LT-1-T01 implementada (Login.tsx novo, Index.tsx home autenticada, App.tsx com guard de rota) e provas de navegador executadas no preview
+- proxima_acao: Aguardar teste humano do champion no preview
+- atualizado_em: 2026-10-02T09:35:00-03:00
 
-## Nota sobre o portão de validação do consultor
+## O que foi implementado (LT-1-T01 — Skip v0.0.8, QA ✓)
 
-O método prevê validação do consultor do fechamento da fase 1 antes da leva técnica. O champion autorizou explicitamente começar a leva técnica agora ("Começar a leva técnica agora"); a pendência de validação do consultor está registrada no changelog (2026-10-02) e permanece aberta para a próxima sincronização.
+1. **`src/pages/Login.tsx` (novo)** — formulário e-mail + senha via `pb.collection('users').authWithPassword`; erro genérico "E-mail ou senha inválidos." para qualquer falha (não revela existência de conta); estado de carregamento no botão.
+2. **`src/pages/Index.tsx` (home autenticada mínima)** — saudação com nome do usuário, badge do role (consultor/gestor/administrador) e botão Sair (`authStore.clear()`).
+3. **`src/App.tsx`** — rota `/login` pública; rota `/` protegida pelo `RequireAuth` (não autenticado → redireciona a `/login`).
+4. Sessão persistida pelo store do PocketBase (sobrevive a recarregar a página).
 
-## Task LT-1-T01 — Tela de login da intranet (análise)
+**Fora do escopo desta task:** fluxo de registro, ocorrências, painel, gestão de usuários, recuperação de senha (tasks seguintes da leva técnica).
 
-**Por que esta task primeiro:** todas as telas do fluxo dependem de autenticação; as 3 contas de teste da F1-T04 existem e funcionam via API, mas não há como logar pela interface. É o menor recorte que destrava a demonstração de tudo o mais.
+## Provas de navegador executadas (preview, v0.0.8)
 
-**Critério binário proposto:** "Um usuário com conta na intranet consegue autenticar-se pela tela de login e acessar a área autenticada; credenciais inválidas recebem erro claro sem revelar detalhes; usuário não autenticado que acessa rota protegida é redirecionado ao login."
+| # | Prova | Resultado | ✓ |
+|---|---|---|---|
+| 1 | Login válido (consultor-teste) | redireciona a `/` — home mostra "Bem-vindo, Consultor Teste" + badge "consultor" | ✓ |
+| 2 | Logout | volta a `/login` | ✓ |
+| 3 | Acesso a `/` sem sessão | redirecionado a `/login` (guard de rota) | ✓ |
+| 4 | Senha errada | mensagem genérica "E-mail ou senha inválidos.", permanece no login | ✓ |
 
-**Escopo mínimo:**
-1. Página `/login` com e-mail + senha (PocketBase auth-with-password).
-2. Rota protegida `/` (home autenticada mínima: saudação + role do usuário + botão sair).
-3. Guard de rota: não autenticado → redireciona a `/login`.
-4. Sessão persistida (PocketBase store) e logout funcional.
-5. Erro de credencial inválida: mensagem genérica ("E-mail ou senha inválidos"), sem revelar se a conta existe.
+## Roteiro de teste humano (LT-1-T01)
 
-**Fora do escopo desta task:** fluxo de registro de reuniões, ocorrências, painel, gestão de usuários (criação continua via admin/API), recuperação de senha (leva futura).
+1. Abra o preview: https://adapta-cliente-c2bc2--preview.goskip.app/login
+2. Logue com `consultor-teste@acuidarbr.com.br` / senha da conta de teste (com o champion).
+3. **Esperado:** home com "Bem-vindo, Consultor Teste" e badge "consultor".
+4. Clique em **Sair** — deve voltar ao login.
+5. Tente acessar a home de novo sem logar — deve ser redirecionado ao login.
+6. (Opcional) Tente logar com senha errada — deve aparecer "E-mail ou senha inválidos." sem revelar mais nada.
 
-**Arquivos afetados:** `src/pages/Login.tsx` (novo), `src/pages/Index.tsx` (home autenticada mínima), `src/App.tsx` (rotas), `src/lib/pocketbase/client.ts` (reuso), `src/components/Layout.tsx` (header com usuário/sair).
-
-**Matriz critério → prova:**
-| Critério | Prova |
-|---|---|
-| Login válido autentica | login com consultor-teste → home com nome/role |
-| Login inválido nega | senha errada → mensagem genérica, sem acesso |
-| Guard de rota | acessar `/` sem sessão → redireciona a `/login` |
-| Logout | sair → volta ao login; rota protegida bloqueada de novo |
-| Sessão persiste | recarregar a página mantém a sessão |
-
-**Riscos/caminhos de erro:** timeout do backend (mensagem de indisponibilidade), 404 de usuário (mesma mensagem de credencial inválida — não revelar existência), sessão expirada (redireciona ao login). Segurança: nada de senha em log; auto-cancellation do PB configurado.
-
-**Teste humano esperado:** logar com `consultor-teste@acuidarbr.com.br` no preview, ver a home com o role, sair, tentar acessar sem login e ser redirecionado.
+**Como reconhecer falha:** login válido não entra; erro genérico não aparece em senha errada; rota `/` acessível sem sessão; logout não bloqueia a home.
 
 ## Pendências de limpeza (registradas)
 
