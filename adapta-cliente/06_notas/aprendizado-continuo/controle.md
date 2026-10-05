@@ -7,6 +7,7 @@
 
 ## Registro
 
+- 2026-10-05T14:00:00-03:00 · task LT-1-T07 · capturado:AP-2026-10-05-1400-google-calendar-404-showdeleted.md · API do Google Calendar: 404 HTML = rota errada (auth nem processado) vs 401 JSON = credencial; events.list omite cancelled sem showDeleted=true — furo silencioso na elegibilidade total (cancelar e excluir produzem o mesmo status; título não muda). Dois bugs pegos por prova real (v0.0.31, v0.0.35).
 - 2026-10-02T09:55:00-03:00 · task LT-1-T01 · capturado:AP-2026-10-02-0955-skip-preview-redirect.md · Redirecionamento pós-login/logout via window.location.href garante estado limpo do guard de rota no SPA do Skip; useNavigate reservado para navegação interna sem mudança de autenticação.
 - 2026-09-30T17:15:00-03:00 · task F1-T08 · capturado:AP-2026-09-30-1715-http-send-body-bytes.md · `$http.send` no PocketBase v0.36 retorna `res.body` como bytes — `JSON.parse` direto falha silenciosamente; usar `res.json` ou `TextDecoder`. Prova antes/depois (v0.0.6 erro silencioso → v0.0.7 ok).
 - 2026-09-30T16:45:00-03:00 · task F1-T04 · capturado:AP-2026-09-30-1645-pocketbase-rls-404.md · Negação por updateRule no PocketBase retorna 404 (registro invisível ao perfil), não 403; deleteRule null = só superuser; fixtures de teste exigem migration de limpeza em contexto superuser.
