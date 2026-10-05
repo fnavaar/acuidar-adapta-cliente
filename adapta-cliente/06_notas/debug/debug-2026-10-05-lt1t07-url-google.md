@@ -25,25 +25,28 @@ Mensagem enganosa — o token era válido.
 `pocketbase/hooks/google_agenda_importar.js` — URL corrigida para `/calendars/primary/events`.
 Skip v0.0.31, QA ✓ (setup/static/build/test ok).
 
-## Provas pós-fix (2026-10-05)
-- Google **200** com 4 eventos reais da agenda de teste; janela -7d/+14d correta
-  (2026-09-28 a 2026-10-19).
-- Os eventos da agenda são da **ACUIDAR** ("Consultoria | Unidade 2",
-  "Acompanhamento — Acuidar João Pessoa", "Almoço" ×2) → importação como `donahelp` classificou
-  os 4 em `sem_unidade` (correto — RN-1-19, sem inferência entre empresas).
-- Lookup simulado localmente com dados reais: "Unidade 2" → código 2 (João Pessoa);
-  nome oficial → código 2; "Almoço" → sem unidade (conferência humana). ✓
-- 2ª rodada idempotente: 0 criadas; banco limpo (5 fixtures reais da LT-1-T06 intactas;
-  nenhuma ocorrência `google_calendar` criada nas provas). ✓
+## Prova REAL completa (2026-10-05, admin-teste)
+- Importação `empresa=acuidar` → **2 importadas**: "Consultoria | Unidade 2" e
+  "Acompanhamento — Acuidar João Pessoa" → **unidade 2 (João Pessoa)**, estado `pendente`,
+  empresa acuidar, origem `google_calendar`.
+- 2 eventos "Almoço" → `sem_unidade` (conferência humana — RN-1-19). ✓
+- 2ª rodada: `ja_existentes=2`, 0 criadas — **idempotência provada com dados reais**. ✓
+- Janela -7d/+14d correta (2026-09-28 a 2026-10-19). ✓
+- RLS: consultora-donahelp → 403 em acuidar; donahelp → 4 sem unidade (eventos não são dela). ✓
+- **Limpeza:** as 2 ocorrências da prova eram fixtures da agenda de teste — excluídas via
+  migration 0010 (mesmo critério 0005/0006/0009; Skip v0.0.33, QA ✓). Banco final: 9 registros
+  reais, zero `google_calendar`.
 
 ## Aprendizado
-404 HTML do googleapis = rota errada (auth nem é processado); 401 JSON = credencial
-ausente/inválida/expirada. A mensagem de erro do hook ("token expirado?") deve ser lida com essa
-distinção — 404 aponta para URL, não para credencial.
+- 404 HTML do googleapis = rota errada (auth nem é processado); 401 JSON = credencial
+  ausente/inválida/expirada. A mensagem de erro do hook ("token expirado?") deve ser lida com essa
+  distinção — 404 aponta para URL, não para credencial.
+- Migration já aplicada não reexecuta: limpeza de fixture pós-prova exige migration NOVA com IDs
+  fixos (não editar migration anterior — 0009 foi restaurada ao original).
 
 ## Gate atual
 aguardando_teste_humano — champion testa a importação como **ACUIDAR** pela UI (conta
 gestor/admin): preview → Ctrl+Shift+R → Agenda → Importar. Esperado: 2 importadas
-(Unidade 2 e João Pessoa → unidade 2), "Almoço" na lista de conferência.
+(Unidade 2 e João Pessoa → unidade 2), "Almoço" na lista de conferência; reimportar → 0 novas.
 Access token de conta de teste expira ~1h — se o teste for muito depois, regenerar o token
 (ou evoluir o hook para refresh token na formalização).
