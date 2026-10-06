@@ -113,19 +113,19 @@ Em ambiente de teste autorizado, o Champion demonstra uma reunião elegível: se
 - [x] Chave oficial da unidade e regras de elegibilidade foram registradas pelo Champion (F1-T02, 2026-08-25).
 - [x] Contrato, ambiente e conta de teste do Portal foram entregues e validados sem expor segredo (F1-T01, 2026-09-30).
 - [x] Superfície de implantação foi autorizada (F1-T03, 2026-09-30).
-- [ ] Fluxo principal, unidade ambígua, formato de relato inválido, sessão expirada, falha de destino e reenvio foram exercitados.
-- [ ] Evidências contêm IDs mascarados, logs sem segredo e roteiro de demonstração.
+- [x] Fluxo principal, unidade ambígua, formato de relato inválido, sessão expirada, falha de destino e reenvio foram exercitados (LT-1-T02 2026-10-02 — 12 provas na implementação + 13 na revalidação do zero; F1-T06 2026-09-30 — consulta de recuperação com 6 cenários).
+- [x] Evidências contêm IDs mascarados, logs sem segredo e roteiro de demonstração (changelog das tasks LT-1-T01..T09 — tokens e credenciais sempre nos Secrets do Skip, nada exposto; roteiros de teste humano entregues em cada task).
 
 ## Critérios de aceite
 
-- [ ] **CA-1-01:** uma reunião de teste elegível cria exatamente uma ocorrência na intranet e mostra seu ID retornado.
-- [ ] **CA-1-02:** unidade ausente ou ambígua não chama a criação.
-- [ ] **CA-1-03:** data divergente não é gravada sem correção ou aprovação rastreável da SPEC-1-002.
-- [ ] **CA-1-04:** timeout, sessão expirada ou resposta sem ID não produz mensagem de sucesso e preserva um caminho de retomada.
-- [ ] **CA-1-05:** o reenvio do mesmo `source_system + source_meeting_id` não cria segunda ocorrência.
-- [ ] **CA-1-05A:** relato fora da representação autorizada não é enviado nem convertido silenciosamente.
-- [ ] **CA-1-06 (Champion):** todas as reuniões (agendadas, remarcadas, canceladas, concluídas) são registradas; cancelamento nunca remove o registro e mantém motivo.
-- [ ] **CA-1-07 (Champion):** reunião multiunidade (Café com Franqueados, Day Fusion, eventos definidos) é vinculada às unidades participantes como uma única reunião.
+- [x] **CA-1-01:** uma reunião de teste elegível cria exatamente uma ocorrência na intranet e mostra seu ID retornado. *Evidência: LT-1-T02 (2026-10-02) — criação única com ID retornado, provada na implementação e na revalidação do zero.*
+- [x] **CA-1-02:** unidade ausente ou ambígua não chama a criação. *Evidência: LT-1-T02 (2026-10-02) — campo ausente → estado `aguardando_correcao`; unidade obrigatória validada; LT-1-T07/T08 — evento sem unidade identificável nunca gera ocorrência vinculada por inferência (RN-1-19; decisão (B) v0.0.42).*
+- [x] **CA-1-03:** data divergente não é gravada sem correção ou aprovação rastreável da SPEC-1-002. *Evidência: LT-1-T02 (2026-10-02) — divergência de data com justificativa → exceção (RN-1-02); política de exceção aprovada na F1-T05 (2026-08-28).*
+- [x] **CA-1-04:** timeout, sessão expirada ou resposta sem ID não produz mensagem de sucesso e preserva um caminho de retomada. *Evidência: F1-T06 (2026-09-30) — endpoint `GET /backend/v1/ocorrencias/recuperar` diferencia confirmada/ausente/inconclusivo, 6 cenários exercitados; LT-1-T02 — falha de gravação → estado `falha_de_gravacao`.*
+- [x] **CA-1-05:** o reenvio do mesmo `source_system + source_meeting_id` não cria segunda ocorrência. *Evidência: LT-1-T02 (2026-10-02) — reenvio → duplicata com mesmo ID (idempotência SHA-256); LT-1-T07/T08/T09 — idempotência do Google provada em todas as rodadas (ja_existentes, cruzamento entre sessões).*
+- [x] **CA-1-05A:** relato fora da representação autorizada não é enviado nem convertido silenciosamente. *Evidência: LT-1-T02 (2026-10-02) — HTML no relato bloqueado (RN-1-05A); LT-1-T03 — script no relato bloqueado.*
+- [x] **CA-1-06 (Champion):** todas as reuniões (agendadas, remarcadas, canceladas, concluídas) são registradas; cancelamento nunca remove o registro e mantém motivo. *Evidência: decisão do Champion F1-T02 (2026-08-25) incorporada à SPEC; LT-1-T07/T08 (2026-10-05/06) — canceladas/excluídas importadas com motivo automático (showDeleted=true, v0.0.35; decisão (B) v0.0.42); exclusão de ocorrência negada a todos os perfis (403 superuser only).*
+- [x] **CA-1-07 (Champion):** reunião multiunidade (Café com Franqueados, Day Fusion, eventos definidos) é vinculada às unidades participantes como uma única reunião. *Evidência: decisão do Champion F1-T02 (2026-08-25) incorporada à SPEC (RN-1-07); LT-1-T02 (2026-10-02) — multiunidade → 2 ocorrências com o mesmo `source_meeting_id`.*
 
 ## TDD da SPEC
 
