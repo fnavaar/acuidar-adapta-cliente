@@ -19,4 +19,10 @@
 
 ## Próxima leva
 
-Todas as 8 tasks de desbloqueio da fase 1 estão concluídas. As 3 SPECs estão integralmente desbloqueadas (bloqueios A/B/C resolvidos nas SPECs 1-001, 1-002 e 1-003). Reexecutar `gerar-tasks` para produzir a leva técnica de cada SPEC — não iniciar task técnica sem a leva gerada.
+Todas as 8 tasks de desbloqueio da fase 1 estão concluídas. As 3 SPECs estão integralmente desbloqueadas (bloqueios A/B/C resolvidos nas SPECs 1-001, 1-002 e 1-003).
+
+**Leva técnica (LT-1): CONCLUÍDA — 9/9 tasks (2026-10-02 a 2026-10-06).** LT-1-T01 login · LT-1-T02 registro de reunião→ocorrência · LT-1-T03 fila de revisão/aprovação · LT-1-T04 painel de cobertura · LT-1-T05 formalização multiempresa · LT-1-T06 RLS por empresa · LT-1-T07 conector Google Agenda · LT-1-T08 credencial por empresa + decisão (B) para cancelados sem unidade · LT-1-T09 refresh token automático. Fluxo completo da fase 1 na intranet: login → registro → fila/aprovação → painel → agenda das duas empresas.
+
+**Fechamento formal (LT-1-T10, 2026-10-06):** 18 critérios de aceite marcados com evidência nas 3 SPECs (SPEC-1-001 8/8, SPEC-1-002 5/5, SPEC-1-003 5/5); checklists de execução completos.
+
+**Próximo passo (gate humano):** validação do consultor do fechamento da fase 1 — a documentação está pronta para a revisão. Pendências fora de task: rotação de credenciais que passaram pelo chat (champion) e publicação em produção (champion via Builder/MCP).
