@@ -1,30 +1,28 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FAROL-1 (evolução da fase 1 — Farol das Unidades PECAF/PEDHE; FA-1 em teste)
+- task_id: FAROL-1 (evolução da fase 1 — Farol das Unidades PECAF/PEDHE; FA-1 concluída, FA-2 iniciada)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: sinal completo em `06_notas/sinal-farol-unidades-pecaf-pedhe.md` (decisões fechadas 2026-10-06)
-- etapa: aguardando_teste_humano
-- autorizacao_implementacao: confirmada — 2026-10-06T12:26-03:00 — champion autorizou o plano FA-1 ("sim") após o relatório de análise
-- teste_humano: pendente
-- verificacao_automatica: passou — Skip v0.0.53 QA ✓ (19 provas: farol acuidar 174 unidades (em_dia 2, em_atraso 172), donahelp 55 (em_dia 2, em_atraso 53); RLS consultora donahelp → 403 em acuidar; sem auth 401; empresa inválida → erro explícito; unidades_info: gestor cria ✓, consultor cria/edita NEGADO (400/404), consultor lê própria empresa ✓, lê acuidar 404, DELETE 403 ninguém exclui; classificação provada em_dia (unidade 2: 6 registros no mês + programada 2026-10-06 + ativa), nao_retorna (unidade 3: 3 tentativas vence em_dia, status suspensa); fixtures da prova limpas (migration 0016 — 0015 não rodou por $app em vez de app; banco final 0 em unidades_info); tela /farol provada no navegador (contagens, gráfico de status, tabela ordenada por prioridade)
-- aprendizado: pendente
-- ultima_acao: FA-1 implementada e provada (v0.0.51-53) — tela /farol + hook /backend/v1/farol + migration 0014 (unidades_info) + limpeza 0016
-- proxima_acao: aguardar teste humano do champion (tela /farol no preview)
-- atualizado_em: 2026-10-06T12:55:00-03:00
-
-## Contexto do FAROL-1 (sinal completo)
-
-- **Decisões fechadas pelo champion:** status de atividade via API (campo será criado, não agora); formulário PECAF/PEDHE na intranet com cálculo automático; cálculo padrão pela lógica dos PDFs; PECAF anual; mapa de acompanhamento por reuniões + semáforo geral pelo PECAF/PEDHE; evolução imediata da fase 1.
-- **Parâmetros:** PECAF (Acuidar): mínimos contratos+faturamento por tempo (3m→5a); 50 unidades; 20 perguntas 0/1/2; resultado 43-102; 32 ranqueadas 2026 (ref. jun/jul). PEDHE (Dona Help): mínimos só faturamento (3m→3a); 13 unidades; 20 perguntas adaptadas Web Help; resultado 41-48; 9 ranqueadas 2026.
-- **Semáforo proposto (a aprovar):** verde = RANQUEADA SIM; amarelo = não ranqueada mas atinge mínimos do regulamento; vermelho = abaixo dos mínimos ou sem dados.
-- **Dependência futura:** campo de status de atividade na API do Portal (o farol nasce sem ele).
+- etapa: concluida (FA-1) — FA-2 em análise/implementação
+- autorizacao_implementacao: confirmada — 2026-10-06T12:26-03:00 — champion autorizou o plano FA-1 ("sim") após o relatório de análise; FA-2 autorizada em 2026-10-06T12:52-03:00 ("ok pode prosseguir")
+- teste_humano: aprovado — 2026-10-06T12:52-03:00 — champion: "ok pode prosseguir" (após ver a tela /farol e perguntar sobre o semáforo)
+- verificacao_automatica: passou — Skip v0.0.53 QA ✓ (19 provas na implementação + 4 na revalidação do fechamento: farol acuidar 174 unidades, donahelp 55; RLS 403/401; unidades_info gestor cria ✓ consultor negado 400/404; DELETE 403; classificação em_dia/nao_retorna provadas; fixtures limpas — migration 0016, banco 0; tela provada no navegador)
+- aprendizado: capturado — AP-2026-10-06-1258 (ver 06_notas/aprendizado-continuo/)
+- ultima_acao: FA-1 concluída (v0.0.53) — mapa de acompanhamento + status provisório aprovados; revalidação do fechamento: 4/4 provas PASSOU
+- proxima_acao: FA-2 (formulário PECAF/PEDHE com cálculo automático) — champion autorizou prosseguir ("ok pode prosseguir" 12:52); implementação iniciada
+- atualizado_em: 2026-10-06T13:00:00-03:00
 
 ## Recorte FAROL-1 (4 tasks, uma por vez)
 
-- **FA-1 (implementada, aguardando teste humano):** tela /farol + mapa de acompanhamento (cadência mensal) + status de atividade provisório + gráfico
-- **FA-2:** collection avaliacoes + formulário PECAF/PEDHE com cálculo automático
-- **FA-3:** semáforo (regras aprovadas) + carga inicial 2026 (32 PECAF + 9 PEDHE)
+- **FA-1 ✅ CONCLUÍDA (v0.0.53):** tela /farol + mapa de acompanhamento (cadência mensal) + status de atividade provisório + gráfico
+- **FA-2 (em andamento):** collection avaliacoes + formulário PECAF/PEDHE com cálculo automático
+- **FA-3:** semáforo (verde = ranqueada; amarelo = atinge mínimos; vermelho = abaixo/sem dados) + carga inicial 2026 (32 PECAF + 9 PEDHE)
 - **FA-4:** detalhe da unidade (reuniões + relatos + ocorrências + avaliação + status)
+
+## Decisões registradas durante a FA-1
+
+- Registros de teste MANTIDOS como exemplo (outubro sem dados reais — champion substituirá e limpará depois).
+- Semáforo verde/amarelo/vermelho = FA-3 (depende da avaliação PECAF/PEDHE da FA-2).
 
 ## Pendências restantes (fora de task)
 
