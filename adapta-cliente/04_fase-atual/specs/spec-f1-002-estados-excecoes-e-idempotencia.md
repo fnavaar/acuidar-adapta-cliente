@@ -120,18 +120,18 @@ O Champion consegue identificar o estado de um registro; solicita uma exceção 
 
 - [x] Política de exceção de data foi aprovada pelo Champion (F1-T05, 2026-08-28).
 - [x] Matriz de perfis foi aprovada pelo Champion/cliente (BLOQUEIO-F1-002-A) — F1-T04 concluída em 2026-09-30; matriz em `06_notas/matriz-perfis-rls.md`, RLS implementada (migrations 0002/0003) e prova negativa exercitada.
-- [ ] Todas as transições inválidas são recusadas e registradas.
-- [ ] A chave idempotente é persistida antes de criar a ocorrência.
-- [ ] Timeout resulta em conferência, não em retry cego.
-- [ ] Evidência demonstra separação entre solicitante e aprovador.
+- [x] Todas as transições inválidas são recusadas e registradas (LT-1-T03 2026-10-02 — hook de transição com máquina de estados da SPEC-1-002; 14 provas na revalidação do zero: transições inválidas negadas, motivo obrigatório, DELETE 403).
+- [x] A chave idempotente é persistida antes de criar a ocorrência (F1-T06 2026-09-30 — `idempotency_key` UNIQUE SHA-256; LT-1-T02 — reenvio rejeitado com validation_not_unique / duplicata com mesmo ID).
+- [x] Timeout resulta em conferência, não em retry cego (F1-T06 — consulta de recuperação diferencia confirmada/ausente/inconclusivo; LT-1-T08 — evento sem unidade → conferência humana, nunca inferência).
+- [x] Evidência demonstra separação entre solicitante e aprovador (LT-1-T03 — aprovador ≠ solicitante provado; consultor bloqueado na aprovação 404; gestor aprova com trilha; fluxo completo consultor→gestor exercitado pelo champion).
 
 ## Critérios de aceite
 
-- [ ] **CA-1-06:** cada item apresenta exatamente um dos estados aprovados e um histórico imutável de transições.
-- [ ] **CA-1-07:** quem solicita uma exceção não consegue aprová-la; decisão registra ator, instante e motivo.
-- [ ] **CA-1-08:** duas confirmações do mesmo identificador de origem reutilizam a mesma chave e não criam duas ocorrências.
-- [ ] **CA-1-09:** resposta de criação inconclusiva bloqueia nova escrita até consulta de recuperação ou decisão humana documentada.
-- [ ] **CA-1-10:** nenhum perfil fora da matriz lê ou altera item, exceção ou trilha de auditoria.
+- [x] **CA-1-06:** cada item apresenta exatamente um dos estados aprovados e um histórico imutável de transições. *Evidência: LT-1-T03 (2026-10-02) — máquina de estados da SPEC-1-002 no hook de transição, trilha auditável `[instante] usuário (papel): motivo`, transições inválidas negadas, DELETE 403 (trilha não é apagável).*
+- [x] **CA-1-07:** quem solicita uma exceção não consegue aprová-la; decisão registra ator, instante e motivo. *Evidência: LT-1-T03 (2026-10-02) — autoaprovação bloqueada (CA-1-07), aprovador ≠ solicitante, motivo obrigatório, trilha com ator+instante; F1-T04 — consultor não edita registro em `aguardando_aprovacao_de_excecao` (404 por invisibilidade RLS).*
+- [x] **CA-1-08:** duas confirmações do mesmo identificador de origem reutilizam a mesma chave e não criam duas ocorrências. *Evidência: F1-T06 (2026-09-30) — chave UNIQUE SHA-256, reenvio rejeitado; LT-1-T02 — reenvio → duplicata com mesmo ID; LT-1-T07/T08/T09 — idempotência da agenda provada em rodadas repetidas e cruzadas.*
+- [x] **CA-1-09:** resposta de criação inconclusiva bloqueia nova escrita até consulta de recuperação ou decisão humana documentada. *Evidência: F1-T06 (2026-09-30) — `GET /backend/v1/ocorrencias/recuperar` diferencia confirmada/ausente/inconclusivo; reenvio rejeitado com validation_not_unique (chave UNIQUE bloqueia nova escrita); LT-1-T08 — evento sem unidade → conferência humana pendente, nunca retry cego.*
+- [x] **CA-1-10:** nenhum perfil fora da matriz lê ou altera item, exceção ou trilha de auditoria. *Evidência: F1-T04 (2026-09-30) — prova negativa consultor 404 por invisibilidade RLS, exclusão 403; LT-1-T06 (2026-10-02) — RLS por empresa provada com 8 provas RV (isolamento, burlas 403, CA-1-07 cruza empresas, PATCH 404); LT-1-T07/T08/T09 — RLS 403 reprovada em cada task da agenda.*
 
 ## TDD da SPEC
 
