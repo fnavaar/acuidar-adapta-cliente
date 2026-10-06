@@ -3,14 +3,14 @@
 - task_id: LT-1-T10 (fechamento formal da fase 1 — evidências nos critérios de aceite das 3 SPECs + STATUS/fase atualizados)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: SPEC-1-001, SPEC-1-002 e SPEC-1-003 (checklists e critérios de aceite) + STATUS.md + 04_fase-atual/fase.md
-- etapa: aguardando_teste_humano
+- etapa: concluida
 - autorizacao_implementacao: confirmada — 2026-10-06T10:46-03:00 — champion autorizou o plano ("sim") após o relatório de análise
-- teste_humano: pendente
-- verificacao_automatica: passou — 18/18 CAs marcados com evidência datada (SPEC-1-001 8/8, SPEC-1-002 5/5, SPEC-1-003 5/5); checklists completos (0 itens [ ] nas 3 SPECs); conferência de integridade: 26 linhas removidas = 26 adicionadas, 0 regras alteradas/perdidas (edição append-only); STATUS.md e fase.md atualizados; changelog com entrada do fechamento; sincronização provada (git diff origin/main vazio; commits 75ba3e2, eb677e1, a703d58, 062c31f)
-- aprendizado: pendente
-- ultima_acao: implementação concluída e sincronizada no repo — 3 SPECs com 18/18 CAs marcados, STATUS.md, fase.md e changelog.md; diff verificado (só marcações + evidências)
-- proxima_acao: aguardar teste humano do champion (revisão das marcações e do STATUS/fase)
-- atualizado_em: 2026-10-06T11:05:00-03:00
+- teste_humano: aprovado — 2026-10-06T11:10-03:00 — champion: "pode ser" (revisão das marcações e do STATUS/fase)
+- verificacao_automatica: passou — revalidação do fechamento: 18/18 CAs com evidência não vazia (SPEC-1-001 8/8, SPEC-1-002 5/5, SPEC-1-003 5/5); 0 linhas removidas além de checkboxes pendentes (nenhuma regra alterada); STATUS/fase/changelog coerentes; sincronização provada (commits 75ba3e2, eb677e1, a703d58, 062c31f, 8328ab5)
+- aprendizado: capturado — AP-2026-10-06-1112 (ver 06_notas/aprendizado-continuo/)
+- ultima_acao: LT-1-T10 concluída — fechamento formal da fase 1 aprovado pelo champion; documentação pronta para a validação do consultor
+- proxima_acao: Nenhuma task ativa — próximo trabalho exige novo pedido do champion (pendências: validação do consultor, rotação de credenciais, publicação em produção)
+- atualizado_em: 2026-10-06T11:12:00-03:00
 
 ## O que foi implementado na LT-1-T10 (documentação)
 
