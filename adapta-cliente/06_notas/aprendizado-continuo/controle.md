@@ -7,6 +7,7 @@
 
 ## Registro
 
+- 2026-10-06T11:12:00-03:00 · task LT-1-T10 · capturado:AP-2026-10-06-1112-marcacao-append-only.md · Marcação de CA em SPEC é segura quando a integridade é provada por diff (0 linhas removidas além de checkboxes pendentes); pega a reescrita acidental de regras e preserva o append-only D19.
 - 2026-10-06T10:45:00-03:00 · task LT-1-T09 · capturado:AP-2026-10-06-1045-refresh-token-diagnostico.md · OAuth: access token é efêmero, refresh é a credencial real — renovação on-demand (ausente OU expirado → mesmo caminho); erros do Google diagnosticam (unauthorized_client = client errado; invalid_grant = refresh inválido/truncado); novo grant com Force prompt pode revogar o refresh anterior.
 - 2026-10-06T09:05:00-03:00 · task LT-1-T08 · capturado:AP-2026-10-06-0905-credencial-empresa-cancelamento-conferencia.md · Integração multiempresa: credencial e mensagem de erro por empresa (secret nomeado); conflito RN-1-08 vs RN-1-19 resolvido com marcador de pendência (`conferencia`) — cancelamento nunca fica sem registro, cobertura fica limpa; diagnosticar a fonte (contagem por status) antes de corrigir o consumidor.
 - 2026-10-05T14:00:00-03:00 · task LT-1-T07 · capturado:AP-2026-10-05-1400-google-calendar-404-showdeleted.md · API do Google Calendar: 404 HTML = rota errada (auth nem processado) vs 401 JSON = credencial; events.list omite cancelled sem showDeleted=true — furo silencioso na elegibilidade total (cancelar e excluir produzem o mesmo status; título não muda). Dois bugs pegos por prova real (v0.0.31, v0.0.35).
