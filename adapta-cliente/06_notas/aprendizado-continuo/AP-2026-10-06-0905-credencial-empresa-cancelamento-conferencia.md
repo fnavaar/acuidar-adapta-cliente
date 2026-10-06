@@ -1,0 +1,14 @@
+# AP-2026-10-06-0905 — Conector multiempresa: credencial por empresa e cancelamento nunca fica sem registro
+
+- Status: capturado
+- Escopo: projeto do cliente
+- Task/SPEC: LT-1-T08 · RN-1-06/1-08 (SPEC-1-001) + RN-1-19 (SPEC-1-003) + decisões multiempresa 2026-09-30
+- Sinal 1: quando a mesma integração serve duas empresas com agendas Google distintas, a credencial deve ser escolhida POR EMPRESA no ponto de uso (secret por empresa) e a resposta de ausência deve nomear exatamente o secret que falta — mensagem genérica de "credencial ausente" não orienta a correção.
+- Sinal 2: conflito de regras em evento cancelado/excluído sem unidade identificável — RN-1-08 (cancelada nunca fica sem registro) vs RN-1-19 (sem inferência de unidade). Resolução aprovada pelo champion: RN-1-08 vence; a ocorrência de cancelamento é criada com marcador de unidade `conferencia` (não é código oficial, não entra na cobertura) e estado pendente até resolução humana na fila. Reunião confirmada sem unidade continua sem ocorrência (só lista de conferência).
+- Sinal 3 (diagnóstico): a agenda apontada pela credencial pode não ser a esperada — títulos de unidades da outra empresa (códigos fora do cadastro) fazem TODOS os eventos caírem em sem_unidade, o que parece "falha do conector" mas é dado de entrada errado. Instrumentar o hook com contagem por status (confirmed/cancelled) separa "o Google não devolveu" de "o hook não vinculou" antes de qualquer correção.
+- Evidência: prova com agenda real da automação (acuidar.automacao@gmail.com): 8 cancelled devolvidos pelo Google com showDeleted=true; antes da correção 0 viravam cancelamento (sem_unidade); depois (v0.0.42) 8 ocorrências de cancelamento com unidade conferencia, estado pendente, motivo automático; 2ª rodada idempotente (ja_existentes=8); RLS 403; fixtures da prova limpas (migration 0013, v0.0.43 — banco 12 reais). Teste humano aprovado ("tudo ok").
+- Regra reutilizável: em integração multiempresa, credencial e mensagem de erro são por empresa; conflito entre "registro obrigatório" e "sem inferência" resolve-se com marcador de pendência explícito (não código real), mantendo o registro auditável e a cobertura limpa; diagnosticar a fonte (contagem por status) antes de corrigir o consumidor.
+- Quando aplicar: qualquer conector de agenda/fonte externa multiempresa no projeto; qualquer regra de elegibilidade total que dependa de vínculo identificável.
+- Quando não aplicar: registro assistido manual (a unidade é escolhida por quem registra — não há inferência).
+- Confiança: alta — comportamento provado com agenda real em duas rodadas e decisão explícita do champion.
+- Privacidade: sem segredo, token ou dado pessoal; IDs citados são de fixtures de teste já limpas.
