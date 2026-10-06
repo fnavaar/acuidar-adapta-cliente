@@ -117,16 +117,16 @@ O Champion abre a visão autorizada para um período de teste, identifica uma un
 - [x] Estados, janela e regra de reunião elegível foram aprovados pelo Champion (F1-T07, 2026-09-22).
 - [x] Fontes, campos, latência e acessos de leitura foram documentados pelo administrador (F1-T08, 2026-09-30 — `06_notas/mapa-fontes-painel.md`).
 - [x] Destino do painel e RLS foram autorizados (F1-T08, 2026-09-30 — intranet Skip 51740; leitura para todos autenticados; deploy Luis Carlos via Builder/MCP).
-- [ ] Dados completos, incompletos e indisponíveis foram demonstrados.
-- [ ] A visão não escreve nas fontes e não exibe Health Score.
+- [x] Dados completos, incompletos e indisponíveis foram demonstrados (LT-1-T04 2026-10-02 — 12 provas na implementação + 9 na revalidação do zero: mês sem dados mantém elegibilidade, incompleta nunca confirmada, dados_indisponiveis com fonte+timestamp).
+- [x] A visão não escreve nas fontes e não exibe Health Score (LT-1-T04 — POST negado 404; zero termos de score na resposta e na tela, provado por varredura; F1-T08 — RLS somente leitura autorizada).
 
 ## Critérios de aceite
 
-- [ ] **CA-1-11:** o Champion localiza uma unidade de teste em cada estado aprovado e abre sua evidência de origem.
-- [ ] **CA-1-12:** fonte ausente, atrasada ou sem timestamp aparece como `dados_indisponiveis`, sem ser contabilizada como cobertura ou pendência.
-- [ ] **CA-1-13:** uma ocorrência sem obrigatórios é exibida como incompleta e não como confirmada.
-- [ ] **CA-1-14:** a visão é somente leitura e respeita a RLS aprovada.
-- [ ] **CA-1-15:** não há cálculo, rótulo, ranking, peso ou faixa de Health Score no painel da fase 1.
+- [x] **CA-1-11:** o Champion localiza uma unidade de teste em cada estado aprovado e abre sua evidência de origem. *Evidência: LT-1-T04 (2026-10-02) — tabela com badges por estado e link "ver na fila" como evidência de origem; prova de navegador aprovada pelo champion.*
+- [x] **CA-1-12:** fonte ausente, atrasada ou sem timestamp aparece como `dados_indisponiveis`, sem ser contabilizada como cobertura ou pendência. *Evidência: LT-1-T04 (2026-10-02) — dados_indisponiveis com fonte+timestamp (RN-1-14); o caminho de erro funcionou como projetado na prova comparativa com o proxy da LT-1-T02.*
+- [x] **CA-1-13:** uma ocorrência sem obrigatórios é exibida como incompleta e não como confirmada. *Evidência: LT-1-T04 (2026-10-02) — confirmada exige todos os obrigatórios (RN-1-12/13); prova "incompleta nunca confirmada" na revalidação do zero.*
+- [x] **CA-1-14:** a visão é somente leitura e respeita a RLS aprovada. *Evidência: LT-1-T04 (2026-10-02) — POST negado 404, RLS 3 perfis 200 / sem auth 401; LT-1-T06 — RLS por empresa estendida ao painel (consultora vê só a sua empresa).*
+- [x] **CA-1-15:** não há cálculo, rótulo, ranking, peso ou faixa de Health Score no painel da fase 1. *Evidência: LT-1-T04 (2026-10-02) — varredura provou zero termos de score na resposta do hook e na tela; rótulos aprovados "Cobertura operacional"/"Qualidade do registro".*
 
 ## TDD da SPEC
 
