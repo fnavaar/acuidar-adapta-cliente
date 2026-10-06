@@ -21,7 +21,8 @@ dois programas: **Acuidar → PECAF** · **Dona Help → PEDHE** (mesma lógica,
 4. **Periodicidade:** PECAF/PEDHE **anual** (avaliação por convenção; referência 2026 = jun/jul).
 5. **Mapa de acompanhamento:** **continua**, alimentado por dados de reuniões (em dia, em
    atraso, programada, próximo a atraso, não retorna tentativas); o **semáforo geral vem do
-   PECAF/PEDHE**.
+   PECAF/PEDHE**. **Cadência aprovada (12:24): mensal** — 30 ou 31 dias conforme o calendário
+   (alinhada à janela mensal RN-1-16).
 6. **Escopo:** **evolução imediata da fase 1** (não fase 2).
 
 ## Estrutura dos parâmetros (dos PDFs)
