@@ -1,0 +1,14 @@
+# AP-2026-10-06-1045 — OAuth refresh: o refresh token é a credencial real; erros do Google diagnosticam o problema
+
+- Status: capturado
+- Escopo: projeto do cliente
+- Task/SPEC: LT-1-T09 · LT-1-T07/LT-1-T08 (mesma base) + documentação OAuth2 do Google
+- Sinal 1: access token é efêmero (~1h); o refresh token é a credencial real de longa duração. O hook deve tratar access token AUSENTE e EXPIRADO pelo mesmo caminho: renovar on-demand com o refresh token da empresa e usar o token novo na mesma requisição (sem gravar de volta — plataformas que não permitem escrita de secrets em runtime tornam a renovação por requisição o padrão correto).
+- Sinal 2: os erros do endpoint de token do Google diagnosticam a causa com precisão — `unauthorized_client` = o client_id/client_secret usados não são os que geraram o refresh token (client errado ou secret resetado depois da geração); `invalid_grant` = o refresh token em si está inválido, expirado, revogado ou TRUNCADO (copiado pela metade). A resposta da API para o usuário inclui o erro do Google (campo erro_google) — orienta a correção sem expor segredo.
+- Sinal 3: gerar novo refresh token com "Force prompt: Consent Screen" PODE invalidar o refresh anterior do mesmo client+conta (limite do Google: 100 refresh tokens por conta por client; grant novo revoga o antigo). Ao regravar credenciais, gerar e regravar TODAS as que dependem do mesmo par client+conta na mesma sessão.
+- Evidência: prova real — acuidar com access token expirado → renovação automática ok; donahelp sem access token (só refresh) → renovação direta ok; 2 falhas diagnosticadas pelo tamanho do refresh (72 chars truncado vs ~103 esperados) e pelo erro do Google (unauthorized_client/invalid_grant); correção pelo champion (recopiar completo; regenerar com o client próprio); debug temporário removido no fechamento (v0.0.50).
+- Regra reutilizável: em integração OAuth multiempresa, refresh token é por empresa e client é único compartilhado; diagnosticar falha de renovação pelo erro do Google + tamanho do token antes de pedir nova credencial; nunca assumir que "token expirado" é o access token — verificar qual dos dois falhou.
+- Quando aplicar: qualquer integração OAuth (Google ou outro provedor) no projeto; qualquer credencial que expire em runtime.
+- Quando não aplicar: tokens estáticos de API (Portal Acuidar/Dona Help — token puro sem expiração conhecida).
+- Confiança: alta — comportamento provado com credenciais reais nas duas empresas e duas falhas diagnosticadas com precisão.
+- Privacidade: sem segredo, token ou dado pessoal; o client ID é identificador público e não foi gravado integralmente em log permanente.
