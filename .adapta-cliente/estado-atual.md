@@ -1,16 +1,16 @@
 # Estado atual — Adapta Cliente
 
-- task_id: LT-1-T07 (leva técnica — conector do Google Agenda: importação de reuniões elegíveis)
+- task_id: LT-1-T08 (leva técnica — conector do Google Agenda para a Dona Help: credencial por empresa)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: mapa de fontes F1-T08 §5 + regras F1-T02 + SPEC-1-001 (RN-1-06 a RN-1-09) + SPEC-1-003 + RLS por empresa (LT-1-T06)
-- etapa: concluida
-- autorizacao_implementacao: confirmada — 2026-10-02T16:30Z — champion autorizou o plano ("pode") após o relatório de análise
-- teste_humano: aprovado — 2026-10-05 — champion declarou "testei e aprovou"; registros confirmam importação pela UI às 12:45Z (3 ocorrências criadas pela conta dele: 2 pendentes + 1 cancelamento confirmado, preservadas como histórico real)
-- verificacao_automatica: passou — build/QA v0.0.37 sem erros; provas da implementação (v0.0.30) + revalidação independente de fechamento (2026-10-05): sem auth 401, empresa inválida erro explícito, RLS consultora-donahelp 403 em acuidar, idempotência cruzada entre sessões (ja_existentes=3, 0 criadas), banco final 9 reais + 3 do teste humano
-- aprendizado: capturado — AP-2026-10-05 (ver 06_notas/aprendizado-continuo/) + debug doc 06_notas/debug/debug-2026-10-05-lt1t07-url-google.md
-- ultima_acao: LT-1-T07 concluída — credencial provada (Google 200), 2 bugs corrigidos (URL /calendars/primary/events v0.0.31; showDeleted=true v0.0.35), prova real completa (2 pendentes + 1 cancelamento), fixtures das provas limpas (migrations 0010/0011)
-- proxima_acao: Nenhuma task ativa — leva técnica 7/7 completa. Próximo trabalho exige novo pedido do champion (candidatos registrados: agenda Dona Help com credencial própria, refresh token automático, validação do consultor do fechamento da fase 1)
-- atualizado_em: 2026-10-05T14:00:00-03:00
+- spec: LT-1-T07 (mesma base) + mapa de fontes F1-T08 §5 + decisões multiempresa de 2026-09-30 (mesmo sistema, campo empresa, mesmo champion) + RLS por empresa (LT-1-T06)
+- etapa: aguardando_autorizacao
+- autorizacao_implementacao: ausente
+- teste_humano: pendente
+- verificacao_automatica: pendente
+- aprendizado: pendente
+- ultima_acao: LT-1-T08 selecionada e analisada (relatório de análise entregue ao champion em 2026-10-06)
+- proxima_acao: aguardar autorização para implementar
+- atualizado_em: 2026-10-06T08:45:00-03:00
 
 ## O que foi entregue na LT-1-T07 (v0.0.30 → v0.0.37)
 
@@ -39,7 +39,7 @@
 
 ## Pendências restantes (fora de task)
 
-- **Agenda Dona Help:** hook atual lê a agenda da credencial única (Acuidar). Importar a agenda da Dona Help exige credencial própria (ex.: `GOOGLE_CALENDAR_TOKEN_DONAH`) + adaptação do hook — evolução futura a pedido do champion.
+- **Agenda Dona Help:** hook atual lê a agenda da credencial única (Acuidar). Importar a agenda da Dona Help exige credencial própria (ex.: `GOOGLE_CALENDAR_TOKEN_DONAH`) + adaptação do hook — evolução futura a pedido do champion. → **formalizada como LT-1-T08 (task ativa, aguardando autorização)**
 - **Refresh token automático:** access token de conta de teste expira ~1h; evoluir o hook para renovar via `GOOGLE_CALENDAR_REFRESH_TOKEN` quando o champion quiser.
 - Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets.
 - Validação do consultor do fechamento da fase 1 — gate humano do método.
