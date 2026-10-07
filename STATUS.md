@@ -7,16 +7,16 @@
 
 - **Fase atual:** 1 — Registro mínimo confiável e cobertura operacional · aberta em 2026-08-21 · fechamento a definir com a consultoria.
 - **Objetivo desta fase:** provar o fluxo de uma reunião revisada até uma ocorrência única confirmada, com recuperação segura e visão de cobertura sem Health Score.
-- **No prazo?** ✅ **fase 1 construída ponta a ponta** — 8 tasks de desbloqueio (100%) + leva técnica 9/9 concluída (LT-1-T01..T09); fluxo completo na intranet: login → registro de reunião → fila/aprovação → painel de cobertura → importação do Google Agenda (multiempresa, RLS por perfil e empresa, idempotência, renovação automática de credenciais).
+- **No prazo?** ✅ **fase 1 construída ponta a ponta** — 8 tasks de desbloqueio (100%) + leva técnica 9/9 concluída (LT-1-T01..T09) + LT-2-T01 escrita intranet→Google Calendar concluída (2026-10-07); fluxo completo na intranet: login → registro de reunião (com evento no Google Calendar) → fila/aprovação → painel de cobertura → importação do Google Agenda (multiempresa, RLS por perfil e empresa, idempotência, renovação automática de credenciais, anti-duplicidade intranet↔Google).
 - **Evolução da fase 1 (FAROL-1):** FA-1 mapa ✅ · FA-2 avaliação PECAF/PEDHE ✅ · FA-3+FA-4 farol consolidado implementado (v0.0.60-66) · FA-5 pele NEXUS na intranet toda implementada (v0.0.67) — **aguardando teste humano do champion** (farol consolidado + visual NEXUS).
 - **Canal do projeto:** `https://github.com/fnavaar/acuidar-adapta-cliente`.
 
 ## Progresso da fase
 
 - **Tasks de desbloqueio:** 8/8 (100%) — F1-T01..T08
-- **Leva técnica:** 9/9 (100%) — LT-1-T01 login (v0.0.8) · LT-1-T02 registro (v0.0.12) · LT-1-T03 fila (v0.0.20) · LT-1-T04 painel (v0.0.22) · LT-1-T05 multiempresa formalizada (v0.0.24) · LT-1-T06 RLS por empresa (v0.0.28) · LT-1-T07 conector Google Agenda (v0.0.37) · LT-1-T08 credencial por empresa (v0.0.43) · LT-1-T09 refresh token automático (v0.0.50)
+- **Leva técnica:** 9/9 (100%) — LT-1-T01 login (v0.0.8) · LT-1-T02 registro (v0.0.12) · LT-1-T03 fila (v0.0.20) · LT-1-T04 painel (v0.0.22) · LT-1-T05 multiempresa formalizada (v0.0.24) · LT-1-T06 RLS por empresa (v0.0.28) · LT-1-T07 conector Google Agenda (v0.0.37) · LT-1-T08 credencial por empresa (v0.0.43) · LT-1-T09 refresh token automático (v0.0.50) · **LT-2-T01 escrita intranet→Google Calendar (v0.0.71-76, 2026-10-07)**
 - **Critérios de aceite:** 18/18 marcados com evidência (LT-1-T10, 2026-10-06) — SPEC-1-001 8/8, SPEC-1-002 5/5, SPEC-1-003 5/5
-- **Próximo passo:** teste humano do champion — visual NEXUS (FA-5) + farol consolidado (FA-3+FA-4); depois validação do consultor do fechamento da fase 1 (gate humano — a documentação está pronta para a revisão)
+- **Próximo passo:** validação do consultor do fechamento da fase 1 (gate humano — a documentação está pronta para a revisão). Teste humano do champion do farol consolidado + pele NEXUS pendente de confirmação explícita (FA-5/FA-6 aprovados 10:51; farol consolidado FA-3+FA-4 aprovado com a carga 2026 "Testei e está ok" 11:58)
 
 ## Travas ativas
 
@@ -47,6 +47,7 @@ Nenhuma — todas as travas de desbloqueio da fase 1 foram resolvidas.
 | FAROL-1 | FA-2 — Formulário PECAF/PEDHE com cálculo automático (20/18 perguntas, fórmula confirmada, idempotência, RLS) | 2026-10-06 |
 | FAROL-1 | FA-3+FA-4 — Farol consolidado: semáforo PECAF/PEDHE + tela única por unidade (avaliação/status/ocorrências) + cliente oculto (v0.0.60-66) | 2026-10-06 (implementação; teste humano pendente) |
 | FAROL-1 | FA-5 — Pele NEXUS CONSULTORIA na intranet toda: sidebar escura, PageHeader, cards clicáveis, login escuro (v0.0.67) | 2026-10-07 (implementação; teste humano pendente) |
+| LT-2 | LT-2-T01 — Escrita intranet→Google Calendar: registro de reunião cria evento na agenda da empresa (hook sincronizar, migration 0026, anti-duplicidade por marker, idempotência, status/botão nas telas); prova real nas 2 empresas + teste humano aprovado (v0.0.71-76) | 2026-10-07 |
 
 ## Multiempresa — Dona Help (2026-09-30 → concluída na leva técnica)
 
@@ -56,11 +57,9 @@ Nenhuma — todas as travas de desbloqueio da fase 1 foram resolvidas.
 
 ## Pendências restantes (fora de task)
 
-1. **Teste humano do champion:** visual NEXUS (FA-5) + farol consolidado (FA-3+FA-4) — gate ativo.
-2. **Conferência da tabela de vínculos (carga 2026):** 7 vínculos especiais nome↔código a aprovar — libera a carga das 41 avaliações no farol (`06_notas/tabela-conferencia-carga-2026.md`).
-3. **Validação do consultor do fechamento da fase 1** — gate humano; documentação pronta (18/18 CAs com evidência).
-4. **Rotação das credenciais que passaram pelo chat** (chave Google, token Acuidar) — ação do champion nos Secrets do Skip.
-5. **Publicação em produção** — decisão do champion via Builder/MCP; resolve também a expiração de 7 dias do refresh token em modo Teste.
+1. **Validação do consultor do fechamento da fase 1** — gate humano; documentação pronta (18/18 CAs com evidência).
+2. **Rotação das credenciais que passaram pelo chat** (chave Google, token Acuidar) — ação do champion nos Secrets do Skip.
+3. **Publicação em produção** — decisão do champion via Builder/MCP; resolve também a expiração de 7 dias do refresh token em modo Teste.
 
 ## Próxima reunião
 
