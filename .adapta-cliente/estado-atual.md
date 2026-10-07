@@ -1,18 +1,18 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-11 (painel de cobertura — filtro de busca por unidade, cidade e código)
+- task_id: FA-11 (painel de cobertura — filtro de busca por unidade, cidade e código) — aguardando_teste_humano
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: pedido do champion 2026-10-07 13:57 ("no painel de cobertura quero um filtro para encontrar melhor a unidade... um filtro com unidade, cidade") + ajuste 14:08 ("coloca o filtro dentro do quadro de unidades"); análise em `06_notas/analise-fa11-filtro-painel.md`
-- etapa: aguardando_teste_humano (FA-11 implementada e provada — Skip v0.0.95 QA ✓)
+- spec: pedido do champion 2026-10-07 13:57 ("no painel de cobertura quero um filtro para encontrar melhor a unidade... um filtro com unidade, cidade"); análise em `06_notas/analise-fa11-filtro-painel.md`
+- etapa: aguardando_teste_humano (FA-11 implementada e provada — Skip v0.0.92-93 QA ✓)
 - autorizacao_implementacao: confirmada — 2026-10-07T13:58-03:00 — "Pode implementar"
-- teste_humano: pendente (FA-11 — buscar unidade por código, cidade e nome no painel de cobertura)
-- verificacao_automatica: passou — Skip v0.0.95 QA ✓. Provas na tela (navegador): campo "Buscar unidade, cidade ou código…" DENTRO do quadro de unidades (cabeçalho do card, à direita do título/resumo — pedido do champion 14:08); busca "joao pessoa" (sem acento) → só a unidade 2 Acuidar João Pessoa; busca "2" → todas as unidades com 2 no código; backend INTACTO (hook painel/cobertura responde com 172 unidades; RLS 403/401 provados na FA-8); contagens/totais do mês NÃO mudam (a busca filtra só a lista)
-- aprendizado: pendente (FA-11); anteriores capturados: AP-2026-10-07-1355; AP-2026-10-07-1350; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-11 ajustada ao pedido do champion (14:08): busca movida para DENTRO do quadro de unidades — cabeçalho do card "Unidades — {mês}" com título+resumo à esquerda e campo de busca à direita; filtro por codigo+nome+cidade em tempo real, case/acento insensível; contador "X de Y"; estado vazio com botão Limpar busca; 100% frontend
-- proxima_acao: teste humano do champion (painel de cobertura: buscar por código, cidade e nome; conferir contador e estado vazio; totais do mês inalterados)
-- atualizado_em: 2026-10-07T14:10:00-03:00
+- teste_humano: pendente (FA-11 — buscar por código "2", por cidade "João Pessoa", por nome; conferir contador e estado vazio; totais do mês inalterados; Ctrl+Shift+R se o campo não aparecer)
+- verificacao_automatica: passou — Skip v0.0.92-93 QA ✓. Provas: bundle novo no preview contém o campo (busca-unidade); busca "2" → só códigos com 2 (2, 24, 102, 121, 123…); "joao pessoa" SEM acento → 1 resultado (2 — Acuidar João Pessoa); "zzz cidade inexistente" → estado vazio com botão Limpar busca; backend INTACTO (172 linhas, RLS 403 consultora→acuidar, 401 sem auth); contagens/totais do mês inalterados
+- aprendizado: capturado — AP-2026-10-07-1400 (filtro 100% frontend sobre dados já existentes; bundle do preview pode ficar desatualizado após apply_changes em production mode — re-apply em development mode atualiza o preview; senhas de teste mudam sem aviso — checar credencial antes da prova de UI). Anteriores: AP-2026-10-07-1355; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
+- ultima_acao: FA-11 implementada e provada (Skip v0.0.92-93 QA ✓) — campo Buscar unidade no painel (codigo+nome+cidade, case/acento insensível, contador "X de Y unidades", estado vazio com Limpar busca); backend intacto
+- proxima_acao: teste humano do champion (painel: buscar por código/cidade/nome; totais do mês inalterados; Ctrl+Shift+R se o campo não aparecer)
+- atualizado_em: 2026-10-07T14:05:00-03:00
 
-## Recorte FAROL-1 (concluído) + LT-2 + FA-8/9/10
+## Recorte FAROL-1 (concluído) + LT-2 + FA-8/9/10/11
 
 - **FA-1..FA-7 ✅ CONCLUÍDAS (FAROL-1 completo):** farol unicamente PECAF/PEDHE por empresa (v0.0.68-69) + pele NEXUS (v0.0.67) + carga 2026 (61 avaliações, farol acendeu — verde 32 acuidar / 9 donahelp, v0.0.70) + gráficos donut e mapa de acompanhamento de volta (v0.0.77-80, aprovado 12:55)
 - **LT-2-T01 ✅ CONCLUÍDA (v0.0.71-76):** escrita intranet→Google Calendar — hook sincronizar + migration 0026 + filtro anti-duplicidade na importação + status/botão nas telas + prova real nas 2 empresas + teste humano aprovado ("Testei e funcionou" 12:30)
@@ -20,6 +20,7 @@
 - **FA-8 ✅ CONCLUÍDA (v0.0.84-86):** tela Agenda (reuniões agendadas + feitas do dia) substitui "Importar da Agenda" — importação automática no login permanece; aprovada pelo champion ("Testei e funcionou" 13:19)
 - **FA-9 ✅ CONCLUÍDA (v0.0.88):** sync automático com o Google após confirmação do registro — botão manual vira retry; aprovada pelo champion ("Testei e funcionou" 13:47)
 - **FA-10 ✅ CONCLUÍDA (v0.0.89-91):** agenda como CALENDÁRIO mensal (grade com quadrados, etiquetas por estado, detalhe do dia) — substitui a lista por dia da FA-8; aprovada pelo champion ("testei e funcionou" 13:50)
+- **FA-11 (aguardando_teste_humano, v0.0.92-93):** filtro de busca por unidade, cidade e código no painel de cobertura
 
 ## Decisões registradas
 
@@ -32,11 +33,10 @@
 - FA-8: tela de importação SAIU (a importação é automática no login — LT-2-T02); a tela Agenda mostra reuniões agendadas (futuras) e feitas (passadas) do dia, com quem registrou; consultora vê só a sua empresa (RLS); reuniões canceladas nunca são excluídas (RN-1-08).
 - FA-9: sync automático SÓ em ocorrência CONFIRMADA (exceção aguardando aprovação NÃO sincroniza); botão manual permanece como retry/fallback; registro NUNCA depende do Google (garantia LT-2-T01 preservada).
 - FA-10: a grade do calendário lê a intranet em tempo real — mostra as reuniões que JÁ estão sincronizadas com o Google (importação automática no login + sync na confirmação); consultora vê só a sua empresa (RLS); admin as duas.
-- FA-11: busca ÚNICA casa unidade + cidade + código (decisão embutida aprovada por silêncio do champion); a cidade JÁ existia na coluna Unidade; contagens/totais do mês NÃO mudam (a busca filtra só a lista); busca fica DENTRO do quadro de unidades (pedido 14:08).
+- FA-11: filtro de busca 100% frontend (dados já existem nas linhas do hook); contagens/totais do mês NÃO mudam; cidade já visível na coluna Unidade.
 
 ## Pendências restantes (fora de task)
 
 - Rotação das credenciais que passaram pelo chat (chave Google, token Acuidar) — ação do champion nos Secrets
 - Publicação em produção — decisão do champion via Builder/MCP (resolve também a expiração de 7 dias do refresh token em modo Teste)
 - Validação do consultor do fechamento formal da fase 1 — gate humano (documentação pronta; o farol é evolução, não depende dele)
-- Senha do admin-teste mudou (TesteA!2026x → 400) — regravar ou confirmar se foi intencional
