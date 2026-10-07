@@ -9,7 +9,7 @@
 - verificacao_automatica: passou — Skip v0.0.70 QA ✓ (carga + fix toLocaleString ramo PEDHE); revalidações anteriores v0.0.68/69 (RLS 403 consultora donahelp→acuidar; 401 sem auth; farol sem mapa; painel cobertura intacto)
 - aprendizado: capturado — AP-2026-10-06-1258 (FA-1); AP-2026-10-06-1310 (FA-2); AP-2026-10-06-1710 (FA-3/4); FA-5 sem sinal (controle 09:50); FA-6 sem sinal (controle 10:54)
 - ultima_acao: CARGA 2026 RODADA — 61 avaliações gravadas via hook avaliacoes/salvar (48 PECAF + 13 PEDHE; idempotência ✓; fórmula 0 erros; 41 ranqueadas); farol acendeu: acuidar verde 32/vermelho 140; donahelp verde 9/vermelho 45; fix JSVM toLocaleString no ramo PEDHE (Skip v0.0.70, QA ✓)
-- proxima_acao: (1) sincronizar GitHub (7 commits locais à frente, via MCP push_files); (2) champion testar a carga no farol; (3) aguardar "pode implementar" da LT-2-T01
+- proxima_acao: (1) sincronizar GitHub concluída (remoto 8630678 + alinhamento); (2) champion testar a carga no farol; (3) aguardar "pode implementar" da LT-2-T01
 - atualizado_em: 2026-10-07T11:47:00-03:00
 
 ## Recorte FAROL-1 (4 tasks, uma por vez)
