@@ -1,23 +1,23 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-8 (tela Agenda — reuniões agendadas + feitas; substitui "Importar da Agenda")
+- task_id: FA-8 (tela Agenda — reuniões agendadas + feitas; substitui "Importar da Agenda") — CONCLUÍDA
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: pedido do champion 2026-10-07 13:07 (tópico Agenda com reuniões agendadas e feitas; consultora vê o dia; administração vê tudo; "Importar da Agenda" sai); análise em `06_notas/analise-fa8-tela-agenda.md`
-- etapa: aguardando_teste_humano (FA-8 implementada e provada — Skip v0.0.84-86 QA ✓)
+- etapa: concluida (FA-8 — teste humano aprovado pelo champion "Testei e funcionou" 13:05; revalidação 6/6 PASSOU — Skip v0.0.84-86 QA ✓)
 - autorizacao_implementacao: confirmada — 2026-10-07T13:08-03:00 — "Pode implementar"
-- teste_humano: pendente (FA-8 — consultora vê o dia da sua empresa; admin vê as duas e quem registrou; menu "Agenda")
-- verificacao_automatica: passou — Skip v0.0.84-86 QA ✓. Provas: hook agenda/dia (acuidar hoje: 1 agendada 15:00 confirmada "acuidar abc acompanhamento" — Admin Teste; 2026-10-06: 1 feita pendente do Google); donahelp hoje: 3 agendadas (conferência humana); RLS 403 (consultora donahelp→acuidar); 401 sem auth; data inválida rejeitada; consultora vê a agenda da SUA empresa (donahelp 2026-10-07: 3 agendadas; fixtures feita/agendada provadas nas 2 seções com nome da unidade e quem registrou); tela provada no navegador (artifacts/fa8-agenda-admin.png — menu "Agenda", contagens do dia, seções Agendadas/Feitas, "Registrada por"); fixtures limpas (migration 0032, banco final 26 reais); regressão: farol, painel e importação ok
-- aprendizado: pendente (FA-8); anteriores capturados: AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-8 implementada — hook GET /backend/v1/agenda/dia (reuniões do dia separadas em AGENDADAS (futuras) e FEITAS (passadas), RLS por empresa, nome da unidade + quem registrou) + tela Agenda reescrita (seletor de data com hoje como padrão, seletor de empresa, contagens do dia, seções Agendadas/Feitas) + menu "📅 Importar da Agenda" → "📅 Agenda"
-- proxima_acao: teste humano do champion (aba Agenda: panorama do dia, navegar entre datas, consultora vê só a sua empresa, admin vê as duas e quem registrou)
-- atualizado_em: 2026-10-07T13:20:00-03:00
+- teste_humano: FA-8 APROVADO ("Testei e funcionou" 13:05)
+- verificacao_automatica: passou — revalidação do fechamento 6/6 PASSOU (Skip v0.0.84-86 QA ✓): hook agenda/dia com dados reais (acuidar hoje: 2 agendadas — "mkkk" Ananindeua 12:00 e "acuidar abc acompanhamento" ABC 15:00, ambas confirmadas, "Registrada por: Admin Teste"; donahelp hoje: 3 agendadas); RLS 403 (consultora donahelp→acuidar); 401 sem auth; data inválida rejeitada; fixtures limpas (FA-8 fixture: 0; banco final 26 reais); regressão: farol (mapa em_dia 4/em_atraso 168), painel (172), importação (ok, pulados_origem_intranet=3); tela provada no navegador com a reunião do teste do champion
+- aprendizado: capturado — AP-2026-10-07-1325 (tela de importação substituída pela agenda: hook permanece, tela muda; dados de ocorrências já bastam para visão de agenda); anteriores: AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
+- ultima_acao: FA-8 CONCLUÍDA — revalidação 6/6 PASSOU (hook com dados reais incluindo a reunião do teste do champion, RLS 403/401, data inválida, fixtures limpas, regressão farol/painel/importação, tela provada no navegador); fase/STATUS/changelog/estado atualizados
+- proxima_acao: sem task ativa — nova task exige novo pedido do champion (sinal recebido 13:20: agenda em formato de calendário real com os dias, não lista — a analisar)
+- atualizado_em: 2026-10-07T13:27:00-03:00
 
 ## Recorte FAROL-1 (concluído) + LT-2
 
 - **FA-1..FA-7 ✅ CONCLUÍDAS (FAROL-1 completo):** farol unicamente PECAF/PEDHE por empresa (v0.0.68-69) + pele NEXUS (v0.0.67) + carga 2026 (61 avaliações, farol acendeu — verde 32 acuidar / 9 donahelp, v0.0.70) + gráficos donut e mapa de acompanhamento de volta (v0.0.77-80, aprovado 12:55)
 - **LT-2-T01 ✅ CONCLUÍDA (v0.0.71-76):** escrita intranet→Google Calendar — hook sincronizar + migration 0026 + filtro anti-duplicidade na importação + status/botão nas telas + prova real nas 2 empresas + teste humano aprovado ("Testei e funcionou" 12:30)
 - **LT-2-T02 ✅ CONCLUÍDA (v0.0.81-83):** sincronização das agendas ao logar — Layout dispara a importação por empresa autorizada (fire-and-forget, silencioso); disparo provado por rede; teste humano aprovado ("Testei e funcionou" 13:03)
-- **FA-8 (aguardando_teste_humano, v0.0.84-86):** tela Agenda (reuniões agendadas + feitas do dia) substitui "Importar da Agenda" — importação automática no login permanece
+- **FA-8 ✅ CONCLUÍDA (v0.0.84-86):** tela Agenda (reuniões agendadas + feitas do dia) substitui "Importar da Agenda" — importação automática no login permanece; aprovada pelo champion ("Testei e funcionou" 13:05)
 
 ## Decisões registradas
 
