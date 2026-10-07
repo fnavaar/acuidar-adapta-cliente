@@ -1,24 +1,25 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-9 (sincronização AUTOMÁTICA com o Google Calendar após registrar reunião)
+- task_id: FA-10 (agenda em CALENDÁRIO mensal com quadrados — substitui a lista por dia)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: pedido do champion 2026-10-07 13:30 ("quero que assim que a reunião for agendada ele já sincronize com o google agenda automaticamente"); análise em `06_notas/analise-fa9-sync-automatico.md`
-- etapa: aguardando_teste_humano (FA-9 implementada — Skip v0.0.88 QA ✓)
-- autorizacao_implementacao: confirmada — 2026-10-07T13:35-03:00 — "Pode implementar"
-- teste_humano: pendente (FA-9 — registrar reunião pela UI e o evento aparecer no Google Calendar SEM clicar em sincronizar)
-- verificacao_automatica: parcial — Skip v0.0.88 QA ✓ (setup/static/build/test ok). Implementação provada por código: disparo automático após confirmação (useRef 1× por confirmação), botão vira retry em nao_sincronizada, exceção não sincroniza (só ramo confirmado). Prova da UI no ambiente do assistente INCOMPLETA (senha do admin-teste mudou — TesteA!2026x falhou 400 "Failed to authenticate"; prova seguiu com a consultora donahelp mas o formulário não chegou a submeter). Falta a prova real do sync automático (registro → evento no Google sem clique) — fica para o teste humano do champion, que também é o gate. Idempotência/RLS/falha já provados na LT-2-T01 (hook inalterado).
-- aprendizado: pendente (FA-9); anteriores capturados: AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-9 implementada (v0.0.88) — NovaReuniao dispara agenda/sincronizar AUTOMATICAMENTE após confirmação (useRef 1×), comprovante mostra "Sincronizando…" → resultado, botão manual vira "Tentar sincronizar de novo" na falha; hook inalterado (idempotência/RLS/falha já provados na LT-2-T01)
-- proxima_acao: teste humano do champion (registrar reunião pela UI e conferir o evento no Google Calendar SEM clicar em sincronizar; comprovante mostra "Evento criado no Google Calendar da empresa")
-- atualizado_em: 2026-10-07T13:45:00-03:00
+- spec: pedido do champion 2026-10-07 13:20, reafirmado 13:42 ("agenda em formato de calendário real com os dias certinhos — quadrados, não lista; consultora e admin"); análise em `06_notas/analise-fa10-calendario.md`
+- etapa: aguardando_teste_humano (FA-10 implementada e provada — Skip v0.0.89-91 QA ✓)
+- autorizacao_implementacao: confirmada — 2026-10-07T13:43-03:00 — "Pode implementar"
+- teste_humano: pendente (FA-10 — grade mensal com quadrados; consultora vê a sua empresa; admin as duas; clique no dia abre o detalhe)
+- verificacao_automatica: passou — Skip v0.0.89-91 QA ✓. Provas: hook agenda/mes (acuidar outubro: 11 reuniões em 6 dias, contagens 4 agendadas/7 feitas; donahelp: 16 reuniões); RLS 403 (consultora donahelp→acuidar); 401 sem auth; mês 13 rejeitado; consultora vê a agenda da SUA empresa (16 reuniões); fixtures futuro (20/10) e passado (01/10) provadas na grade; tela provada no navegador (artifacts/fa10-calendario.png — grade com quadrados, etiquetas coloridas por estado, hoje destacado, contagens do mês); detalhe do dia provado (agenda/dia 02/10: 5 feitas com unidade e quem registrou); fixtures limpas (migration 0033, banco final 27 reais); regressão: agenda/dia, farol e painel ok
+- aprendizado: pendente (FA-10); anteriores capturados: AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
+- ultima_acao: FA-10 implementada — hook GET /backend/v1/agenda/mes (reuniões do mês agrupadas por dia, RLS por empresa) + tela Agenda reescrita como CALENDÁRIO mensal (grade 7 colunas domingo-sábado, etiquetas coloridas por estado: confirmado verde/pendente âmbar/cancelado vermelho, hoje destacado, navegação ← → e botão Hoje, clique no dia abre o detalhe com Agendadas/Feitas e quem registrou)
+- proxima_acao: teste humano do champion (aba Agenda: grade mensal, navegar entre meses, clicar num dia com reuniões, consultora vê só a sua empresa, admin as duas)
+- atualizado_em: 2026-10-07T13:50:00-03:00
 
-## Recorte FAROL-1 (concluído) + LT-2 + FA-8
+## Recorte FAROL-1 (concluído) + LT-2 + FA-8/9/10
 
 - **FA-1..FA-7 ✅ CONCLUÍDAS (FAROL-1 completo):** farol unicamente PECAF/PEDHE por empresa (v0.0.68-69) + pele NEXUS (v0.0.67) + carga 2026 (61 avaliações, farol acendeu — verde 32 acuidar / 9 donahelp, v0.0.70) + gráficos donut e mapa de acompanhamento de volta (v0.0.77-80, aprovado 12:55)
 - **LT-2-T01 ✅ CONCLUÍDA (v0.0.71-76):** escrita intranet→Google Calendar — hook sincronizar + migration 0026 + filtro anti-duplicidade na importação + status/botão nas telas + prova real nas 2 empresas + teste humano aprovado ("Testei e funcionou" 12:30)
 - **LT-2-T02 ✅ CONCLUÍDA (v0.0.81-83):** sincronização das agendas ao logar — Layout dispara a importação por empresa autorizada (fire-and-forget, silencioso); disparo provado por rede; teste humano aprovado ("Testei e funcionou" 13:03)
 - **FA-8 ✅ CONCLUÍDA (v0.0.84-86):** tela Agenda (reuniões agendadas + feitas do dia) substitui "Importar da Agenda" — importação automática no login permanece; aprovada pelo champion ("Testei e funcionou" 13:19)
 - **FA-9 (aguardando_teste_humano, v0.0.88):** sync automático com o Google após confirmação do registro — botão manual vira retry
+- **FA-10 (aguardando_teste_humano, v0.0.89-91):** agenda como CALENDÁRIO mensal (grade com quadrados, etiquetas por estado, detalhe do dia) — substitui a lista por dia da FA-8
 
 ## Decisões registradas
 
@@ -30,6 +31,7 @@
 - LT-2-T02: login NUNCA depende do Google; disparo fire-and-forget e silencioso no primeiro carregamento da sessão (Layout); janela -7d/+14d inalterada.
 - FA-8: tela de importação SAIU (a importação é automática no login — LT-2-T02); a tela Agenda mostra reuniões agendadas (futuras) e feitas (passadas) do dia, com quem registrou; consultora vê só a sua empresa (RLS); reuniões canceladas nunca são excluídas (RN-1-08).
 - FA-9: sync automático SÓ em ocorrência CONFIRMADA (exceção aguardando aprovação NÃO sincroniza); botão manual permanece como retry/fallback; registro NUNCA depende do Google (garantia LT-2-T01 preservada).
+- FA-10: a grade do calendário lê a intranet em tempo real — mostra as reuniões que JÁ estão sincronizadas com o Google (importação automática no login + sync na confirmação); consultora vê só a sua empresa (RLS); admin as duas.
 
 ## Pendências restantes (fora de task)
 
