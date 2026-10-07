@@ -43,6 +43,10 @@ Nenhuma — todas as travas de desbloqueio da fase 1 foram resolvidas.
 | LT-1 | LT-1-T05/T06 — Multiempresa formalizada nas 3 SPECs + RLS por empresa (consultora vê só a sua; gestores/admins ambas) (Skip v0.0.24→v0.0.28) | 2026-10-02 |
 | LT-1 | LT-1-T07..T09 — Conector Google Agenda multiempresa: credencial por empresa, decisão (B) para cancelados sem unidade, refresh token automático (Skip v0.0.30→v0.0.50) | 2026-10-06 |
 | LT-1 | LT-1-T10 — Fechamento formal da fase 1: 18 critérios de aceite marcados com evidência nas 3 SPECs; STATUS/fase atualizados | 2026-10-06 |
+| LT-2 | LT-2-T01 — Escrita intranet→Google Calendar: registro de reunião cria evento na agenda da empresa (hook sincronizar, marker anti-duplicidade, retry por botão) | 2026-10-07 |
+| LT-2 | LT-2-T02 — Sincronização das agendas ao logar: Layout dispara a importação por empresa autorizada (fire-and-forget, silencioso) | 2026-10-07 |
+| FAROL-1 | FA-1..FA-7 — Farol das Unidades: mapa de acompanhamento + semáforo PECAF/PEDHE por empresa + pele NEXUS + carga 2026 (61 avaliações) + gráficos donut e mapa mensal (Skip v0.0.51→v0.0.80) | 2026-10-07 |
+| FA-8 | Tela Agenda — reuniões agendadas + feitas do dia (hook agenda/dia + tela reescrita + menu renomeado; importação automática no login permanece) | 2026-10-07 |
 
 ## Multiempresa — Dona Help (2026-09-30 → concluída na leva técnica)
 
