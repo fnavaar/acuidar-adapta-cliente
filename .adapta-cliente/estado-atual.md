@@ -1,22 +1,22 @@
 # Estado atual — Adapta Cliente
 
-- task_id: LT-2-T02 (sincronização das agendas ao logar)
+- task_id: LT-2-T02 (sincronização das agendas ao logar) — CONCLUÍDA
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: pedido do champion 2026-10-07 12:53 ("sincronização das agendas toda vez que a pessoa logar"); sinal em `06_notas/sinal-lt2-t02-sync-agenda-login.md` + análise em `06_notas/analise-lt2-t02-sync-agenda-login.md`
-- etapa: aguardando_teste_humano (LT-2-T02 implementada e provada — Skip v0.0.81-83 QA ✓)
+- etapa: concluida (LT-2-T02 — teste humano aprovado pelo champion "Testei e funcionou" 13:03; revalidação 4/4 PASSOU — Skip v0.0.81-83 QA ✓)
 - autorizacao_implementacao: confirmada — 2026-10-07T12:55-03:00 — "sim" (LT-2-T02, após o relatório)
-- teste_humano: FA-7 APROVADO ("a FA-7 funcionou" 12:55); LT-2-T01 aprovado 12:30; CARGA-2026 aprovada 11:58; FA-5/FA-6 aprovados 10:51
-- verificacao_automatica: passou — Skip v0.0.81-83 QA ✓. Provas: DISPARO provado por evidência de rede no navegador (performance.getEntriesByType: admin → 2 chamadas agenda/importar — acuidar+donahelp; consultora donahelp → 1 chamada — RLS no disparo ✓); idempotência (2 logins seguidos → contagem google_calendar inalterada 8 donahelp / 13 total); RLS do hook (consultora → acuidar 403); sem auth 401; login NUNCA bloqueado (consultora chegou na página inicial); registro pela UI intacto (fixture de revalidação criada e limpa — migration 0031; banco final 26 reais). Bug pego pela prova: o fetch fire-and-forget no Login era CANCELADO pelo redirect window.location.href (navegação mata requests pendentes) — movido para o Layout (página já carregada), v0.0.82
-- aprendizado: capturado — AP-2026-10-07-1300 (FA-7: fato futuro é programada); anteriores: AP-2026-10-07-1215 + AP-2026-10-07-1240 (LT-2-T01); AP-2026-10-06-1258/1310/1710; FA-5/FA-6 sem sinal
-- ultima_acao: LT-2-T02 implementada — Layout dispara a importação das agendas das empresas autorizadas no primeiro carregamento da sessão (fire-and-forget, silencioso); botão manual da /agenda continua
-- proxima_acao: teste humano do champion (logar → entrar na tela Agenda → conferir que a importação aconteceu sem clicar em nada)
-- atualizado_em: 2026-10-07T13:20:00-03:00
+- teste_humano: LT-2-T02 APROVADO ("Testei e funcionou" 13:03); FA-7 aprovado 12:55; LT-2-T01 aprovado 12:30; CARGA-2026 aprovada 11:58; FA-5/FA-6 aprovados 10:51
+- verificacao_automatica: passou — Skip v0.0.81-83 QA ✓. Revalidação do fechamento 4/4 PASSOU: importação ok nas 2 empresas com idempotência (importadas 0, ja_existentes 5/8); RLS 403 (consultora donahelp→acuidar); 401 sem auth; fixtures limpas (0031); farol e painel de cobertura intactos (regressão). Provas da implementação: disparo provado por evidência de rede (admin → 2 chamadas; consultora → 1 — RLS no disparo); idempotência (2 logins → contagem inalterada); login nunca bloqueado. Bug pego pela prova: fetch fire-and-forget no Login cancelado pelo redirect — movido para o Layout (AP-2026-10-07-1320)
+- aprendizado: capturado — AP-2026-10-07-1320 (fetch antes de redirect é cancelado — disparar no Layout); conclusão sem sinal novo (controle.md); anteriores: AP-2026-10-07-1300 (FA-7); AP-2026-10-07-1215 + AP-2026-10-07-1240 (LT-2-T01); AP-2026-10-06-1258/1310/1710
+- ultima_acao: LT-2-T02 CONCLUÍDA — revalidação 4/4 PASSOU (importação idempotente nas 2 empresas, RLS 403/401, fixtures limpas, farol/painel intactos); fase/STATUS/changelog/estado atualizados
+- proxima_acao: sem task ativa — próxima task exige novo pedido do champion; pendências humanas: validação do consultor (fase 1), rotação de credenciais, publicação em produção
+- atualizado_em: 2026-10-07T13:05:00-03:00
 
 ## Recorte FAROL-1 (concluído) + LT-2
 
 - **FA-1..FA-7 ✅ CONCLUÍDAS (FAROL-1 completo):** farol unicamente PECAF/PEDHE por empresa (v0.0.68-69) + pele NEXUS (v0.0.67) + carga 2026 (61 avaliações, farol acendeu — verde 32 acuidar / 9 donahelp, v0.0.70) + gráficos donut e mapa de acompanhamento de volta (v0.0.77-80, aprovado 12:55)
 - **LT-2-T01 ✅ CONCLUÍDA (v0.0.71-76):** escrita intranet→Google Calendar — hook sincronizar + migration 0026 + filtro anti-duplicidade na importação + status/botão nas telas + prova real nas 2 empresas + teste humano aprovado ("Testei e funcionou" 12:30)
-- **LT-2-T02 (aguardando_teste_humano, v0.0.81-83):** sincronização das agendas ao logar — Layout dispara a importação por empresa autorizada (fire-and-forget, silencioso)
+- **LT-2-T02 ✅ CONCLUÍDA (v0.0.81-83):** sincronização das agendas ao logar — Layout dispara a importação por empresa autorizada (fire-and-forget, silencioso); disparo provado por rede; teste humano aprovado ("Testei e funcionou" 13:03)
 
 ## Decisões registradas
 
