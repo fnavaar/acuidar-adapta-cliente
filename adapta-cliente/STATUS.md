@@ -14,7 +14,7 @@
 
 - **Tasks de desbloqueio:** 8/8 (100%) — F1-T01..T08
 - **Leva técnica 1:** 9/9 (100%) — LT-1-T01 login (v0.0.8) · LT-1-T02 registro (v0.0.12) · LT-1-T03 fila (v0.0.20) · LT-1-T04 painel (v0.0.22) · LT-1-T05 multiempresa formalizada (v0.0.24) · LT-1-T06 RLS por empresa (v0.0.28) · LT-1-T07 conector Google Agenda (v0.0.37) · LT-1-T08 credencial por empresa (v0.0.43) · LT-1-T09 refresh token automático (v0.0.50) · LT-1-T10 fechamento formal (2026-10-06)
-- **Leva técnica 2 + FAROL-1 + FA-8:** LT-2-T01 escrita intranet→Google Calendar (v0.0.76) · LT-2-T02 sync das agendas ao logar (v0.0.83) · FAROL-1 FA-1..FA-7 (farol PECAF/PEDHE + pele NEXUS + carga 2026 + gráficos/mapa, v0.0.80) · FA-8 tela Agenda (v0.0.86) — todas concluídas e aprovadas pelo champion
+- **Leva técnica 2 + FAROL-1 + FA-8/9/10:** LT-2-T01 escrita intranet→Google Calendar (v0.0.76) · LT-2-T02 sync das agendas ao logar (v0.0.83) · FAROL-1 FA-1..FA-7 (farol PECAF/PEDHE + pele NEXUS + carga 2026 + gráficos/mapa, v0.0.80) · FA-8 tela Agenda (v0.0.86) · FA-9 sync automático com o Google na confirmação (v0.0.88) · FA-10 agenda-calendário mensal (v0.0.91, aguardando teste humano) — todas aprovadas pelo champion
 - **Critérios de aceite:** 18/18 marcados com evidência (LT-1-T10, 2026-10-06) — SPEC-1-001 8/8, SPEC-1-002 5/5, SPEC-1-003 5/5
 - **Próximo passo:** validação do consultor do fechamento da fase 1 (gate humano — a documentação está pronta para a revisão)
 
@@ -47,6 +47,8 @@ Nenhuma — todas as travas de desbloqueio da fase 1 foram resolvidas.
 | LT-2 | LT-2-T02 — Sincronização das agendas ao logar: Layout dispara a importação por empresa autorizada (fire-and-forget, silencioso) | 2026-10-07 |
 | FAROL-1 | FA-1..FA-7 — Farol das Unidades: mapa de acompanhamento + semáforo PECAF/PEDHE por empresa + pele NEXUS + carga 2026 (61 avaliações) + gráficos donut e mapa mensal (Skip v0.0.51→v0.0.80) | 2026-10-07 |
 | FA-8 | Tela Agenda — reuniões agendadas + feitas do dia (hook agenda/dia + tela reescrita + menu renomeado; importação automática no login permanece) | 2026-10-07 |
+| FA-9 | Sincronização automática com o Google Calendar na confirmação do registro — evento nasce na agenda da empresa sem clique (botão manual vira retry) | 2026-10-07 |
+| FA-10 | Agenda em CALENDÁRIO mensal (grade com quadrados por dia, etiquetas por estado, navegação por mês, clique abre o detalhe do dia) — aguardando teste humano | 2026-10-07 |
 
 ## Multiempresa — Dona Help (2026-09-30 → concluída na leva técnica)
 
