@@ -2,15 +2,15 @@
 
 - task_id: FA-11 (painel de cobertura — filtro de busca por unidade, cidade e código)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: pedido do champion 2026-10-07 13:57 ("no painel de cobertura quero um filtro para encontrar melhor a unidade... um filtro com unidade, cidade"); análise em `06_notas/analise-fa11-filtro-painel.md`
-- etapa: aguardando_teste_humano (FA-11 implementada e provada — Skip v0.0.94 QA ✓)
+- spec: pedido do champion 2026-10-07 13:57 ("no painel de cobertura quero um filtro para encontrar melhor a unidade... um filtro com unidade, cidade") + ajuste 14:08 ("coloca o filtro dentro do quadro de unidades"); análise em `06_notas/analise-fa11-filtro-painel.md`
+- etapa: aguardando_teste_humano (FA-11 implementada e provada — Skip v0.0.95 QA ✓)
 - autorizacao_implementacao: confirmada — 2026-10-07T13:58-03:00 — "Pode implementar"
 - teste_humano: pendente (FA-11 — buscar unidade por código, cidade e nome no painel de cobertura)
-- verificacao_automatica: passou — Skip v0.0.94 QA ✓. Provas na tela (navegador): campo "Buscar unidade" junto de Empresa e Mês; busca "joao pessoa" (sem acento) → só a unidade 2 Acuidar João Pessoa; busca "2" → todas as unidades com 2 no código (2, 24, 102, 121, 123...); backend INTACTO (hook painel/cobertura responde com 172 unidades; RLS 403/401 provados na FA-8); contagens/totais do mês NÃO mudam (a busca filtra só a lista)
+- verificacao_automatica: passou — Skip v0.0.95 QA ✓. Provas na tela (navegador): campo "Buscar unidade, cidade ou código…" DENTRO do quadro de unidades (cabeçalho do card, à direita do título/resumo — pedido do champion 14:08); busca "joao pessoa" (sem acento) → só a unidade 2 Acuidar João Pessoa; busca "2" → todas as unidades com 2 no código; backend INTACTO (hook painel/cobertura responde com 172 unidades; RLS 403/401 provados na FA-8); contagens/totais do mês NÃO mudam (a busca filtra só a lista)
 - aprendizado: pendente (FA-11); anteriores capturados: AP-2026-10-07-1355; AP-2026-10-07-1350; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-11 implementada — campo "Buscar unidade" no painel de cobertura (filtra codigo+nome+cidade em tempo real, case/acento insensível via normalize NFD; contador "X de Y unidades" quando filtrado; estado vazio "Nenhuma unidade encontrada" com botão Limpar busca; 100% frontend — nenhuma mudança no hook)
+- ultima_acao: FA-11 ajustada ao pedido do champion (14:08): busca movida para DENTRO do quadro de unidades — cabeçalho do card "Unidades — {mês}" com título+resumo à esquerda e campo de busca à direita; filtro por codigo+nome+cidade em tempo real, case/acento insensível; contador "X de Y"; estado vazio com botão Limpar busca; 100% frontend
 - proxima_acao: teste humano do champion (painel de cobertura: buscar por código, cidade e nome; conferir contador e estado vazio; totais do mês inalterados)
-- atualizado_em: 2026-10-07T14:05:00-03:00
+- atualizado_em: 2026-10-07T14:10:00-03:00
 
 ## Recorte FAROL-1 (concluído) + LT-2 + FA-8/9/10
 
@@ -32,7 +32,7 @@
 - FA-8: tela de importação SAIU (a importação é automática no login — LT-2-T02); a tela Agenda mostra reuniões agendadas (futuras) e feitas (passadas) do dia, com quem registrou; consultora vê só a sua empresa (RLS); reuniões canceladas nunca são excluídas (RN-1-08).
 - FA-9: sync automático SÓ em ocorrência CONFIRMADA (exceção aguardando aprovação NÃO sincroniza); botão manual permanece como retry/fallback; registro NUNCA depende do Google (garantia LT-2-T01 preservada).
 - FA-10: a grade do calendário lê a intranet em tempo real — mostra as reuniões que JÁ estão sincronizadas com o Google (importação automática no login + sync na confirmação); consultora vê só a sua empresa (RLS); admin as duas.
-- FA-11: busca ÚNICA casa unidade + cidade + código (decisão embutida aprovada por silêncio do champion); a cidade JÁ existia na coluna Unidade; contagens/totais do mês NÃO mudam (a busca filtra só a lista).
+- FA-11: busca ÚNICA casa unidade + cidade + código (decisão embutida aprovada por silêncio do champion); a cidade JÁ existia na coluna Unidade; contagens/totais do mês NÃO mudam (a busca filtra só a lista); busca fica DENTRO do quadro de unidades (pedido 14:08).
 
 ## Pendências restantes (fora de task)
 
