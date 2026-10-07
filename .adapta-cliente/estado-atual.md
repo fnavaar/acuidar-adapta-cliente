@@ -1,16 +1,16 @@
 # Estado atual — Adapta Cliente
 
-- task_id: nenhuma (FAROL-1 concluído — FA-1..FA-6; próxima: LT-2-T01 a analisar)
+- task_id: LT-2-T01 (registro de reunião criar evento no Google Calendar — escrita intranet→Google)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: decisão do champion 2026-10-07 10:33-10:37 — "a questão do farol das unidades deve ser agora unicamente sobre o pedhe e pecaf de acordo com a empresa"; referência visual em `06_notas/referencia-visual-nexus.md`
-- etapa: concluida (FA-5 + FA-6 — "aprovo" + "tudo ok" do champion 10:51)
-- autorizacao_implementacao: confirmada — 2026-10-07T10:37-03:00 — formulário: "Farol unicamente PECAF/PEDHE — Pode implementar"; FA-5 (pele NEXUS) autorizada 09:30 ("Pode implementar", escopo intranet toda)
-- teste_humano: FA-5 (visual NEXUS) e FA-6 (farol unicamente PECAF/PEDHE) APROVADOS — "aprovo" + "tudo ok" do champion 10:51 de 2026-10-07
-- verificacao_automatica: passou — Skip v0.0.68/69 QA ✓ + revalidação de fechamento (RLS 403 consultora donahelp→acuidar; 401 sem auth; farol donahelp 54 unidades PEDHE; farol acuidar 172 sem contagens/mes_referencia — mapa removido; painel /backend/v1/painel/cobertura intacto com visão mensal: 170 sem registro no mês)
+- spec: pedido do champion 2026-10-07 10:37 — "Registro de reunião criar evento no Google Calendar: Quero isso — analise como próxima task"; contexto: integração atual é SÓ leitura (Google→intranet, calendar.readonly, LT-1-T07/08/09); SPECs da fase 1 não cobrem escrita — task nova da leva 2 (LT-2)
+- etapa: aguardando_autorizacao (LT-2-T01 — análise profunda entregue; aguardar autorização para implementar)
+- autorizacao_implementacao: não confirmada — aguardando "pode implementar" do champion em mensagem posterior ao relatório de análise
+- teste_humano: pendente (após implementação); FA-5 e FA-6 APROVADOS ("tudo ok" 10:51)
+- verificacao_automatica: pendente (baseline: QA v0.0.69 passou — nenhuma alteração de produto nesta etapa de análise)
 - aprendizado: capturado — AP-2026-10-06-1258 (FA-1); AP-2026-10-06-1310 (FA-2); AP-2026-10-06-1710 (FA-3/4); FA-5 sem sinal (controle 09:50); FA-6 sem sinal (controle 10:54)
-- ultima_acao: FA-5+FA-6 concluídas e revalidadas do zero (RLS 403/401, farol sem mapa, painel intacto)
-- proxima_acao: sem task ativa — próxima: análise da LT-2-T01 (registro de reunião criar evento no Google — pedido do champion 10:37); carga 2026 segue gated nos 7 vínculos
-- atualizado_em: 2026-10-07T10:54:00-03:00
+- ultima_acao: LT-2-T01 analisada — achados: hook criar gera ocorrência CONFIRMADA imediatamente (entrada assistida); agenda de destino por credencial (GOOGLE_CALENDAR_REFRESH_TOKEN/_DONAH); importação lê a MESMA agenda → risco de duplicidade intranet↔Google; refresh tokens atuais são calendar.readonly (escopo de leitura)
+- proxima_acao: aguardar autorização para implementar LT-2-T01
+- atualizado_em: 2026-10-07T11:02:00-03:00
 
 ## Recorte FAROL-1 (concluído)
 
@@ -34,3 +34,4 @@
 - Publicação em produção — decisão do champion via Builder/MCP (resolve também a expiração de 7 dias do refresh token em modo Teste)
 - Validação do consultor do fechamento formal da fase 1 — gate humano (documentação pronta; o farol é evolução, não depende dele)
 - Carga 2026 do farol — gated na conferência dos 7 vínculos especiais nome↔código pelo champion
+- LT-2-T01 gate humano: champion regenera os 2 refresh tokens com escopo calendar.events (mesmo processo da LT-1-T09)
