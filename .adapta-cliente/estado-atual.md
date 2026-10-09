@@ -3,14 +3,14 @@
 - task_id: FA-13 (e-mail automático ao franqueado: agendamento + relato)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
 - spec: pedido do champion 2026-10-09 09:52 ("enviar email assim que registrar/agendar a reunião para o email de franquia da unidade e também quando o relato for cadastrado"); análise em `06_notas/analise-fa13-email-franqueado.md`
-- etapa: aguardando_autorizacao (FA-13 analisada — análise formal entregue; FA-12 concluída 09:36)
-- autorizacao_implementacao: ausente (pendente para FA-13)
-- teste_humano: pendente (FA-13 ainda não implementada)
-- verificacao_automatica: pendente (FA-13 — provas planejadas na análise; nenhuma executada)
+- etapa: aguardando_teste_humano (FA-13 implementada v0.0.102-104, QA ✓; provas automáticas passaram)
+- autorizacao_implementacao: confirmada — 2026-10-09T09:58-03:00 — "sim" (FA-13)
+- teste_humano: pendente (FA-13 implementada — aguardando teste do champion)
+- verificacao_automatica: passou — Skip v0.0.102-104 QA ✓. Provas: 1) criação Consultoria unid. inexistente → sem_email (RN-1-19); 2) relato atualizado → sem_email; 3) PROVA REAL: e-mail "Reunião agendada — unidade 105" e "Relato da reunião — unidade 105" ENVIADOS (logs Skip: status sent, 2 emails); 4) idempotência relato (sem_mudanca, sem reenvio); 5) RN-1-05A bloqueia HTML/script; 6) 401 sem auth; 7) RLS 403 consultora donahelp→acuidar; 8) obrigatórios id/relato; 9) tipo Outro não envia; 10) agenda conjunta não envia; 11) 404 inexistente; 12) UI: botão Editar relato abre editor (donahelp, criador); fixtures limpas (0036/0037)
 - aprendizado: capturado — AP-2026-10-09-0940 (FA-12: alcance por tipo; idempotência inclui empresa). Anteriores: AP-2026-10-07-1418; AP-2026-10-07-1400; AP-2026-10-07-1355; AP-2026-10-07-1350; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-13 analisada (decisões do champion 09:52 + código real lido: unidades_proxy, ocorrencias_criar, agenda_sincronizar, Fila) — desenho em 5 pontos + 5 decisões embutidas + migration 0036; relatório entregue ao champion
-- proxima_acao: aguardar autorização do champion para implementar FA-13 ("Pode implementar")
-- atualizado_em: 2026-10-09T09:58:00-03:00
+- ultima_acao: FA-13 IMPLEMENTADA e provada (v0.0.102-104): migration 0035 (campos email_*), hook ocorrencias_relato (edição + e-mail do relato), disparo de agendamento no criar, botão "Editar relato" na Fila; 2 e-mails REAIS enviados (agendamento + relato, unidade 105 donahelp) com logs de envio no Skip
+- proxima_acao: aguardar teste humano do champion (registrar reunião na UI → conferir e-mail; editar relato → conferir e-mail)
+- atualizado_em: 2026-10-09T13:15:00-03:00
 
 ## Recorte FAROL-1 (concluído) + LT-2 + FA-8..12
 
