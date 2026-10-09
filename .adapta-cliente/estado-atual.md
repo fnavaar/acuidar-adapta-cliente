@@ -1,17 +1,17 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-17 (ata de Google Doc manual — fonte alternativa da FA-14; contas de teste sem plano Gemini)
+- task_id: FA-17 (ata de Google Doc — anexo do evento "Criar ata da reunião" OU link manual; contas de teste sem plano Gemini)
 - KILL SWITCH DE E-MAILS ATIVO (segurança 10:27, reafirmado 11:04 e 11:23): NENHUM e-mail sai. Ferramentas FA-13/14/15 registradas como DESEJADAS e PRONTAS; envio só com EMAIL_ENVIOS_HABILITADO=true (secret ausente; só o champion cria)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: champion escolheu "opção A" (12:13) — contas de teste sem plano Gemini (smartNotes indisponível); puxar Google Doc com texto da ata como rascunho. Análise em `06_notas/analise-fa17-ata-doc-manual.md`; sinal em `06_notas/sinal-fa14-fonte-alternativa-ata.md`
-- etapa: aguardando_autorizacao (FA-17 analisada — nada implementado)
-- autorizacao_implementacao: ausente (FA-17 — aguardando "Pode implementar")
-- teste_humano: pendente (FA-17 — não implementada; FA-16 aprovada "tudo ok" 11:59)
-- verificacao_automatica: pendente (FA-17 — provas planejadas na análise; nenhuma executada)
-- aprendizado: capturado — AP-2026-10-09-0940 + AP-2026-10-09-1200 (FA-16)
-- ultima_acao: FA-17 ANALISADA (06_notas/analise-fa17-ata-doc-manual.md): modo doc_manual — migration 0041 (ata_ia_fonte), hook /backend/v1/atas/puxar-doc (auth 401 → RLS 403 → criador/gestor-admin → elegibilidade → extrai ID do link /document/d/ID → renova token → Drive export text/plain → grava status=disponivel, fonte=doc_manual, doc_id, origem (texto-fonte server-only), relato_rascunho_ia; NUNCA inventa — link inválido/doc sem texto/sem permissão = falha controlada); atas_puxar (IA) seta ata_ia_fonte=meet_ia; botão "Puxar do Doc" no bloco de ata da Fila. Re-puxar SUBSTITUI o rascunho. GATE da prova real: refresh tokens com escopo drive.readonly (+meet.readonly destrava também a FA-14 original)
-- proxima_acao: aguardar autorização do champion para implementar FA-17 ("Pode implementar")
-- atualizado_em: 2026-10-09T12:15:00-03:00
+- spec: champion escolheu "opção a" (12:13) e mostrou o caso REAL (12:30): recurso nativo "Criar ata da reunião" do Calendar anexa Google Doc NATIVO ao evento (gratuito — não é a IA paga do Meet). Análise em `06_notas/analise-fa17-ata-doc-manual.md`; sinal em `06_notas/sinal-fa14-fonte-alternativa-ata.md`
+- etapa: aguardando_teste_humano (FA-17 implementada v0.0.113-115, QA ✓)
+- autorizacao_implementacao: confirmada — 2026-10-09T12:13-03:00 — "opção a" (FA-17)
+- teste_humano: pendente (FA-17 — aguardando champion; a prova real exige os gates abaixo)
+- verificacao_automatica: passou — v0.0.113-115 QA ✓. Hook puxar-doc: 401 sem auth; 404 inexistente; RLS hook (não-criador 403); link inválido → erro de formato; evento inexistente na agenda da credencial → falha controlada; Doc real do champion não compartilhado → falha 403 controlada com mensagem do que fazer. Fixture limpa (0042 → 404). FA-14 intacta (401). UI provada no navegador (botão "📎 Puxar ata" + campo opcional de link + "Puxar do link")
+- aprendizado: capturado — AP-2026-10-09-0940 + AP-2026-10-09-1200
+- ultima_acao: FA-17 IMPLEMENTADA (v0.0.113-115): hook POST /backend/v1/atas/puxar-doc com 2 modos — AUTOMÁTICO (evento da ocorrência → attachments[] com attachments=true → exporta o Doc nativo anexado, fonte='doc_anexo') e MANUAL (link colado → extrai ID /document/d/ID, fonte='doc_manual'); migration 0041 (ata_ia_fonte: meet_ia|doc_anexo|doc_manual); atas_puxar (IA) seta meet_ia; botão único "📎 Puxar ata" + campo opcional de link na Fila (v0.0.114). Re-puxar SUBSTITUI rascunho + texto-fonte. NUNCA inventa — falhas controladas com mensagem orientando o gate faltante
+- proxima_acao: aguardar teste humano do champion. GATES da prova real: (1) regravar os 2 refresh tokens com escopos drive.readonly + meet.readonly (mesmo processo da LT-1-T09 — um regrave destrava FA-17 e FA-14); (2) o evento/Doc precisa estar visível pela CONTA DA CREDENCIAL da empresa (acuidar = auxiliar1.ti.acuidar@gmail.com; donahelp = acuidar.automacao@gmail.com) — convidar a conta para a reunião OU compartilhar o Doc com ela
+- atualizado_em: 2026-10-09T12:40:00-03:00
 
 ## FA-16 — CONCLUÍDA (2026-10-09, "tudo ok" 11:59)
 
