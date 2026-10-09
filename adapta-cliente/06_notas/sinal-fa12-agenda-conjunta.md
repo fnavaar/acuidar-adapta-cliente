@@ -1,32 +1,44 @@
 # Sinal FA-12 — Agenda conjunta (Café com Franqueados / Day Fusion)
 
-**Data:** 2026-10-07 · **Origem:** Champion (Luis Carlos)
+**Data:** 2026-10-07 14:15 · **Pedido:** champion (Luis Carlos) via chat
 
-## Pedido
+## Pedido original
 
-"Assim que for marcado café com franqueados ou day fusion, pode marcar como se fosse agenda conjunta de todos os franqueados" — o registro desses tipos NÃO deve exigir unidade específica; vale para todos os franqueados.
+> "no topíco de registrar reunião, assim que for marcado café com franqueados ou day fusion, pode marcar como se fosse agenda conjunta de todos os franqueados, então a consultora não precisa marcar a unidade em especifico porque seria para todas"
 
-## Respostas do champion (14:15)
+## Respostas do champion às 5 perguntas da análise (14:15)
 
-1. **"Todas" = unidades ATIVAS** no momento do registro (não o cadastro inteiro).
-2. **Cobertura só para quem COMPARECEU** — perguntou se dá para pegar presença do Google Calendar.
-3. **Sem recorrência** — título padrão organizado definido pela consultora.
-4. **Cancelamento exige registro do motivo** (RN-1-08).
+1. **"Todas"** = todas as unidades **ATIVAS** da empresa no momento do registro.
+2. **Cobertura:** "se a unidade compareceu a reunião, então pode contar sim" — e perguntou: *"teria como você pegar o registro direto do Google Calendar pra saber se a unidade participou?"*
+3. **Recorrência:** não precisa — pode ter um **título padrão organizado definido pela consultora**.
+4. **Cancelamento:** precisa **cadastrar o porquê** (motivo).
 
-## Esclarecimento técnico (14:18)
+## Análise técnica — o que o Google Calendar tem (e o que NÃO tem)
 
-- Google Calendar NÃO tem presença real — apenas RSVP (aceitou ≠ compareceu).
-- Desenho híbrido escolhido: consultora convida os e-mails das unidades no evento do Google (Portal tem e-mail por unidade); intranet lê o RSVP como **sugestão pré-marcada**; quem define quem compareceu é a consultora, marcando presença na intranet (lista com busca — reusa o filtro da FA-11).
-- Só unidades marcadas como presentes contam na cobertura.
+- **Tem:** lista de convidados do evento (`attendees[]`) com a resposta de cada um (`responseStatus`: accepted / declined / needsAction / tentative).
+- **NÃO tem:** presença real. O Google não sabe quem efetivamente compareceu — só quem respondeu ao convite.
+- **Caminho possível (RSVP):** se a consultora convidar os e-mails das unidades (o cadastro do Portal tem campo `email` por unidade), o sistema lê via API quem ACEITOU o convite. Limitação: "aceitou o convite" ≠ "compareceu".
+- **Caminho confiável:** consultora marca a presença na intranet (lista de unidades com busca — reusa o filtro da FA-11).
+
+## Desenho proposto (a validar pelo champion)
+
+1. **Formulário de registro:** tipo Café com Franqueados / Day Fusion → campo de unidade sai; título padrão editável pela consultora (ex.: "Café com Franqueados — 15/10"); sem recorrência (cada registro é um evento único).
+2. **Ocorrência:** cria **1 ocorrência única** com marcador `agenda_conjunta` (escopo = unidades ativas no momento do registro) — NÃO cria 172 registros.
+3. **Presença:** consultora marca as unidades que COMPARECERAM (lista com busca) → **só as presentes contam na cobertura** (resposta 2 do champion).
+4. **Google Calendar:** 1 evento único; importação reconhece o marcador (extendedProperties) e não duplica; attendees opcionais (RSVP como sugestão pré-marcada, se o champion quiser na fase 2).
+5. **Cancelamento:** cancela o registro único + motivo obrigatório (RN-1-08 já existente — nunca exclui).
+
+## Decisões pendentes do champion
+
+- **Fonte da presença:** (a) manual na intranet [recomendado — confiável]; (b) RSVP do Google como sugestão pré-marcada [híbrido]; (c) só RSVP do Google [não confiável — aceitar convite ≠ comparecer].
+- **Cobertura:** confirmar que a agenda conjunta NÃO acende cobertura automática para todas — só para as marcadas como presentes.
+
+## Estado
+
+- Sinal registrado. **Análise formal + implementação só após fechamento da FA-11** (uma task por vez; FA-11 em aguardando_teste_humano).
 
 ## Alcance por tipo (corrigido 2026-10-09 09:34)
 
 - **Day Fusion:** Acuidar + Dona Help (as DUAS empresas — 1 ocorrência em cada, idempotência inclui empresa).
 - **Café com Franqueados:** só a empresa selecionada (ou Acuidar ou Dona Help).
 - Primeira versão (09:19) tinha invertido; corrigida na v0.0.101.
-
-## Regras relacionadas
-
-- RN-1-07 (SPEC F1-001): multiunidade = 1 reunião vinculada a N unidades.
-- RN-1-19 (SPEC F1-001): importação Google nunca adivinha unidade.
-- RN-1-08 (SPEC F1-002): cancelamento nunca exclui; motivo obrigatório.
