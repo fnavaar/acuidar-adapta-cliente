@@ -1,16 +1,16 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-12 (agenda conjunta Café com Franqueados/Day Fusion — registro sem unidade + presença por unidade)
+- task_id: FA-13 (e-mail automático ao franqueado: agendamento + relato)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: pedido do champion 2026-10-07 14:15 ("assim que for marcado café com franqueados ou day fusion, pode marcar como se fosse agenda conjunta de todos os franqueados"); análise em `06_notas/analise-fa12-agenda-conjunta.md`
-- etapa: concluida (FA-12 implementada v0.0.97-101 e aprovada pelo champion "ok tudo certo" 2026-10-09 09:36)
-- autorizacao_implementacao: confirmada — 2026-10-09T08:59-03:00 — "sim" (FA-12; FA-11 autorizada 2026-10-07T13:58 "Pode implementar")
-- teste_humano: aprovado — 2026-10-09T09:36-03:00 — "ok tudo certo" (após correção do alcance por tipo na v0.0.101: Day Fusion = 2 empresas; Café com Franqueados = 1)
-- verificacao_automatica: passou — Skip v0.0.97-101 QA ✓ (lint + build + teste + integrações de hook). Provas de código: NovaReuniao.tsx com `duasEmpresas = tipo === 'Day Fusion'`; hook ocorrencias_criar com idempotência incluindo empresa; Fila carrega unidades por `oc.empresa`; aviso da tela correto por tipo
-- aprendizado: capturado — AP-2026-10-09-0940-escopo-por-tipo-reuniao-conjunta (alcance de agenda conjunta varia por tipo: Day Fusion = 2 empresas, Café = 1; validar alcance por tipo ANTES de implementar; idempotência de N registros por empresa inclui a empresa na chave). Anteriores: AP-2026-10-07-1418; AP-2026-10-07-1400; AP-2026-10-07-1355; AP-2026-10-07-1350; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-12 CONCLUÍDA — implementada (v0.0.97-101, QA ✓) e aprovada pelo champion ("ok tudo certo" 09:36). Registro de Café com Franqueados/Day Fusion vira agenda conjunta sem unidade; Day Fusion cria 1 ocorrência em CADA empresa autorizada; presença marcada na fila (só presentes contam na cobertura); sync Google com attendees; idempotência por empresa
-- proxima_acao: sem task ativa — aguardar novo pedido do champion (pendências: validação do consultor, rotação de credenciais, produção)
-- atualizado_em: 2026-10-09T09:42:00-03:00
+- spec: pedido do champion 2026-10-09 09:52 ("enviar email assim que registrar/agendar a reunião para o email de franquia da unidade e também quando o relato for cadastrado"); análise em `06_notas/analise-fa13-email-franqueado.md`
+- etapa: aguardando_autorizacao (FA-13 analisada — análise formal entregue; FA-12 concluída 09:36)
+- autorizacao_implementacao: ausente (pendente para FA-13)
+- teste_humano: pendente (FA-13 ainda não implementada)
+- verificacao_automatica: pendente (FA-13 — provas planejadas na análise; nenhuma executada)
+- aprendizado: capturado — AP-2026-10-09-0940 (FA-12: alcance por tipo; idempotência inclui empresa). Anteriores: AP-2026-10-07-1418; AP-2026-10-07-1400; AP-2026-10-07-1355; AP-2026-10-07-1350; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
+- ultima_acao: FA-13 analisada (decisões do champion 09:52 + código real lido: unidades_proxy, ocorrencias_criar, agenda_sincronizar, Fila) — desenho em 5 pontos + 5 decisões embutidas + migration 0036; relatório entregue ao champion
+- proxima_acao: aguardar autorização do champion para implementar FA-13 ("Pode implementar")
+- atualizado_em: 2026-10-09T09:58:00-03:00
 
 ## Recorte FAROL-1 (concluído) + LT-2 + FA-8..12
 
