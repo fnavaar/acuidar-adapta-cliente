@@ -36,9 +36,3 @@
 ## Estado
 
 - Sinal registrado. **Análise formal + implementação só após fechamento da FA-11** (uma task por vez; FA-11 em aguardando_teste_humano).
-
-## Alcance por tipo (corrigido 2026-10-09 09:34)
-
-- **Day Fusion:** Acuidar + Dona Help (as DUAS empresas — 1 ocorrência em cada, idempotência inclui empresa).
-- **Café com Franqueados:** só a empresa selecionada (ou Acuidar ou Dona Help).
-- Primeira versão (09:19) tinha invertido; corrigida na v0.0.101.
