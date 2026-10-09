@@ -1,16 +1,21 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-13 (e-mail automático ao franqueado: agendamento + relato)
+- task_id: FA-14 (ata inteligente do Google Meet → rascunho validado pela consultora antes de virar relato)
+- KILL SWITCH DE E-MAILS ATIVO (segurança 10:27): nenhum e-mail é enviado até EMAIL_ENVIOS_HABILITADO === 'true' no Secrets (ausente hoje) — provado em unidade real 105 (campos vazios; log de e-mails sem novos envios)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: pedido do champion 2026-10-09 09:52 ("enviar email assim que registrar/agendar a reunião para o email de franquia da unidade e também quando o relato for cadastrado"); análise em `06_notas/analise-fa13-email-franqueado.md`
-- etapa: aguardando_teste_humano (FA-13 implementada v0.0.102-104, QA ✓; provas automáticas passaram)
-- autorizacao_implementacao: confirmada — 2026-10-09T09:58-03:00 — "sim" (FA-13)
-- teste_humano: pendente (FA-13 implementada — aguardando teste do champion)
-- verificacao_automatica: passou — Skip v0.0.102-104 QA ✓. Provas: 1) criação Consultoria unid. inexistente → sem_email (RN-1-19); 2) relato atualizado → sem_email; 3) PROVA REAL: e-mail "Reunião agendada — unidade 105" e "Relato da reunião — unidade 105" ENVIADOS (logs Skip: status sent, 2 emails); 4) idempotência relato (sem_mudanca, sem reenvio); 5) RN-1-05A bloqueia HTML/script; 6) 401 sem auth; 7) RLS 403 consultora donahelp→acuidar; 8) obrigatórios id/relato; 9) tipo Outro não envia; 10) agenda conjunta não envia; 11) 404 inexistente; 12) UI: botão Editar relato abre editor (donahelp, criador); fixtures limpas (0036/0037)
-- aprendizado: capturado — AP-2026-10-09-0940 (FA-12: alcance por tipo; idempotência inclui empresa). Anteriores: AP-2026-10-07-1418; AP-2026-10-07-1400; AP-2026-10-07-1355; AP-2026-10-07-1350; AP-2026-10-07-1325; AP-2026-10-07-1320; AP-2026-10-07-1300; AP-2026-10-07-1215 + AP-2026-10-07-1240; AP-2026-10-06-1258/1310/1710
-- ultima_acao: FA-13 IMPLEMENTADA e provada (v0.0.102-104): migration 0035 (campos email_*), hook ocorrencias_relato (edição + e-mail do relato), disparo de agendamento no criar, botão "Editar relato" na Fila; 2 e-mails REAIS enviados (agendamento + relato, unidade 105 donahelp) com logs de envio no Skip
-- proxima_acao: aguardar teste humano do champion (registrar reunião na UI → conferir e-mail; editar relato → conferir e-mail)
-- atualizado_em: 2026-10-09T13:15:00-03:00
+- spec: pedido do champion 2026-10-09 09:52/10:20 ("o sistema deve puxar a ata que a IA do Google Meet gera e a consultora valida antes de salvar"; fonte = Ata inteligente/resumo IA/Gemini); análise em `06_notas/analise-fa14-ata-ia-relato.md`
+- etapa: aguardando_teste_humano (FA-14 implementada v0.0.105-108, QA ✓; provas automáticas passaram)
+- autorizacao_implementacao: confirmada — 2026-10-09T10:27-03:00 — "sim" (FA-14; com kill switch de e-mails)
+- teste_humano: pendente (FA-14 implementada — aguardando teste do champion)
+- verificacao_automatica: passou — v0.0.105-108 QA ✓. Kill switch e-mails PROVADO (Acompanhamento unidade real 105 pós-switch → email_* vazio; log Skip sem novos envios; relato idem). FA-14 provas: atas_puxar sem vínculo → falha controlada (não inventa); 401 sem auth; 404 inexistente; RLS 403 acuidar; não-elegível (conferencia) → erro de escopo; migration 0038 aplicada (campos ata_ia_*). Fixtures limpas (0039)
+- aprendizado: capturado — AP-2026-10-09-0940 (FA-12: alcance por tipo; idempotência inclui empresa) + AP-2026-10-09-1018 (FA-13 pausada pelo champion no teste humano — não concluir por inferência)
+- ultima_acao: FA-14 IMPLEMENTADA e provada (v0.0.105-108): kill switch de e-mails aplicado (EMAIL_ENVIOS_HABILITADO ausente = 0 envios; provado em unidade real 105) + hook POST /backend/v1/atas/puxar (Meet API smartNotes → doc da ata → rascunho validável; nunca inventa; RLS/permissão/idempotência) + migration 0038 (ata_ia_status/erro/doc_id/origem/relato_rascunho_ia) + bloco '📝 Ata da reunião (IA)' na Fila (Puxar → rascunho editável → validar/salvar)
+- proxima_acao: aguardar teste humano do champion (regravar refresh tokens com escopos meet.readonly+drive.readonly → registrar reunião real com Meet IA → 'Puxar ata' → validar/salvar). E-mail continua DESLIGADO até autorização explícita
+- atualizado_em: 2026-10-09T14:10:00-03:00
+
+## FA-13 (pausada — não concluída)
+
+- FA-13 implementada e provada (v0.0.102-104, QA ✓; 2 e-mails reais enviados: "Reunião agendada — unidade 105" e "Relato da reunião — unidade 105", status sent no log do Skip). **Pausada no teste humano por decisão do champion (10:17: "não quero testar agora").** Não concluída; retomável a qualquer momento.
 
 ## Recorte FAROL-1 (concluído) + LT-2 + FA-8..12
 
