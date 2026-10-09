@@ -1,1 +1,73 @@
-- 2026-10-09 · Ethos · FA-15 implementada e provada (Skip v0.0.109-110, QA ✓; aguardando_teste_humano): notificação à consultora para ler o resumo e confirmar — SEM nenhum envio de e-mail (instrução do champion). Hook GET /backend/v1/notificacoes/pendencias (conta Acompanhamento/Consultoria com ata_ia_status='disponivel' aguardando validação; RLS por empresa; 401 sem auth), badge no item 'Fila de ocorrências' do Layout (recarrega por navegação; some ao zerar), marca "📝 ata pronta — aguardando sua leitura" no item pendente, salvar relato → ata vira 'aproveitada' (pendência fecha) e email_relato_estado/email_agenda_estado = 'pronto_para_envio' com motivo "Envio bloqueado: EMAIL_ENVIOS_HABILITADO ausente (fase de teste)". PROVA: salvar relato → pronto_para_envio nos 2 campos; log de e-mails do Skip SEM novos envios (só os 2 da prova da FA-13, anteriores à instrução); pendências 0 sem ata; 401; fixtures limpas (0040). Quando o champion criar EMAIL_ENVIOS_HABILITADO=true nos Secrets, o fluxo da FA-13 envia normalmente.
+# Changelog — Projeto Acuidar Franquias
+
+> Registro de tudo que acontece no projeto, em ordem cronológica inversa (mais recente no topo).
+> Formato: `- AAAA-MM-DD · [quem] · o que aconteceu`
+> **Dúvidas para o consultor** entram como: `- AAAA-MM-DD · [quem] · DÚVIDA: …` — ele responde
+> na próxima sincronização.
+
+## Registro
+- 2026-10-09 · Ethos · FA-15 implementada e provada (Skip v0.0.109-110, QA ✓; aguardando_teste_humano): notificação à consultora para ler o resumo e confirmar — SEM nenhum envio de e-mail (instrução do champion 11:04). Hook GET /backend/v1/notificacoes/pendencias (conta Acompanhamento/Consultoria com ata_ia_status='disponivel' aguardando validação; RLS por empresa; 401 sem auth), badge no item 'Fila de ocorrências' do Layout (recarrega por navegação; some ao zerar), marca "📝 ata pronta — aguardando sua leitura" no item pendente, salvar relato → ata vira 'aproveitada' (pendência fecha) e email_relato_estado/email_agenda_estado = 'pronto_para_envio' com motivo "Envio bloqueado: EMAIL_ENVIOS_HABILITADO ausente (fase de teste)". PROVA: salvar relato → pronto_para_envio nos 2 campos; log de e-mails do Skip SEM novos envios (só os 2 da prova da FA-13, anteriores à instrução); pendências 0 sem ata; 401; fixtures limpas (0040). Quando o champion criar EMAIL_ENVIOS_HABILITADO=true nos Secrets, o fluxo da FA-13 envia normalmente.
+- 2026-10-09 · Ethos · FA-14 implementada e provada (Skip v0.0.105-108, QA ✓; aguardando_teste_humano): ata inteligente do Google Meet (IA/Gemini) como rascunho de relato validado pela consultora — autorizada 10:27 com instrução CRÍTICA de não enviar e-mail em fase de teste. SEGURANÇA: kill switch de e-mails (EMAIL_ENVIOS_HABILITADO ausente no Secrets = 0 envios; aplicado nos 2 pontos de envio da FA-13 e provado em unidade real 105 — email_* vazio, log Skip sem novos envios). FA-14: migration 0038 (ata_ia_status/erro/doc_id/origem + relato_rascunho_ia), hook POST /backend/v1/atas/puxar (Calendar → conferenceId Meet → conferenceRecords.smartNotes FILE_GENERATED → docsDestination → export texto do doc; nunca inventa conteúdo; ausente/escopo_insuficiente controlados; RLS por empresa + criador/gestor-admin; credencial por empresa com renovação on-demand), bloco "📝 Ata da reunião (IA)" na Fila (Puxar → rascunho editável → validar/salvar; nada é gravado sem validação). Provas: kill switch (agendamento+relato, unidade real 105, 0 emails), atas_puxar sem vínculo → falha controlada, 401, 404, RLS 403, não-elegível → erro de escopo, migration aplicada. Fixtures limpas (0039). Gate humano: regravar refresh tokens com escopos meet.readonly + drive.readonly (passo a passo) para a prova real da ata.
+- 2026-10-09 · Ethos · FA-13 implementada e provada (Skip v0.0.102-104, QA ✓; aguardando_teste_humano): e-mail automático ao franqueado (decisões do champion 09:52) — migration 0035 (7 campos email_* na ocorrências), disparo de e-mail de AGENDAMENTO no ocorrencias_criar (só entrada assistida confirmada, Acompanhamento/Consultoria, não-conjunta; e-mail da unidade server-side no Portal; sem e-mail → sem_email, RN-1-19), hook novo POST /backend/v1/ocorrencias/relato (edição do relato com RN-1-05A + RLS empresa + permissão criador/gestor-admin + idempotência por hash) que envia o e-mail do RELATO, botão "✏️ Editar relato" na Fila com status de envio. PROVA REAL: 2 e-mails ENVIADOS e confirmados no log do Skip ("Reunião agendada — unidade 105" e "Relato da reunião — unidade 105", status sent) — unidade real 105 (Dona Help) — ANTES da instrução do champion de bloquear envios. Provas: sem_email unidade inexistente; idempotência (sem_mudanca, sem reenvio); RN-1-05A bloqueia HTML/script; 401; RLS 403; obrigatórios; tipo Outro/agenda conjunta não enviam; 404; UI. Fixtures limpas (0036/0037).
+- 2026-10-09 · Champion (Luis Carlos) · Task FA-12 concluída: agenda conjunta para Café com Franqueados/Day Fusion — registro sem unidade (1 ocorrência única com marcador agenda_conjunta), presença marcada pela consultora na fila (RSVP Google como sugestão pré-marcada), só presentes contam na cobertura, cancelamento com motivo. Alcance por tipo (decisão 09:34): Day Fusion = Acuidar + Dona Help (1 ocorrência em cada, idempotência inclui empresa); Café com Franqueados = só a empresa selecionada. Skip v0.0.97-101 QA ✓. Aprovado pelo champion ("ok tudo certo" 09:36). AP-2026-10-09-0940.
+- 2026-10-07 · Ethos · FA-11 implementada (Skip v0.0.92-93, QA ✓): filtro de busca no painel de cobertura — código/nome/cidade, case/acento insensível, contador, estado vazio. 100% frontend, backend INTACTO. Bug: apply_changes production mode (v0.0.93).
+- 2026-10-07 · Champion (Luis Carlos) · Task FA-10 concluída ("testei e funcionou" 13:50). Revalidação 7/7 (Skip v0.0.89-91). AP-2026-10-07-1355.
+- 2026-10-07 · Ethos · FA-10 implementada (Skip v0.0.89-91): agenda em CALENDÁRIO mensal — hook agenda/mes + grade com quadrados.
+- 2026-10-07 · Champion (Luis Carlos) · Task FA-9 concluída ("Testei e funcionou" 13:47). Revalidação 8/8 (Skip v0.0.88). AP-2026-10-07-1350.
+- 2026-10-07 · Ethos · FA-9 implementada (Skip v0.0.88): sync automático pós-confirmação (useRef 1 disparo; retry).
+- 2026-10-07 · Champion (Luis Carlos) · Task FA-8 concluída ("Testei e funcionou" 13:19). Revalidação 6/6 (Skip v0.0.84-86). AP-2026-10-07-1325.
+- 2026-10-07 · Ethos · FA-8 implementada (Skip v0.0.84-86): tela AGENDA — hook agenda/dia (Agendadas/Feitas, RLS, quem registrou).
+- 2026-10-07 · Champion (Luis Carlos) · Task LT-2-T02 concluída ("Testei e funcionou" 13:03). Revalidação 4/4 (Skip v0.0.81-83). Bug: fetch no Login cancelado — movido ao Layout (AP-2026-10-07-1320).
+- 2026-10-07 · Ethos · FA-7 CONCLUÍDA ("a FA-7 funcionou" 12:55). FAROL-1 completo (FA-1..FA-7). AP-2026-10-07-1300.
+- 2026-10-07 · Ethos · LT-2-T02 implementada (Skip v0.0.81-83): importação ao logar (Layout, fire-and-forget).
+- 2026-10-07 · Champion (Luis Carlos) · Task FA-7 concluída ("a FA-7 funcionou" 12:55). Revalidação 5/5 (Skip v0.0.77-80).
+- 2026-10-07 · Ethos · FA-7 implementada (Skip v0.0.77-80): gráficos + status + mapa no farol. Bug: fato futuro (v0.0.78).
+- 2026-10-07 · Champion (Luis Carlos) · Task LT-2-T01 concluída ("Testei e funcionou" 12:30). Revalidação 12/12 (Skip v0.0.76). AP-1215/AP-1240.
+- 2026-10-07 · Ethos · PROVA REAL DA ESCRITA PASSOU (v0.0.74-75): eventos criados nas 2 agendas; markers ok; bug data_fato corrigido.
+- 2026-10-07 · Ethos · Passo a passo dos refresh tokens calendar.events entregue (06_notas/passo-a-passo-refresh-tokens-calendar-events.md).
+- 2026-10-07 · Ethos · LT-2-T01 implementada (Skip v0.0.71-73): hook sincronizar + migration 0026 + anti-duplicidade.
+- 2026-10-07 · Champion (Luis Carlos) · Gates resolvidos (11:58): CARGA 2026 APROVADA; LT-2-T01 AUTORIZADA.
+- 2026-10-07 · Ethos · CARGA 2026 RODADA (Skip v0.0.70): 61 avaliações; farol acendeu (verde 32/9). Bug toLocaleString (AP-1710).
+- 2026-10-07 · Champion (Luis Carlos) · Gate da carga 2026 RESOLVIDO: 7 vínculos especiais aprovados.
+- 2026-10-07 · Ethos · LT-2-T01 selecionada e analisada (escrita intranet→Google).
+- 2026-10-07 · Ethos · FAROL-1 / FA-5 + FA-6 CONCLUÍDAS ("aprovo" + "tudo ok" 10:51).
+- 2026-10-07 · Ethos · FA-6 implementada (Skip v0.0.68): farol UNICAMENTE PECAF/PEDHE; bug rótulo (v0.0.69).
+- 2026-10-06 · Champion (Luis Carlos) · Task FA-2 (FAROL-1) concluída ("ok"): formulário PECAF/PEDHE com cálculo automático (Skip v0.0.54-59). Bugs pefcab→pecaf e number required (0018).
+- 2026-10-06 · Champion (Luis Carlos) · Task FA-1 (FAROL-1) concluída ("ok pode prosseguir"): Farol das Unidades — mapa de acompanhamento (Skip v0.0.51-53).
+- 2026-10-06 · Champion (Luis Carlos) · Task LT-1-T10 concluída ("pode ser"): fechamento formal da fase 1 — 18/18 CAs com evidência; validação do consultor pendente.
+- 2026-10-06 · Ethos · Task LT-1-T10 implementada: fechamento formal (documentação; append-only).
+- 2026-10-06 · Champion (Luis Carlos) · Task LT-1-T09 concluída ("tudo certo"): refresh token automático on-demand (Skip v0.0.50). Refresh truncado/client errado corrigidos pelo champion. AP-2026-10-06-1045.
+- 2026-10-06 · Champion (Luis Carlos) · Task LT-1-T08 concluída ("tudo ok"): conector multiempresa — credencial por empresa. Decisão (B): cancelado sem unidade → conferencia. AP-2026-10-06-0905.
+- 2026-10-06 · Champion (Luis Carlos) · Task LT-1-T07 concluída ("testei e aprovou" 13:57): conector do Google Agenda (Skip v0.0.30-37). Bugs URL/showDeleted. AP-2026-10-05-1400.
+- 2026-10-05 · Ethos · Debug LT-1-T07: URL corrigida (/calendars/primary/events); showDeleted=true (v0.0.31/35).
+- 2026-10-05 · Champion (Luis Carlos) · Teste humano LT-1-T07 aprovado ("testei e aprovou" 13:57) — leva técnica 7/7 COMPLETA.
+- 2026-10-05 · Ethos · Prova REAL completa LT-1-T07 (admin-teste): 2 importadas + 2 sem_unidade; idempotente; RLS. Fixtures limpas (0010).
+- 2026-10-05 · Ethos · Debug LT-1-T07 rodada 1: URL errada (404 HTML) → v0.0.31.
+- 2026-10-05 · Champion (Luis Carlos) · Credencial Google gravada (GOOGLE_CALENDAR_TOKEN) — conta auxiliar1.ti.acuidar@gmail.com, app "ethos" modo Teste.
+- 2026-10-05 · Ethos · Passo a passo da credencial Google entregue (OAuth Playground; access_denied corrigido).
+- 2026-10-05 · Ethos · Debug LT-1-T07 rodada 2: showDeleted=true (v0.0.35).
+- 2026-10-05 · Champion (Luis Carlos) · Token Google expirou (~1h) — virou LT-1-T09.
+- 2026-10-05 · Ethos · LT-1-T07 implementada (v0.0.30): hook agenda/importar + tela /agenda. 8 provas.
+- 2026-10-05 · Champion (Luis Carlos) · LT-1-T07 selecionada (conector Google Agenda).
+- 2026-10-02 · Champion (Luis Carlos) · Task LT-1-T06 concluída ("tudo ok"): RLS por empresa (0007/0008; 3 hooks 403). Bug burla (v0.0.26). AP-1620.
+- 2026-10-02 · Ethos · Task LT-1-T06 implementada: RLS por empresa — migrations 0007/0008, validação server-side, frontend limitado (Skip v0.0.26-28).
+- 2026-10-02 · Champion (Luis Carlos) · Task LT-1-T05 concluída ("tudo ok"): emendas multiempresa (append-only); hook temporário removido; 27 fixtures limpas (banco 3 reais).
+- 2026-10-02 · Ethos · Task LT-1-T05 implementada: emendas multiempresa + limpeza (Skip v0.0.24-25).
+- 2026-10-02 · Ethos · Task LT-1-T04 concluída: painel de cobertura (Skip v0.0.22).
+- 2026-10-02 · Ethos · Task LT-1-T03 implementada: fila de revisão/aprovação (Skip v0.0.20).
+- 2026-10-02 · Ethos · Task LT-1-T02 implementada: registro de reunião → ocorrência (Skip v0.0.12).
+- 2026-10-02 · Champion (Luis Carlos) · Leva técnica autorizada ("pode implementar a leva técnica") — LT-1-T01..T04.
+- 2026-09-30 · Champion (Luis Carlos) · Emenda de arquitetura aprovada: intranet = superfície; Portal = somente leitura; multiempresa.
+- 2026-09-30 · Ethos · Contrato da API Dona Help VALIDADO (array direto, 45 unidades, token puro).
+- 2026-09-30 · Ethos · Sondagem Dona Help: erro de auth idêntico ao padrão Acuidar.
+- 2026-09-30 · Champion (Luis Carlos) · Sinal multiempresa (Dona Help).
+- 2026-09-30 · Champion (Luis Carlos) · Fase 1 de desbloqueio COMPLETA (8/8).
+- 2026-09-30 · Ethos · Task F1-T08 concluída: mapa de fontes do painel (06_notas/mapa-fontes-painel.md).
+- 2026-09-30 · Ethos · Regressão F1-T08: listagem sem auth = 200 vazia; GET = 404; delete = 403.
+- 2026-09-30 · Ethos · Task F1-T04 concluída: matriz de perfis e RLS (3 perfis × 5 permissões).
+- 2026-09-30 · Ethos · Task F1-T06 concluída: idempotência e recuperação (0001; 7 estados).
+- 2026-09-30 · Ethos · Task F1-T03 concluída: autorização de superfície técnica.
+- 2026-09-30 · Ethos · Task F1-T01 concluída: contrato da API do Portal Acuidar validado (172 unidades; token puro).
+- 2026-08-28 · Champion (Luis Carlos) · Task F1-T05 concluída: política de exceção de data (RN-1-11..14).
+- 2026-08-27 · Champion (Luis Carlos) · Task F1-T02 concluída: regras de negócio.
+- 2026-08-21 · Champion (Luis Carlos) · Projeto iniciado: Fase 1 — Registro mínimo confiável e cobertura operacional.
