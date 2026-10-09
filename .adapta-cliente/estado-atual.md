@@ -1,21 +1,25 @@
 # Estado atual — Adapta Cliente
 
-- task_id: FA-14 (ata inteligente do Google Meet → rascunho validado pela consultora antes de virar relato)
-- KILL SWITCH DE E-MAILS ATIVO (segurança 10:27): nenhum e-mail é enviado até EMAIL_ENVIOS_HABILITADO === 'true' no Secrets (ausente hoje) — provado em unidade real 105 (campos vazios; log de e-mails sem novos envios)
+- task_id: FA-15 (notificação à consultora: ler resumo → confirmar → e-mail da unidade PRONTO sem enviar)
+- KILL SWITCH DE E-MAILS ATIVO (segurança 10:27, reafirmado 11:04): nenhum e-mail é enviado até EMAIL_ENVIOS_HABILITADO === 'true' no Secrets (ausente hoje) — provado em unidade real 105 (campos vazios/pronto_para_envio; log de e-mails sem novos envios)
 - champion: Luis Carlos - CTO (exerce também o papel de Administrador do Portal e Responsável técnico; mesmo champion para Acuidar e Dona Help)
-- spec: pedido do champion 2026-10-09 09:52/10:20 ("o sistema deve puxar a ata que a IA do Google Meet gera e a consultora valida antes de salvar"; fonte = Ata inteligente/resumo IA/Gemini); análise em `06_notas/analise-fa14-ata-ia-relato.md`
-- etapa: aguardando_teste_humano (FA-14 implementada v0.0.105-108, QA ✓; provas automáticas passaram)
-- autorizacao_implementacao: confirmada — 2026-10-09T10:27-03:00 — "sim" (FA-14; com kill switch de e-mails)
-- teste_humano: pendente (FA-14 implementada — aguardando teste do champion)
-- verificacao_automatica: passou — v0.0.105-108 QA ✓. Kill switch e-mails PROVADO (Acompanhamento unidade real 105 pós-switch → email_* vazio; log Skip sem novos envios; relato idem). FA-14 provas: atas_puxar sem vínculo → falha controlada (não inventa); 401 sem auth; 404 inexistente; RLS 403 acuidar; não-elegível (conferencia) → erro de escopo; migration 0038 aplicada (campos ata_ia_*). Fixtures limpas (0039)
-- aprendizado: capturado — AP-2026-10-09-0940 (FA-12: alcance por tipo; idempotência inclui empresa) + AP-2026-10-09-1018 (FA-13 pausada pelo champion no teste humano — não concluir por inferência)
-- ultima_acao: FA-14 IMPLEMENTADA e provada (v0.0.105-108): kill switch de e-mails aplicado (EMAIL_ENVIOS_HABILITADO ausente = 0 envios; provado em unidade real 105) + hook POST /backend/v1/atas/puxar (Meet API smartNotes → doc da ata → rascunho validável; nunca inventa; RLS/permissão/idempotência) + migration 0038 (ata_ia_status/erro/doc_id/origem/relato_rascunho_ia) + bloco '📝 Ata da reunião (IA)' na Fila (Puxar → rascunho editável → validar/salvar)
-- proxima_acao: aguardar teste humano do champion (regravar refresh tokens com escopos meet.readonly+drive.readonly → registrar reunião real com Meet IA → 'Puxar ata' → validar/salvar). E-mail continua DESLIGADO até autorização explícita
-- atualizado_em: 2026-10-09T14:10:00-03:00
+- spec: pedido do champion 2026-10-09 11:04 ("notificação pra consultora ler o resumo e confirmar e enviar o email da unidade... mas não quero que nenhum email seja enviado"; só implementação); análise em `06_notas/analise-fa15-notificacao-consultora.md`
+- etapa: aguardando_teste_humano (FA-15 implementada v0.0.109-110, QA ✓; provas automáticas passaram)
+- autorizacao_implementacao: confirmada — 2026-10-09T11:07-03:00 — "Pode implementar FA-15"
+- teste_humano: pendente (FA-15 implementada — aguardando teste do champion)
+- verificacao_automatica: passou — v0.0.109-110 QA ✓. Provas: pendências 0 sem ata (hook); salvar relato → email_relato_estado + email_agenda_estado = 'pronto_para_envio' com motivo (kill switch); log Skip SEM novos e-mails (2 antigos apenas); 401 sem auth; fixtures limpas (0040); UI carregada sem badge com 0 pendências (correto)
+- aprendizado: capturado — AP-2026-10-09-0940 + AP-2026-10-09-1018
+- ultima_acao: FA-15 IMPLEMENTADA e provada (v0.0.109-110): hook GET /backend/v1/notificacoes/pendencias (RLS por empresa; conta ata disponível aguardando leitura), badge no item Fila do Layout (recarrega por navegação), marca '📝 ata pronta' no item pendente, salvar relato → ata vira 'aproveitada' (fecha pendência) + email_* = 'pronto_para_envio' (NUNCA envia — kill switch)
+- proxima_acao: aguardar teste humano do champion (ata real disponível → badge na Fila → ler → salvar relato → badge some + 'pronto para envio'; NENHUM e-mail sai). Ativação de envios = champion cria EMAIL_ENVIOS_HABILITADO=true
+- atualizado_em: 2026-10-09T11:30:00-03:00
+
+## FA-14 (pausada — não concluída)
+
+- FA-14 implementada e provada (v0.0.105-108, QA ✓; hook atas/puxar + bloco '📝 Ata da reunião (IA)' na Fila). **Pausada no teste humano por decisão do champion (10:17: 'não quero testar agora').** Gate da prova real: refresh tokens com escopos meet.readonly + drive.readonly (regravar nos mesmos secrets; passo a passo disponível).
 
 ## FA-13 (pausada — não concluída)
 
-- FA-13 implementada e provada (v0.0.102-104, QA ✓; 2 e-mails reais enviados: "Reunião agendada — unidade 105" e "Relato da reunião — unidade 105", status sent no log do Skip). **Pausada no teste humano por decisão do champion (10:17: "não quero testar agora").** Não concluída; retomável a qualquer momento.
+- FA-13 implementada e provada (v0.0.102-104, QA ✓; 2 e-mails reais enviados ANTES da instrução do champion — log Skip). **Pausada no teste humano por decisão do champion (10:17).** Com kill switch ativo: 0 envios; quando o champion criar EMAIL_ENVIOS_HABILITADO=true, o fluxo envia normalmente.
 
 ## Recorte FAROL-1 (concluído) + LT-2 + FA-8..12
 
